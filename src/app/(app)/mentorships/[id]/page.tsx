@@ -21,6 +21,10 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
   // La conversation existe pour un mentorat actif (écriture) ou terminé (lecture seule)
   const hasChat = mentorship.status === "accepted" || mentorship.status === "ended";
   const messages = hasChat ? await getMessages(mentorship.id) : [];
+  const names = {
+    [mentorship.mentor.id]: mentorship.mentor.full_name,
+    [mentorship.mentee.id]: mentorship.mentee.full_name,
+  };
 
   return (
     <>
@@ -34,10 +38,7 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
             <Chat
               mentorshipId={mentorship.id}
               currentUserId={profile.id}
-              names={{
-                [mentorship.mentor.id]: mentorship.mentor.full_name,
-                [mentorship.mentee.id]: mentorship.mentee.full_name,
-              }}
+              names={names}
               initialMessages={messages}
               canWrite={mentorship.status === "accepted"}
             />
@@ -51,13 +52,15 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
             <SessionsPanel
               mentorshipId={mentorship.id}
               isActive={mentorship.status === "accepted"}
+              currentUserId={profile.id}
+              names={names}
             />
-            <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
             <ComingSoon
               task="T10"
               title="Objectifs"
               items={["Ajouter et cocher des objectifs", "Barre de progression"]}
             />
+            <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
           </div>
         )}
       </div>

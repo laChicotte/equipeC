@@ -1,7 +1,7 @@
 // Lectures des séances (côté serveur). RLS : uniquement les séances
 // des mentorats dont on est participant.
 import { createClient } from "@/lib/supabase/server";
-import type { Session } from "@/types/database";
+import type { Session, SessionReview } from "@/types/database";
 
 const SESSION_COLUMNS =
   "id, mentorship_id, scheduled_at, duration_min, topic, meeting_url, status, created_by, created_at";
@@ -41,6 +41,17 @@ export async function getSessions(mentorshipId: string): Promise<SessionWithPhas
     .order("scheduled_at");
   const now = Date.now();
   return ((data ?? []) as Session[]).map((s) => withPhase(s, now));
+}
+
+/** Évaluations des séances données (RLS : visibles par les participants). */
+export async function getReviewsForSessions(sessionIds: string[]): Promise<SessionReview[]> {
+  if (sessionIds.length === 0) return [];
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("session_reviews")
+    .select("id, session_id, reviewer_id, rating, comment, created_at")
+    .in("session_id", sessionIds);
+  return (data ?? []) as SessionReview[];
 }
 
 export type UpcomingSession = SessionWithPhase & {

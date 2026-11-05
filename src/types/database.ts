@@ -36,6 +36,15 @@ export type Session = {
   created_at: string;
 };
 
+export type SessionReview = {
+  id: string;
+  session_id: string;
+  reviewer_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+};
+
 export type Message = {
   id: number;
   mentorship_id: string;

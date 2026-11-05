@@ -1,6 +1,8 @@
 import { cancelSession } from "../actions";
 import { DURATION_LABELS } from "../constants";
 import type { SessionWithPhase } from "../queries";
+import { ReviewForm } from "./ReviewForm";
+import type { SessionReview } from "@/types/database";
 import { Badge } from "@/components/ui/Badge";
 import { buttonClasses } from "@/components/ui/Button";
 import { formatDateTime } from "@/lib/datetime";
@@ -27,13 +29,66 @@ const PHASE_BADGE = {
   cancelled: <Badge>Annulée</Badge>,
 };
 
+function Stars({ rating }: { rating: number }) {
+  return (
+    <span aria-label={`${rating} sur 5`} className="tracking-tight text-accent-500">
+      {"★".repeat(rating)}
+      <span className="text-zinc-300">{"★".repeat(5 - rating)}</span>
+    </span>
+  );
+}
+
+/** Avis donnés sur une séance passée + formulaire si je n'ai pas encore noté. */
+function ReviewsBlock({
+  session,
+  reviews,
+  currentUserId,
+  names,
+}: {
+  session: SessionWithPhase;
+  reviews: SessionReview[];
+  currentUserId: string;
+  names: Record<string, string>;
+}) {
+  const mine = reviews.find((r) => r.reviewer_id === currentUserId);
+  const others = reviews.filter((r) => r.reviewer_id !== currentUserId);
+
+  return (
+    <div className="flex flex-col gap-2 text-sm">
+      {mine ? (
+        <p>
+          <span className="text-zinc-600">Votre avis : </span>
+          <Stars rating={mine.rating} />
+          {mine.comment && <span className="text-zinc-600"> — {mine.comment}</span>}
+        </p>
+      ) : (
+        <ReviewForm sessionId={session.id} mentorshipId={session.mentorship_id} />
+      )}
+      {others.map((r) => (
+        <p key={r.id}>
+          <span className="text-zinc-600">Avis de {names[r.reviewer_id] ?? "l'autre participant"} : </span>
+          <Stars rating={r.rating} />
+          {r.comment && <span className="text-zinc-600"> — {r.comment}</span>}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 /** Une séance dans l'espace de mentorat. */
 export function SessionItem({
   session,
   canManage,
+  reviews = [],
+  currentUserId,
+  names = {},
 }: {
   session: SessionWithPhase;
   canManage: boolean;
+  reviews?: SessionReview[];
+  /** Fourni pour afficher/permettre l'évaluation des séances passées */
+  currentUserId?: string;
+  names?: Record<string, string>;
 }) {
   const open = session.phase === "upcoming" || session.phase === "live";
   const duration =
@@ -74,6 +129,15 @@ export function SessionItem({
             </form>
           )}
         </div>
+      )}
+
+      {session.phase === "past" && currentUserId && (
+        <ReviewsBlock
+          session={session}
+          reviews={reviews}
+          currentUserId={currentUserId}
+          names={names}
+        />
       )}
     </li>
   );

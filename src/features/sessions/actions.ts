@@ -69,6 +69,63 @@ export async function createSession(
   return { success: "Séance planifiée. Elle apparaît chez vous deux." };
 }
 
+export type ReviewFormState = {
+  error?: string;
+  fieldErrors?: Record<string, string[] | undefined>;
+};
+
+const reviewSchema = z.object({
+  session_id: z.uuid(),
+  mentorship_id: z.uuid(),
+  rating: z.coerce
+    .number("Choisissez une note")
+    .int()
+    .min(1, "Choisissez une note de 1 à 5")
+    .max(5, "Choisissez une note de 1 à 5"),
+  comment: z
+    .string()
+    .trim()
+    .max(1000, "1000 caractères maximum")
+    .transform((v) => v || null),
+});
+
+/**
+ * Évalue une séance passée (une seule fois par participant).
+ * RLS vérifie : participant du mentorat, séance passée et non annulée.
+ */
+export async function submitReview(
+  _prev: ReviewFormState,
+  formData: FormData,
+): Promise<ReviewFormState> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Session expirée. Reconnectez-vous." };
+
+  const parsed = reviewSchema.safeParse({
+    session_id: formData.get("session_id"),
+    mentorship_id: formData.get("mentorship_id"),
+    rating: formData.get("rating") ?? undefined,
+    comment: formData.get("comment") ?? "",
+  });
+  if (!parsed.success) {
+    return { fieldErrors: z.flattenError(parsed.error).fieldErrors };
+  }
+
+  const { mentorship_id, ...review } = parsed.data;
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("session_reviews")
+    .insert({ ...review, reviewer_id: userId });
+
+  if (error) {
+    if (error.code === "23505") return { error: "Vous avez déjà évalué cette séance." };
+    return { error: "Évaluation impossible : la séance doit être passée et non annulée." };
+  }
+
+  revalidatePath(`/mentorships/${mentorship_id}`);
+  revalidatePath("/mentors", "layout"); // la note moyenne du mentor change
+  return {};
+}
+
 /** Annule une séance prévue. */
 export async function cancelSession(formData: FormData) {
   const parsed = z
