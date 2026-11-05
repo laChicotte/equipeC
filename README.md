@@ -47,6 +47,7 @@ Base de données : exécuter **une fois, dans l'ordre**, les fichiers de
 2. `0002_resources_opportunities.sql` : ressources et opportunités
 3. `0003_cancel_and_public_reviews.sql` : annulation d'une demande, avis publics, ateliers
 4. `0004_profile_skills.sql` : compétences (mentor) et besoins précis (mentoré) pour la mise en relation
+5. `0005_workshops_and_impact.sql` : ateliers thématiques (inscriptions, visio) et restitution (bilans, impact)
 
 Puis désactiver *Confirm email* (*Authentication → Sign In / Providers → Email*).
 
@@ -98,3 +99,8 @@ supabase/migrations Schéma SQL, règles RLS, triggers
 scripts/            Vérification, tests de sécurité, données de démo
 tests/              Tests unitaires
 ```
+
+## Livrables du hackathon
+
+- [Démonstration du parcours utilisateur](docs/DEMO.md) : déroulé minuté et comptes de démonstration
+- [Note de pérennisation](docs/PERENNISATION.md) : pistes de développement, besoins d'accompagnement, conditions de déploiement

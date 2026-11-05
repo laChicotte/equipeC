@@ -358,6 +358,46 @@ if (r1.error?.code === "PGRST205" || r1.error?.code === "42P01") {
   console.log(`    ${resources.length} ressources, ${opportunities.length} opportunités`);
 }
 
+console.log("3c/4 Ateliers thématiques et bilans (migration 0005)…");
+const WORKSHOPS = [
+  { host: "mariama", domain: "orientation-insertion", title: "Réussir son entretien d'embauche", days: 3, hour: 17, duration_min: 90, capacity: 12,
+    description: "Les questions classiques, la présentation en 2 minutes et des simulations en petits groupes avec retours personnalisés.",
+    participants: ["nene"] },
+  { host: "fatoumata", domain: "campus-france", title: "Préparer l'entretien Campus France", days: 6, hour: 18, duration_min: 60, capacity: 20,
+    description: "Comment présenter son projet d'études de façon cohérente, les pièges à éviter, et un temps de questions-réponses.",
+    participants: ["aissatou"] },
+  { host: "mamadou", domain: "entrepreneuriat", title: "Du projet au business plan en 90 minutes", days: 10, hour: 17, duration_min: 90, capacity: 15,
+    description: "Problème, clients, offre, chiffres clés : on construit ensemble la première version de votre business plan.",
+    participants: ["ibrahima"] },
+  { host: "oumar", domain: "developpement-personnel", title: "Votre pitch en 2 minutes", days: -12, hour: 17, duration_min: 60, capacity: 10,
+    description: "Structurer et répéter un pitch percutant, avec passage devant le groupe.",
+    participants: ["aissatou", "ibrahima", "nene"] },
+];
+const firstWorkshop = await admin.from("workshops").select("id").limit(1);
+if (firstWorkshop.error) {
+  console.log("    ⚠️ Tables absentes : exécutez supabase/migrations/0005_workshops_and_impact.sql puis relancez npm run seed");
+} else {
+  for (const w of WORKSHOPS) {
+    // Inscriptions possibles uniquement avant l'atelier (règle SQL) : on crée
+    // l'atelier dans le futur, on inscrit, puis on le date dans le passé si besoin.
+    const created = must(await admin.from("workshops").insert({
+      host_id: id[w.host], domain_id: D[w.domain], title: w.title, description: w.description,
+      scheduled_at: at(Math.max(w.days, 1), w.hour), duration_min: w.duration_min, capacity: w.capacity,
+    }).select("id").single(), `Atelier ${w.title}`);
+    must(await admin.from("workshop_registrations").insert(
+      w.participants.map((p) => ({ workshop_id: created.id, participant_id: id[p] })),
+    ), `Inscriptions ${w.title}`);
+    if (w.days < 1) must(await admin.from("workshops").update({ scheduled_at: at(w.days, w.hour) }).eq("id", created.id), "Atelier passé");
+  }
+  must(await admin.from("mentorship_testimonials").insert([
+    { mentorship_id: msNene, author_id: id.nene, is_public: true,
+      content: "En un mois, Mariama m'a aidée à refaire mon CV et à préparer mes entretiens. J'ai décroché deux entretiens et je me sens enfin prête à l'oral." },
+    { mentorship_id: msNene, author_id: id.mariama, is_public: true,
+      content: "Néné avait déjà toutes les compétences, il fallait surtout les mettre en valeur. Voir sa confiance grandir séance après séance a été une vraie fierté." },
+  ]), "Bilans du mentorat de Néné");
+  console.log(`    ${WORKSHOPS.length} ateliers, 2 bilans de fin de mentorat`);
+}
+
 console.log("4/4 Vérification…");
 const { count } = await admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "mentor").eq("is_available", true);
 console.log(`    ${count} mentor(s) disponible(s) dans le catalogue`);

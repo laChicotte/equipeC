@@ -215,7 +215,7 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
             <ActionPanel eyebrow="Demande envoyée" title="En attente de réponse">
               <p className="text-sm text-ink-500">
                 {mentor.full_name.split(" ")[0]} va examiner votre demande. Vous serez prévenu(e) dans
-                « Messages ».
+                « Mentorat ».
               </p>
               <ButtonLink href="/mentorships" variant="secondary" className="mt-5 w-full">
                 Voir mes demandes

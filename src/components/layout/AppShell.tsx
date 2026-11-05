@@ -95,11 +95,27 @@ const NAV = [
   { href: "/dashboard", label: "Accueil", icon: ICONS.home },
   { href: "/mentors", label: "Découvrir", icon: ICONS.compass },
   { href: "/domains", label: "Domaines", icon: ICONS.grid },
-  { href: "/mentorships", label: "Messages", icon: ICONS.messages },
+  // « Mentorat » regroupe les échanges et les rendez-vous (onglets dans la page)
+  { href: "/mentorships", label: "Mentorat", icon: ICONS.messages, also: ["/sessions"] },
   { href: "/goals", label: "Mes objectifs", icon: ICONS.target },
-  { href: "/resources", label: "Ressources", icon: ICONS.book },
-  { href: "/sessions", label: "Rendez-vous", icon: ICONS.calendar },
+  { href: "/resources", label: "Bibliothèque", icon: ICONS.book },
+  {
+    href: "/workshops",
+    label: "Ateliers",
+    icon: (
+      <>
+        <circle cx="9" cy="8" r="3" />
+        <circle cx="17" cy="9" r="2.5" />
+        <path d="M3 20a6 6 0 0 1 12 0M14.5 15.5A5 5 0 0 1 21 20" />
+      </>
+    ),
+  },
   { href: "/opportunities", label: "Opportunités", icon: ICONS.briefcase },
+  {
+    href: "/impact",
+    label: "Impact",
+    icon: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
+  },
   {
     href: "/profile",
     label: "Mon profil",
@@ -136,7 +152,9 @@ function SidebarContent({
       <nav aria-label="Navigation principale" className="flex-1 overflow-y-auto px-5">
         <ul className="flex flex-col gap-1">
           {NAV.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const active = [item.href, ...(("also" in item && item.also) || [])].some(
+              (href) => pathname === href || pathname.startsWith(`${href}/`),
+            );
             const count = badges[item.href] ?? 0;
             return (
               <li key={item.href}>

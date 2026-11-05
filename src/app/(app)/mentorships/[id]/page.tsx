@@ -9,6 +9,8 @@ import { getMessages } from "@/features/messaging/queries";
 import { Chat } from "@/features/messaging/components/Chat";
 import { SessionsPanel } from "@/features/sessions/components/SessionsPanel";
 import { GoalsPanel } from "@/features/goals/components/GoalsPanel";
+import { getMentorshipTestimonials } from "@/features/impact/queries";
+import { TestimonialForm } from "@/features/impact/components/TestimonialForm";
 
 export const metadata: Metadata = { title: "Espace de mentorat · MentorConnect" };
 
@@ -21,7 +23,12 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
 
   // La conversation existe pour un mentorat actif (écriture) ou terminé (lecture seule)
   const hasChat = mentorship.status === "accepted" || mentorship.status === "ended";
-  const messages = hasChat ? await getMessages(mentorship.id) : [];
+  const isEnded = mentorship.status === "ended";
+  const [messages, testimonials] = await Promise.all([
+    hasChat ? getMessages(mentorship.id) : Promise.resolve([]),
+    isEnded ? getMentorshipTestimonials(mentorship.id) : Promise.resolve(null),
+  ]);
+  const partner = profile.id === mentorship.mentor.id ? mentorship.mentee : mentorship.mentor;
   const names = {
     [mentorship.mentor.id]: mentorship.mentor.full_name,
     [mentorship.mentee.id]: mentorship.mentee.full_name,
@@ -53,6 +60,26 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
 
         {hasChat && (
           <div className="grid content-start gap-4">
+            {isEnded && testimonials && (
+              <section className="rounded-3xl border border-brand-100 bg-brand-50/60 p-5">
+                <p className="eyebrow">Restitution</p>
+                <h2 className="mt-2 text-lg font-bold">Bilan de fin de mentorat</h2>
+                <p className="mt-1 mb-4 text-sm text-ink-500">
+                  Racontez ce que cet accompagnement a changé : votre bilan aide les futurs participants.
+                </p>
+                <TestimonialForm
+                  mentorshipId={mentorship.id}
+                  isMentor={profile.role === "mentor"}
+                  initial={testimonials.mine}
+                />
+                {testimonials.other && (
+                  <blockquote className="mt-5 rounded-2xl bg-white p-4 text-sm text-ink-700">
+                    <p className="text-xs font-semibold text-ink-500">Le bilan de {partner.full_name.split(" ")[0]}</p>
+                    <p className="mt-1 italic">« {testimonials.other.content} »</p>
+                  </blockquote>
+                )}
+              </section>
+            )}
             <SessionsPanel
               mentorshipId={mentorship.id}
               isActive={mentorship.status === "accepted"}

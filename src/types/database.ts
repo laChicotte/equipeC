@@ -119,3 +119,28 @@ export type Profile = {
   created_at: string;
   updated_at: string;
 };
+
+/** Atelier thématique collectif (migration 0005). meeting_url n'est pas lisible directement. */
+export type Workshop = {
+  id: string;
+  host_id: string;
+  domain_id: number | null;
+  title: string;
+  description: string;
+  scheduled_at: string;
+  duration_min: number;
+  capacity: number;
+  cancelled: boolean;
+  created_at: string;
+};
+
+/** Bilan de fin de mentorat (migration 0005). */
+export type MentorshipTestimonial = {
+  id: string;
+  mentorship_id: string;
+  author_id: string;
+  content: string;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+};

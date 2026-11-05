@@ -6,6 +6,7 @@ import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard"
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+import { MentorshipTabs } from "@/features/mentorship/components/MentorshipTabs";
 
 export const metadata: Metadata = { title: "Mes mentorats · MentorConnect" };
 
@@ -31,7 +32,7 @@ export default async function MentorshipsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Messages"
+        eyebrow="Mentorat"
         title="Mes mentorats et échanges"
         description={
           isMentor
@@ -39,6 +40,7 @@ export default async function MentorshipsPage() {
             : "Vos demandes et vos mentors."
         }
       />
+      <MentorshipTabs active="/mentorships" />
 
       {all.length === 0 ? (
         <Card className="text-center">

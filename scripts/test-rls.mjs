@@ -242,6 +242,67 @@ async function main() {
     check("Plus de 10 compétences refusées par la base", Boolean(e2));
   }
 
+  console.log("\n10. Ateliers thématiques (migration 0005)");
+  {
+    const future = new Date(Date.now() + 7 * 86_400_000).toISOString();
+    const base = { title: "Atelier de test RLS", description: "Atelier créé par le test de sécurité.", scheduled_at: future, capacity: 2 };
+    const { error: e1 } = await A.client.from("workshops").insert({ ...base, host_id: A.id });
+    check("Un mentoré ne peut pas organiser d'atelier", Boolean(e1));
+    const { error: e2 } = await M.client.from("workshops").insert({ ...base, host_id: M.id, meeting_url: "https://evil.example.com" });
+    check("Impossible d'imposer un lien de visio d'atelier", Boolean(e2));
+    const { data: w, error: e3 } = await M.client.from("workshops").insert({ ...base, host_id: M.id }).select("id").single();
+    check("Un mentor organise un atelier", !e3, e3?.message);
+    const { error: e4 } = await A.client.from("workshops").select("meeting_url").eq("id", w?.id);
+    check("Le lien de visio n'est pas lisible directement", Boolean(e4));
+
+    const { error: r1 } = await A.client.from("workshop_registrations").insert({ workshop_id: w?.id, participant_id: C.id });
+    check("Impossible d'inscrire quelqu'un d'autre", Boolean(r1));
+    const { error: r2 } = await M.client.from("workshop_registrations").insert({ workshop_id: w?.id, participant_id: M.id });
+    check("L'animateur ne peut pas s'inscrire à son atelier", Boolean(r2));
+    const { error: r3 } = await A.client.from("workshop_registrations").insert({ workshop_id: w?.id, participant_id: A.id });
+    const { error: r4 } = await C.client.from("workshop_registrations").insert({ workshop_id: w?.id, participant_id: C.id });
+    check("Deux participants s'inscrivent", !r3 && !r4, (r3 ?? r4)?.message);
+    const { error: r5 } = await H.client.from("workshop_registrations").insert({ workshop_id: w?.id, participant_id: H.id });
+    check("Inscription refusée quand l'atelier est complet", Boolean(r5?.message.includes("complet")), r5?.message ?? "acceptée !");
+
+    const { data: regs } = await C.client.from("workshop_registrations").select("participant_id").eq("workshop_id", w?.id);
+    check("Un participant ne voit que sa propre inscription", regs?.length === 1 && regs[0].participant_id === C.id);
+    const { data: linkA } = await A.client.rpc("get_workshop_link", { p_workshop_id: w?.id });
+    const { data: linkH } = await H.client.rpc("get_workshop_link", { p_workshop_id: w?.id });
+    check("Lien de visio : donné aux inscrits, pas aux autres", String(linkA).startsWith("https://meet.jit.si/") && linkH === null);
+    const { data: pM } = await M.client.rpc("get_workshop_participants", { p_workshop_id: w?.id });
+    const { data: pA } = await A.client.rpc("get_workshop_participants", { p_workshop_id: w?.id });
+    check("Liste des inscrits (prénoms) réservée à l'animateur", pM?.length === 2 && pA?.length === 0);
+    const { data: hacked } = await A.client.from("workshops").update({ cancelled: true }).eq("id", w?.id).select("id");
+    check("Seul l'animateur peut annuler son atelier", (hacked ?? []).length === 0);
+    const { error: c1 } = await M.client.from("workshops").update({ cancelled: true }).eq("id", w?.id);
+    check("L'animateur annule son atelier", !c1, c1?.message);
+  }
+
+  console.log("\n11. Bilans de fin de mentorat et impact (migration 0005)");
+  {
+    const content = "Un accompagnement très utile, merci pour tout !";
+    const { error: t1 } = await A.client.from("mentorship_testimonials").insert({ mentorship_id: mentorshipId, author_id: A.id, content });
+    check("Pas de bilan tant que le mentorat est en cours", Boolean(t1));
+    await M.client.from("mentorships").update({ status: "ended" }).eq("id", mentorshipId);
+    const { error: t2 } = await A.client.from("mentorship_testimonials").insert({ mentorship_id: mentorshipId, author_id: A.id, content, is_public: true });
+    check("Le mentoré rédige son bilan une fois le mentorat terminé", !t2, t2?.message);
+    const { error: t3 } = await C.client.from("mentorship_testimonials").insert({ mentorship_id: mentorshipId, author_id: C.id, content });
+    check("Un tiers ne peut pas rédiger de bilan", Boolean(t3));
+    const { data: t4 } = await C.client.from("mentorship_testimonials").select("id").eq("mentorship_id", mentorshipId);
+    check("Un tiers ne lit pas les bilans privés du mentorat", t4?.length === 0);
+    const { data: pub, error: t5 } = await C.client.rpc("get_public_testimonials", { p_limit: 20 });
+    check(
+      "Témoignages publics : prénom seulement, sans identifiant",
+      !t5 && Array.isArray(pub) && pub.every((t) => !("author_id" in t) && !("mentorship_id" in t)),
+      t5?.message,
+    );
+    const { data: impact, error: t6 } = await C.client.rpc("get_platform_impact");
+    check("Chiffres d'impact accessibles (agrégats)", !t6 && typeof impact?.[0]?.mentors === "number", t6?.message);
+    // Le témoignage de test ne doit pas apparaître sur la page Impact
+    await A.client.from("mentorship_testimonials").update({ is_public: false }).eq("mentorship_id", mentorshipId).eq("author_id", A.id);
+  }
+
   // Le mentor de test passe indisponible pour ne pas polluer le catalogue
   await M.client.from("profiles").update({ is_available: false }).eq("id", M.id);
 }

@@ -5,6 +5,7 @@ import { SessionRow } from "@/features/sessions/components/NextSessionCard";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+import { MentorshipTabs } from "@/features/mentorship/components/MentorshipTabs";
 
 export const metadata: Metadata = { title: "Rendez-vous · MentorConnect" };
 
@@ -19,11 +20,12 @@ export default async function SessionsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Agenda"
+        eyebrow="Mentorat"
         title="Rendez-vous"
         description="Vos séances de mentorat en visioconférence."
         actions={<ButtonLink href="/mentorships">Planifier une séance</ButtonLink>}
       />
+      <MentorshipTabs active="/sessions" />
 
       <section className="mb-10">
         <p className="eyebrow mb-4">À venir ({upcoming.length})</p>

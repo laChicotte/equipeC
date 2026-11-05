@@ -14,6 +14,8 @@ const PROTECTED_PREFIXES = [
   "/opportunities",
   "/goals",
   "/sessions",
+  "/workshops",
+  "/impact",
 ];
 
 /** Pages inutiles quand on est déjà connecté. */
