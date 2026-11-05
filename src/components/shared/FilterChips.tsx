@@ -2,19 +2,30 @@ import Link from "next/link";
 
 export type Chip = { href: string; label: string; active: boolean };
 
-/** Rangée de filtres sous forme de pastilles (liens : le filtre est dans l'URL). */
-export function FilterChips({ chips, label }: { chips: Chip[]; label: string }) {
+/**
+ * Rangée de filtres sous forme de pastilles (liens : le filtre est dans l'URL).
+ * `scroll` : sur mobile, une seule ligne qui défile horizontalement (avec un
+ * fondu au bord) ; à partir de la tablette, retour à la ligne.
+ */
+export function FilterChips({ chips, label, scroll = false }: { chips: Chip[]; label: string; scroll?: boolean }) {
   return (
-    <nav aria-label={label} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2">
+    <nav
+      aria-label={label}
+      className={
+        scroll
+          ? "no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [mask-image:linear-gradient(to_right,black_85%,transparent)] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:[mask-image:none]"
+          : "flex flex-wrap gap-2"
+      }
+    >
       {chips.map((chip) => (
         <Link
           key={chip.href}
           href={chip.href}
           aria-current={chip.active ? "true" : undefined}
-          className={`whitespace-nowrap rounded-full border px-5 py-2.5 text-sm transition-colors ${
+          className={`shrink-0 rounded-full border px-4 py-2 text-sm whitespace-nowrap transition-colors ${
             chip.active
-              ? "border-ink-900 bg-ink-900 font-medium text-white"
-              : "border-zinc-200 bg-white text-ink-700 hover:border-ink-900"
+              ? "border-brand-900 bg-brand-900 font-medium text-white"
+              : "border-zinc-200 bg-white text-ink-700 hover:border-brand-600 hover:text-brand-700"
           }`}
         >
           {chip.label}

@@ -2,22 +2,32 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentProfile } from "@/features/auth/queries";
 import { getDomains, getProfileDomainIds } from "@/features/profiles/queries";
-import { CAMPUS_FRANCE_NOTICE, DOMAIN_ICONS, DOMAIN_SHORT_LABELS } from "@/features/profiles/labels";
+import {
+  CAMPUS_FRANCE_NOTICE,
+  CAMPUS_FRANCE_OBJECTIVE,
+  DOMAIN_SHORT_LABELS,
+  DOMAIN_THEMES,
+} from "@/features/profiles/labels";
 import { getAvailableMentors, toMentorInput, type MentorSummary } from "@/features/mentors/queries";
 import { orientDomains, recommendMentors } from "@/features/mentors/matching";
 import { GOAL_TEMPLATES } from "@/features/goals/templates";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { DomainIcon } from "@/features/profiles/domainIcons";
+import { Modal } from "@/components/ui/Modal";
+import { Avatar } from "@/components/ui/Avatar";
+import {
+  CardGrid,
+  CardIcon,
+  CtaBanner,
+  ctaPrimaryClasses,
+  ctaSecondaryClasses,
+  ListingCardBody,
+  listingCardClasses,
+  ListingHeader,
+  StatsBar,
+} from "@/components/listing/Listing";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Domaines d'expertise · MentorConnect" };
-
-const initialsOf = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
 
 /** Compétences les plus citées par les mentors d'un domaine (4 au maximum). */
 function topSkills(mentors: MentorSummary[]) {
@@ -50,7 +60,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
     getCurrentProfile(),
     supabase.from("resources").select("domain_id"),
   ]);
-  const myDomainIds = profile ? await getProfileDomainIds(profile.id) : [];
+  const myDomainIds = profile ? await getProfileDomainIds(profile.id, profile.role) : [];
   const resourceRows = (resources.data ?? []) as { domain_id: number | null }[];
   const isMentee = profile?.role === "mentee";
 
@@ -66,7 +76,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
           text: besoin,
           needs: [],
         },
-        mentors.map(toMentorInput),
+        mentors.filter((m) => m.id !== profile?.id).map(toMentorInput),
         { limit: 3 },
       ).map((r) => ({ ...r, mentor: mentors.find((m) => m.id === r.mentorId)! }))
     : [];
@@ -91,34 +101,25 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
       Number(b.mine) - Number(a.mine),
   );
 
-  const stats = [
-    { value: domains.length, label: "domaines d'expertise" },
-    { value: mentors.length, label: "mentors disponibles" },
-    { value: resourceRows.length, label: "ressources partagées" },
-  ];
-
   return (
     <>
-      <PageHeader
-        eyebrow="Explorer"
+      <ListingHeader
+        pill="Explorer"
         title="Domaines d'expertise"
         description="Les 7 domaines dans lesquels nos mentors accompagnent les jeunes, étudiants, diplômés et entrepreneurs. Choisissez-en un, ou décrivez votre besoin pour être orienté."
       />
 
-      <dl className="mb-8 grid gap-4 sm:grid-cols-3">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
-            <dt className="sr-only">{s.label}</dt>
-            <dd>
-              <span className="block text-4xl font-bold text-ink-900">{s.value}</span>
-              <span className="mt-1 block text-sm text-ink-500">{s.label}</span>
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <StatsBar
+        items={[
+          { icon: "🧭", value: domains.length, label: "domaines d'expertise" },
+          { icon: "🧑‍🏫", value: mentors.length, label: "mentors disponibles" },
+          { icon: "🛠️", value: new Set(mentors.flatMap((m) => m.skills.map((k) => k.toLowerCase()))).size, label: "compétences proposées" },
+          { icon: "📚", value: resourceRows.length, label: "ressources partagées" },
+        ]}
+      />
 
       {/* Orientation intelligente */}
-      <section className="mb-10 rounded-3xl border border-brand-100 bg-brand-50/70 p-6 sm:p-8">
+      <section id="orientation" className="mb-10 scroll-mt-24 rounded-3xl border border-brand-100 bg-brand-50/70 p-6 sm:p-8">
         <div className="flex items-center gap-3">
           <span className="text-brand-600">{sparkle}</span>
           <div>
@@ -167,7 +168,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
                   const d = domains.find((x) => x.slug === a.slug);
                   return (
                     <li key={a.slug} className="flex gap-3">
-                      <span aria-hidden className="text-xl">{DOMAIN_ICONS[a.slug] ?? "✨"}</span>
+                      <span className="mt-0.5 text-brand-600"><DomainIcon slug={a.slug} className="size-5" /></span>
                       <div className="min-w-0">
                         <a href={`#domaine-${a.slug}`} className="font-semibold hover:text-brand-700">
                           {DOMAIN_SHORT_LABELS[a.slug] ?? d?.name ?? a.slug}
@@ -190,9 +191,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
                   {recommended.map((r) => (
                     <li key={r.mentorId}>
                       <Link href={`/mentors/${r.mentorId}`} className="group flex items-center gap-3">
-                        <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-800">
-                          {initialsOf(r.mentor.full_name)}
-                        </span>
+                        <Avatar name={r.mentor.full_name} src={r.mentor.avatar_url} />
                         <span className="min-w-0">
                           <span className="block truncate font-semibold group-hover:text-brand-700">{r.mentor.full_name}</span>
                           <span className="block truncate text-xs text-ink-500">
@@ -236,105 +235,185 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
         </p>
       </section>
 
-      <ul className="grid gap-6 lg:grid-cols-2">
+      <CardGrid>
         {catalogue.map(({ domain, mentors: domainMentors, resourceCount, skills, mine, advised }) => {
           const number = String(domain.id).padStart(2, "0");
-          return (
-            <li
-              key={domain.id}
-              id={`domaine-${domain.slug}`}
-              className={`flex scroll-mt-24 flex-col rounded-3xl border bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] sm:p-8 ${
-                advised || mine ? "border-brand-200 ring-1 ring-brand-100" : "border-zinc-100"
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-background text-2xl">
-                  {DOMAIN_ICONS[domain.slug] ?? "✨"}
+          const short = DOMAIN_SHORT_LABELS[domain.slug] ?? domain.name;
+          const badges = (
+            <>
+              {advised && (
+                <span className="rounded-full bg-brand-600 px-2.5 py-0.5 text-xs font-semibold text-white">Conseillé pour vous</span>
+              )}
+              {mine && (
+                <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-800 ring-1 ring-brand-100 ring-inset">
+                  {profile?.role === "mentor" ? "Votre expertise" : "Votre centre d'intérêt"}
                 </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-brand-600">{number}</span>
-                    {advised && (
-                      <span className="rounded-full bg-brand-600 px-2.5 py-0.5 text-xs font-semibold text-white">
-                        Conseillé pour vous
-                      </span>
-                    )}
-                    {mine && (
-                      <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-800 ring-1 ring-brand-100 ring-inset">
-                        {profile?.role === "mentor" ? "Votre expertise" : "Votre centre d'intérêt"}
-                      </span>
-                    )}
-                  </div>
-                  <h2 className="mt-1 text-xl font-bold">{DOMAIN_SHORT_LABELS[domain.slug] ?? domain.name}</h2>
-                  <p className="text-sm text-ink-500">{domain.name}</p>
-                </div>
-              </div>
-
-              {domain.description && <p className="mt-5 leading-relaxed text-ink-700">{domain.description}</p>}
-
-              {skills.length > 0 && (
-                <div className="mt-5">
-                  <p className="text-xs font-semibold tracking-wide text-ink-500 uppercase">Compétences proposées</p>
-                  <ul className="mt-2 flex flex-wrap gap-2">
-                    {skills.map((s) => (
-                      <li key={s.label}>
-                        <Link
-                          href={`/mentors?domain=${domain.slug}&q=${encodeURIComponent(s.label)}`}
-                          className="inline-block rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-800 hover:bg-brand-100"
-                        >
-                          {s.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               )}
+            </>
+          );
+          return (
+            <li key={domain.id} id={`domaine-${domain.slug}`} className="min-w-0 scroll-mt-24">
+              <Modal
+                title={domain.name}
+                size="lg"
+                eyebrow={
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="text-brand-600"><DomainIcon slug={domain.slug} className="size-6" /></span>
+                    <span className="text-sm font-semibold text-brand-600">Domaine {number}</span>
+                    {badges}
+                  </span>
+                }
+                triggerClassName={`${listingCardClasses} ${advised || mine ? "border-brand-200 ring-1 ring-brand-100" : ""}`}
+                trigger={
+                  <ListingCardBody
+                    icon={<CardIcon><DomainIcon slug={domain.slug} className="size-6" /></CardIcon>}
+                    pill={
+                      advised || mine ? (
+                        <span className="flex flex-col items-end gap-1">{badges}</span>
+                      ) : (
+                        <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-ink-500">
+                          {plural(domainMentors.length, "mentor")}
+                        </span>
+                      )
+                    }
+                    eyebrow={`Domaine ${number}`}
+                    title={short}
+                    description={domain.description}
+                    meta={{
+                      icon: <span aria-hidden>👥</span>,
+                      text: `${plural(domainMentors.length, "mentor")} · ${plural(resourceCount, "ressource")}`,
+                    }}
+                    footer={skills.length > 0 ? skills.slice(0, 2).map((k) => k.label).join(" · ") : domain.name}
+                  />
+                }
+              >
+                {domain.description && <p className="leading-relaxed text-ink-700">{domain.description}</p>}
 
-              {domain.slug === "campus-france" && (
-                <p className="mt-5 rounded-2xl bg-amber-50 p-3 text-xs leading-relaxed text-amber-900 ring-1 ring-amber-200">
-                  ℹ️ {CAMPUS_FRANCE_NOTICE}
-                </p>
-              )}
-
-              <div className="mt-auto pt-6">
-                <div className="flex flex-wrap items-center justify-between gap-4 border-t border-zinc-100 pt-5">
-                  <div className="flex items-center gap-3">
-                    {domainMentors.length > 0 && (
-                      <div aria-hidden className="flex -space-x-2">
-                        {domainMentors.slice(0, 3).map((m) => (
-                          <span
-                            key={m.id}
-                            className="inline-flex size-9 items-center justify-center rounded-full border-2 border-white bg-brand-100 text-xs font-bold text-brand-800"
-                          >
-                            {initialsOf(m.full_name)}
-                          </span>
-                        ))}
-                      </div>
+                {/* Thèmes du cahier des charges (§5) */}
+                {(DOMAIN_THEMES[domain.slug] ?? []).length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-xs font-bold tracking-wide text-ink-500 uppercase">Ce que couvre ce domaine</p>
+                    <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {DOMAIN_THEMES[domain.slug].map((theme) => (
+                        <li key={theme} className="flex gap-2 rounded-xl bg-background px-3 py-2 text-sm text-ink-700">
+                          <span aria-hidden className="text-brand-600">✓</span>
+                          {theme}
+                        </li>
+                      ))}
+                    </ul>
+                    {domain.slug === "campus-france" && (
+                      <p className="mt-3 text-sm text-ink-700">
+                        <strong>Objectif :</strong> {CAMPUS_FRANCE_OBJECTIVE}
+                      </p>
                     )}
-                    <p className="text-sm text-ink-500">
-                      <strong className="text-ink-900">{plural(domainMentors.length, "mentor")}</strong>
-                      {" · "}
-                      <Link href={`/resources?domain=${domain.slug}`} className="hover:text-brand-700 hover:underline">
-                        {plural(resourceCount, "ressource")}
-                      </Link>
+                    <p className="mt-2 text-xs text-ink-500">
+                      Liste indicative : chaque mentor précise ses compétences sur sa fiche.
                     </p>
                   </div>
-                  {domainMentors.length > 0 ? (
-                    <Link
-                      href={`/mentors?domain=${domain.slug}`}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-ink-800"
-                    >
-                      Voir les mentors <span aria-hidden>→</span>
-                    </Link>
+                )}
+
+                {skills.length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-xs font-bold tracking-wide text-ink-500 uppercase">Compétences proposées</p>
+                    <ul className="mt-2 flex flex-wrap gap-2">
+                      {skills.map((sk) => (
+                        <li key={sk.label}>
+                          <Link
+                            href={`/mentors?domain=${domain.slug}&q=${encodeURIComponent(sk.label)}`}
+                            className="inline-block rounded-full bg-brand-50 px-3 py-1 text-sm font-medium text-brand-800 hover:bg-brand-100"
+                          >
+                            {sk.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="mt-6">
+                  <p className="text-xs font-bold tracking-wide text-ink-500 uppercase">
+                    {plural(domainMentors.length, "mentor")} disponible{domainMentors.length > 1 ? "s" : ""}
+                  </p>
+                  {domainMentors.length === 0 ? (
+                    <p className="mt-2 text-sm text-ink-500">Bientôt des mentors dans ce domaine.</p>
                   ) : (
-                    <span className="text-sm text-ink-500">Bientôt des mentors</span>
+                    <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {domainMentors.slice(0, 6).map((m) => (
+                        <li key={m.id}>
+                          <Link href={`/mentors/${m.id}`} className="flex items-center gap-3 rounded-2xl p-2 transition-colors hover:bg-background">
+                            <Avatar name={m.full_name} src={m.avatar_url} />
+                            <span className="min-w-0">
+                              <span className="block truncate text-sm font-semibold">{m.full_name}</span>
+                              <span className="block truncate text-xs text-ink-500">{m.job_title}</span>
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
-              </div>
+
+                {domain.slug === "campus-france" && (
+                  <p className="mt-6 rounded-2xl bg-amber-50 p-3 text-xs leading-relaxed text-amber-900 ring-1 ring-amber-200">
+                    ℹ️ {CAMPUS_FRANCE_NOTICE}
+                  </p>
+                )}
+
+                <div className="mt-6 flex flex-wrap gap-3 border-t border-zinc-100 pt-5">
+                  {domainMentors.length > 0 && (
+                    <Link
+                      href={`/mentors?domain=${domain.slug}`}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white hover:bg-ink-800"
+                    >
+                      Voir tous les mentors <span aria-hidden>→</span>
+                    </Link>
+                  )}
+                  <Link
+                    href={`/resources?domain=${domain.slug}`}
+                    className="inline-flex items-center rounded-xl border border-zinc-200 px-5 py-3 text-sm font-semibold text-ink-900 hover:bg-zinc-50"
+                  >
+                    {plural(resourceCount, "ressource")}
+                  </Link>
+                </div>
+              </Modal>
             </li>
           );
         })}
-      </ul>
+      </CardGrid>
+
+      {profile?.role === "mentor" ? (
+        <CtaBanner
+          pill="Transmettre"
+          title="Faites rayonner votre domaine"
+          text="Partagez une ressource ou animez un atelier : votre expertise profite à plusieurs jeunes à la fois."
+          actions={
+            <>
+              <Link href="/workshops" className={ctaPrimaryClasses}>
+                Organiser un atelier
+              </Link>
+              <Link href="/resources" className={ctaSecondaryClasses}>
+                Partager une ressource
+              </Link>
+            </>
+          }
+        />
+      ) : (
+        <CtaBanner
+          pill="Orientation"
+          title="Vous hésitez entre plusieurs domaines ?"
+          text="Décrivez votre situation en une phrase : nous vous indiquons par où commencer et quels mentors contacter."
+          actions={
+            <>
+              <a href="#orientation" className={ctaPrimaryClasses}>
+                M&apos;orienter
+              </a>
+              <Link href="/mentors" className={ctaSecondaryClasses}>
+                Découvrir les mentors
+              </Link>
+            </>
+          }
+        />
+      )}
     </>
   );
 }

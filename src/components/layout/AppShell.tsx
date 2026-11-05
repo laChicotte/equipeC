@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { logout } from "@/features/auth/actions";
+import { switchRole } from "@/features/profiles/actions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Logo } from "./Logo";
 
@@ -128,7 +129,14 @@ const NAV = [
   },
 ];
 
-type ShellUser = { fullName: string; roleLabel: string; isMentor: boolean } | null;
+type ShellUser = {
+  fullName: string;
+  roleLabel: string;
+  isMentor: boolean;
+  avatarUrl: string | null;
+  /** Double rôle : mode vers lequel basculer (profil complet), sinon null */
+  switchTo: "mentor" | "mentee" | null;
+} | null;
 /** Nombre à afficher en pastille, par lien du menu (ex. { "/mentorships": 2 }). */
 type Badges = Record<string, number>;
 
@@ -183,11 +191,11 @@ function SidebarContent({
         </ul>
       </nav>
 
-      {/* Encadré d'aide (bleu nuit) — masqué sur les écrans peu hauts */}
+      {/* Encadré d'aide (vert forêt) — masqué sur les écrans peu hauts */}
       <div className="px-5 pt-4 [@media(max-height:760px)]:hidden">
-        <div className="rounded-3xl bg-ink-900 p-5 text-white">
+        <div className="rounded-3xl bg-brand-900 p-5 text-white">
           <span className="text-accent-400">{icon(ICONS.sparkle, "size-6")}</span>
-          <p className="mt-3 font-bold">Besoin d&apos;aide ?</p>
+          <p className="mt-3 font-display text-lg font-semibold">Besoin d&apos;aide ?</p>
           <p className="mt-1 text-sm text-white/70">
             {user?.isMentor
               ? "Partagez vos conseils avec toute la communauté."
@@ -207,12 +215,24 @@ function SidebarContent({
       {user && (
         <div className="m-5 mt-4 flex items-center gap-3 rounded-2xl border border-zinc-100 p-3">
           <Link href="/profile" onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-3" title="Mon profil">
-            <Avatar name={user.fullName} size="sm" />
+            <Avatar name={user.fullName} src={user.avatarUrl} size="sm" />
             <span className="min-w-0 leading-tight">
               <span className="block truncate text-sm font-semibold text-ink-900">{user.fullName}</span>
               <span className="block text-xs text-ink-500">{user.roleLabel} · Mon profil</span>
             </span>
           </Link>
+          {user.switchTo && (
+            <form action={switchRole}>
+              <input type="hidden" name="role" value={user.switchTo} />
+              <button
+                aria-label={user.switchTo === "mentor" ? "Passer en mode mentor" : "Passer en mode mentoré"}
+                title={user.switchTo === "mentor" ? "Passer en mode mentor" : "Passer en mode mentoré"}
+                className="inline-flex size-9 items-center justify-center rounded-xl text-ink-500 transition-colors hover:bg-brand-50 hover:text-brand-700"
+              >
+                {icon(<path d="M7 7h11l-3-3M17 17H6l3 3" />, "size-5")}
+              </button>
+            </form>
+          )}
           <form action={logout}>
             <button
               aria-label="Se déconnecter"
@@ -228,72 +248,6 @@ function SidebarContent({
   );
 }
 
-/** Bouton rond de l'en-tête (recherche, notifications). */
-function RoundLink({ href, label, children }: { href: string; label: string; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      aria-label={label}
-      title={label}
-      className="relative inline-flex size-12 items-center justify-center rounded-full bg-zinc-100 text-ink-900 transition-colors hover:bg-zinc-200"
-    >
-      {children}
-    </Link>
-  );
-}
-
-function UserMenu({ user }: { user: ShellUser }) {
-  const [open, setOpen] = useState(false);
-  if (!user) return null;
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Menu du compte"
-        aria-expanded={open}
-        className="flex items-center gap-3 rounded-full py-1 pr-1 pl-1 ring-2 ring-transparent transition hover:bg-zinc-50 hover:ring-brand-100 xl:pl-4"
-      >
-        <span className="hidden text-right leading-tight xl:block">
-          <span className="block text-sm font-semibold text-ink-900">{user.fullName.split(" ")[0]}</span>
-          <span className="block text-xs text-ink-500">{user.roleLabel}</span>
-        </span>
-        <span className="inline-flex size-12 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">
-          {user.fullName
-            .split(/\s+/)
-            .slice(0, 2)
-            .map((p) => p[0]?.toUpperCase())
-            .join("")}
-        </span>
-      </button>
-      {open && (
-        <>
-          {/* Clic à côté : fermeture */}
-          <button aria-label="Fermer le menu du compte" className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-3 w-64 rounded-2xl border border-zinc-100 bg-white p-2 shadow-xl">
-            <div className="px-3 py-2">
-              <p className="truncate font-semibold">{user.fullName}</p>
-              <p className="text-sm text-ink-500">{user.roleLabel}</p>
-            </div>
-            <Link
-              href="/profile"
-              onClick={() => setOpen(false)}
-              className="block rounded-xl px-3 py-2.5 text-sm hover:bg-zinc-50"
-            >
-              Mon profil
-            </Link>
-            <form action={logout}>
-              <button className="w-full rounded-xl px-3 py-2.5 text-left text-sm text-red-600 hover:bg-red-50">
-                Déconnexion
-              </button>
-            </form>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 export function AppShell({
   user,
   badges = {},
@@ -304,7 +258,6 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const hasBadge = Object.values(badges).some((n) => n > 0);
 
   return (
     <div className="flex min-h-full flex-1">
@@ -324,7 +277,8 @@ export function AppShell({
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-zinc-100 bg-white/95 px-4 py-4 backdrop-blur sm:px-8">
+        {/* Mobile uniquement : le compte, la déconnexion et les notifications sont dans la barre latérale */}
+        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-zinc-100 bg-white/95 px-4 py-3 backdrop-blur sm:px-8 lg:hidden">
           <button
             onClick={() => setOpen(true)}
             aria-label="Ouvrir le menu"
@@ -333,25 +287,7 @@ export function AppShell({
           >
             {icon(ICONS.menu)}
           </button>
-          <div className="lg:hidden">
-            <Logo href="/dashboard" />
-          </div>
-
-          <div className="ml-auto flex items-center gap-3 sm:gap-4">
-            <RoundLink href="/mentors" label="Rechercher un mentor">
-              {icon(ICONS.search, "size-5")}
-            </RoundLink>
-            <RoundLink
-              href="/mentorships"
-              label={hasBadge ? "Notifications : nouvelles demandes" : "Notifications"}
-            >
-              {icon(ICONS.bell, "size-5")}
-              {hasBadge && (
-                <span aria-hidden className="absolute top-3 right-3.5 size-2 rounded-full bg-red-500 ring-2 ring-zinc-100" />
-              )}
-            </RoundLink>
-            <UserMenu user={user} />
-          </div>
+          <Logo href="/dashboard" />
         </header>
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-8 lg:py-10">{children}</main>

@@ -11,16 +11,13 @@ import {
 } from "@/features/mentors/queries";
 import { inferDomainSlugs, scoreMentor, type MenteeInput } from "@/features/mentors/matching";
 import { MentorCard } from "@/features/mentors/components/MentorCard";
+import { MentorSearch } from "@/features/mentors/components/MentorSearch";
 import { FilterChips, withParams } from "@/components/shared/FilterChips";
 import { Card } from "@/components/ui/Card";
+import { PhotoSlot } from "@/components/ui/PhotoSlot";
+import { FeatherIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Découvrir · MentorConnect" };
-
-const sparkle = (
-  <svg aria-hidden viewBox="0 0 24 24" className="size-6" fill="currentColor">
-    <path d="M12 3c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7ZM19 15c.3 1.9 1.1 2.7 3 3-1.9.3-2.7 1.1-3 3-.3-1.9-1.1-2.7-3-3 1.9-.3 2.7-1.1 3-3Z" />
-  </svg>
-);
 
 const text = (value: string | string[] | undefined, max: number) =>
   typeof value === "string" && value.trim() ? value.trim().slice(0, max) : undefined;
@@ -59,7 +56,7 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
   const scores = new Map(
     mentee ? mentors.map((m) => [m.id, scoreMentor(mentee, toMentorInput(m))]) : [],
   );
-  const results = filterMentors(mentors, { domain, q }).sort(
+  const results = filterMentors(mentors.filter((m) => m.id !== profile?.id), { domain, q }).sort(
     (a, b) => (scores.get(b.id)?.score ?? 0) - (scores.get(a.id)?.score ?? 0),
   );
   const ranked = mentee !== null;
@@ -67,60 +64,33 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
 
   return (
     <>
-      <header className="mb-8">
-        <p className="eyebrow inline-block border-b-2 border-brand-600 pb-0.5">Explorer</p>
-        <h1 className="mt-5 max-w-3xl text-4xl leading-tight font-bold tracking-tight sm:text-5xl">
-          Trouvez la bonne personne pour passer à l&apos;étape suivante.
-        </h1>
+      {/* En-tête : bandeau vert forêt, photo à partir de la tablette */}
+      <header className="relative mb-6 overflow-hidden rounded-3xl bg-brand-900 text-white">
+        <div className="absolute inset-0 hidden sm:block">
+          <PhotoSlot
+            name="mentors-bandeau"
+            alt=""
+            sizes="(min-width: 1024px) 70vw, 100vw"
+            motif="mentoring"
+            tone="dark"
+            className="object-cover object-[center_35%]"
+          />
+        </div>
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-brand-950 via-brand-950/85 to-brand-950/30" />
+        <div className="relative px-6 py-8 sm:px-10 sm:py-12">
+          <p className="text-xs font-bold tracking-[0.14em] text-accent-300 uppercase">Découvrir</p>
+          <h1 className="mt-3 max-w-2xl font-display text-3xl leading-tight font-semibold tracking-tight sm:text-[2.75rem]">
+            Trouvez la bonne personne pour passer à l&apos;étape suivante.
+          </h1>
+          <p className="mt-3 max-w-xl text-white/75">
+            Des mentors, auteurs et professionnels prêts à partager ce qu&apos;ils ont appris.
+          </p>
+        </div>
       </header>
 
-      {/* Recherche par mot-clé (formulaire GET : la recherche est dans l'URL) */}
-      <form action="/mentors" className="mb-4 flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-5 py-2">
-        {domain && <input type="hidden" name="domain" value={domain} />}
-        {objectif && <input type="hidden" name="objectif" value={objectif} />}
-        <svg aria-hidden viewBox="0 0 24 24" className="size-5 shrink-0 text-ink-500" fill="none" stroke="currentColor" strokeWidth={1.8}>
-          <circle cx="11" cy="11" r="7" />
-          <path d="m20 20-3.5-3.5" strokeLinecap="round" />
-        </svg>
-        <label htmlFor="q" className="sr-only">Rechercher une expertise, un mentor</label>
-        <input
-          id="q"
-          name="q"
-          defaultValue={q}
-          placeholder="Rechercher une expertise, un mentor…"
-          className="min-w-0 flex-1 bg-transparent py-3 text-base outline-none placeholder:text-ink-500/70"
-        />
-        <button className="shrink-0 border-l border-zinc-200 pl-4 text-sm font-medium text-ink-900 hover:text-brand-700">
-          Rechercher
-        </button>
-      </form>
-
-      {/* Recherche intelligente */}
-      <form
-        action="/mentors"
-        className="mb-6 flex flex-col gap-4 rounded-2xl border border-brand-100 bg-brand-50/70 p-4 md:flex-row md:items-center"
-      >
-        {domain && <input type="hidden" name="domain" value={domain} />}
-        <div className="flex items-center gap-3 md:w-60 md:shrink-0">
-          <span className="text-brand-600">{sparkle}</span>
-          <div>
-            <p className="font-bold text-brand-700">Recherche intelligente</p>
-            <p className="text-xs text-ink-500">Décrivez votre objectif en une phrase</p>
-          </div>
-        </div>
-        <label htmlFor="objectif" className="sr-only">Votre objectif</label>
-        <input
-          id="objectif"
-          name="objectif"
-          defaultValue={objectif}
-          maxLength={300}
-          placeholder="Ex : Je souhaite valider mon idée de fintech…"
-          className="min-w-0 flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-3.5 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
-        />
-        <button className="rounded-xl bg-brand-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-brand-700">
-          Analyser
-        </button>
-      </form>
+      <div className="mb-6">
+        <MentorSearch domain={domain} q={q} objectif={objectif} />
+      </div>
 
       {objectif && (
         <p className="mb-6 text-sm text-ink-500">
@@ -142,6 +112,7 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
       <div className="mb-8">
         <FilterChips
           label="Filtrer par domaine"
+          scroll
           chips={[
             { href: withParams("/mentors", { q, objectif }), label: "Tous", active: !domain },
             ...domains.map((d) => ({
@@ -152,6 +123,22 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
           ]}
         />
       </div>
+
+      {/* Domaine à l'honneur (thème du hackathon « Lire demain ») */}
+      {domain === "culture-creation" && (
+        <div className="mb-6 flex gap-4 rounded-2xl bg-paper p-5 ring-1 ring-paper-200">
+          <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-accent-600 shadow-sm">
+            <FeatherIcon className="size-5" />
+          </span>
+          <div>
+            <p className="font-display text-lg font-semibold">Culture &amp; littérature</p>
+            <p className="mt-1 text-sm leading-relaxed text-ink-700">
+              Écriture, édition, médiation culturelle, métiers du livre : ces mentors aident à faire
+              vivre la lecture et à transformer une passion en projet.
+            </p>
+          </div>
+        </div>
+      )}
 
       {(domain === "campus-france" || detectedSlugs.includes("campus-france")) && (
         <p className="mb-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 ring-1 ring-amber-200">
@@ -177,7 +164,7 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
       {results.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {results.map((mentor) => (
-            <MentorCard key={mentor.id} mentor={mentor} compatibility={scores.get(mentor.id) ?? null} />
+            <MentorCard key={mentor.id} mentor={mentor} compatibility={scores.get(mentor.id) ?? null} focusDomain={domain} />
           ))}
         </div>
       ) : (
