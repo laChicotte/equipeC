@@ -67,6 +67,27 @@ if (ok) {
   }
 }
 
+// 4. Variables du script de démo (facultatives pour l'application)
+const secret = process.env.SUPABASE_SECRET_KEY?.trim();
+const demoPassword = process.env.DEMO_PASSWORD ?? "";
+for (const name of Object.keys(process.env)) {
+  if (name.startsWith("NEXT_PUBLIC_") && /SECRET|SERVICE/i.test(name)) {
+    fail(`${name} : une clé secrète ne doit JAMAIS avoir le préfixe NEXT_PUBLIC_ (elle serait envoyée aux navigateurs).`);
+  }
+}
+if (!secret) {
+  console.log("ℹ️  SUPABASE_SECRET_KEY absente (nécessaire seulement pour npm run seed)");
+} else if (secret.startsWith("sb_publishable_")) {
+  fail("SUPABASE_SECRET_KEY contient la clé publishable, pas la clé secrète.");
+} else if (secret.startsWith("sb_secret_") || secret.split(".").length === 3) {
+  console.log("✅ Clé secrète présente (script de démo)");
+} else {
+  fail("SUPABASE_SECRET_KEY : format non reconnu (attendu sb_secret_... ou clé service_role).");
+}
+if (secret && demoPassword.length < 12) {
+  fail("DEMO_PASSWORD : 12 caractères minimum pour les comptes de démo.");
+}
+
 console.log(ok ? "\n🎉 Supabase est prêt." : "\nConfiguration incomplète : corrigez les points ci-dessus.");
 // exitCode plutôt que process.exit() : évite un plantage de Node sous Windows
 // quand la connexion réseau est encore en cours de fermeture.
