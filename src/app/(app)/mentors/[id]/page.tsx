@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { getMentorById } from "@/features/mentors/queries";
 import { RatingStars } from "@/features/mentors/components/RatingStars";
 import { getCurrentProfile } from "@/features/auth/queries";
-import { ComingSoon } from "@/components/shared/ComingSoon";
+import { getActiveMentorshipWith } from "@/features/mentorship/queries";
+import { RequestForm } from "@/features/mentorship/components/RequestForm";
 import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -15,6 +16,8 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
   const { id } = await params;
   const [mentor, viewer] = await Promise.all([getMentorById(id), getCurrentProfile()]);
   if (!mentor) notFound();
+  const activeRequest =
+    viewer?.role === "mentee" ? await getActiveMentorshipWith(mentor.id) : null;
 
   const role = [mentor.job_title, mentor.organization].filter(Boolean).join(" · ");
   const isOwnProfile = viewer?.id === mentor.id;
@@ -76,11 +79,37 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
           </Card>
 
           {viewer?.role === "mentee" && !isOwnProfile && (
-            <ComingSoon
-              task="T5"
-              title="Demander un mentorat"
-              items={["Message de motivation", "Choix du domaine concerné"]}
-            />
+            <Card>
+              {activeRequest ? (
+                <>
+                  <h2 className="mb-1 font-semibold">
+                    {activeRequest.status === "pending" ? "Demande envoyée" : "Mentorat en cours"}
+                  </h2>
+                  <p className="mb-3 text-sm text-zinc-600">
+                    {activeRequest.status === "pending"
+                      ? "Votre demande attend la réponse du mentor."
+                      : "Ce mentor vous accompagne déjà."}
+                  </p>
+                  <Link
+                    href={activeRequest.status === "accepted" ? `/mentorships/${activeRequest.id}` : "/mentorships"}
+                    className="text-sm font-medium text-brand-700 hover:underline"
+                  >
+                    Voir mes mentorats →
+                  </Link>
+                </>
+              ) : mentor.is_available ? (
+                <>
+                  <h2 className="mb-3 font-semibold">Demander un mentorat</h2>
+                  <RequestForm
+                    mentorId={mentor.id}
+                    mentorFirstName={mentor.full_name.split(" ")[0]}
+                    domains={mentor.domains}
+                  />
+                </>
+              ) : (
+                <p className="text-sm text-zinc-600">Ce mentor n&apos;accepte pas de demande pour le moment.</p>
+              )}
+            </Card>
           )}
         </div>
       </div>

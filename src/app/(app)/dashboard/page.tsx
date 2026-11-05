@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getCurrentProfile } from "@/features/auth/queries";
 import { ROLE_LABELS } from "@/features/profiles/labels";
+import { getMyMentorships } from "@/features/mentorship/queries";
+import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ComingSoon } from "@/components/shared/ComingSoon";
 import { Card } from "@/components/ui/Card";
@@ -8,6 +11,18 @@ import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 
 export const metadata: Metadata = { title: "Tableau de bord · MentorConnect" };
+
+function Stat({ label, value, href }: { label: string; value: number; href: string }) {
+  return (
+    <Link
+      href={href}
+      className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-brand-600"
+    >
+      <p className="text-3xl font-bold text-brand-700">{value}</p>
+      <p className="text-sm text-zinc-600">{label}</p>
+    </Link>
+  );
+}
 
 export default async function DashboardPage() {
   const profile = await getCurrentProfile();
@@ -25,6 +40,9 @@ export default async function DashboardPage() {
   }
 
   const isMentor = profile.role === "mentor";
+  const mentorships = await getMyMentorships();
+  const pending = mentorships.filter((m) => m.status === "pending");
+  const active = mentorships.filter((m) => m.status === "accepted");
 
   return (
     <>
@@ -34,7 +52,7 @@ export default async function DashboardPage() {
         actions={<Badge tone="brand">{ROLE_LABELS[profile.role]}</Badge>}
       />
 
-      <div className="grid gap-4">
+      <div className="grid gap-6">
         {!profile.onboarded && (
           <Card className="border-brand-100 bg-brand-50">
             <h2 className="font-semibold text-brand-800">Complétez votre profil</h2>
@@ -47,31 +65,58 @@ export default async function DashboardPage() {
           </Card>
         )}
 
-        {isMentor ? (
-          <ComingSoon
-            task="T5"
-            title="Demandes de mentorat reçues"
-            items={[
-              "Liste des demandes en attente avec le message du mentoré",
-              "Boutons Accepter / Refuser",
-              "Liste de vos mentorés actifs",
-            ]}
+        <div className="grid grid-cols-2 gap-4">
+          <Stat
+            label={isMentor ? "Demandes à traiter" : "Demandes en attente"}
+            value={pending.length}
+            href="/mentorships"
           />
-        ) : (
-          <>
-            <ComingSoon
-              task="T9"
-              title="Mentors recommandés pour vous"
-              items={["Score de compatibilité selon vos domaines et objectifs", "Raison affichée"]}
-            />
-            <ComingSoon
-              task="T5"
-              title="Mes demandes et mes mentors"
-              items={["Statut de chaque demande (en attente, acceptée, refusée)", "Accès au chat"]}
-            />
-          </>
+          <Stat
+            label={isMentor ? "Mentorés accompagnés" : "Mentors actifs"}
+            value={active.length}
+            href="/mentorships"
+          />
+        </div>
+
+        {isMentor && pending.length > 0 && (
+          <section>
+            <h2 className="mb-3 font-semibold">Nouvelles demandes</h2>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {pending.slice(0, 4).map((m) => (
+                <MentorshipCard key={m.id} mentorship={m} viewerRole="mentor" />
+              ))}
+            </div>
+          </section>
         )}
 
+        {active.length > 0 && (
+          <section>
+            <h2 className="mb-3 font-semibold">{isMentor ? "Vos mentorés" : "Vos mentors"}</h2>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {active.slice(0, 4).map((m) => (
+                <MentorshipCard key={m.id} mentorship={m} viewerRole={profile.role} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {!isMentor && active.length === 0 && pending.length === 0 && profile.onboarded && (
+          <Card>
+            <h2 className="mb-1 font-semibold">Trouvez votre mentor</h2>
+            <p className="mb-4 text-sm text-zinc-600">
+              Parcourez les mentors par domaine et envoyez votre première demande.
+            </p>
+            <ButtonLink href="/mentors">Voir les mentors</ButtonLink>
+          </Card>
+        )}
+
+        {!isMentor && (
+          <ComingSoon
+            task="T9"
+            title="Mentors recommandés pour vous"
+            items={["Score de compatibilité selon vos domaines et objectifs", "Raison affichée"]}
+          />
+        )}
         <ComingSoon
           task="T7"
           title="Prochaines séances"

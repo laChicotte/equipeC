@@ -1,4 +1,11 @@
-import type { MenteeStatus, UserRole } from "@/types/database";
+import type { MenteeStatus, MentorshipStatus, UserRole } from "@/types/database";
+
+export const MENTORSHIP_STATUS_LABELS: Record<MentorshipStatus, string> = {
+  pending: "En attente",
+  accepted: "Active",
+  declined: "Refusée",
+  ended: "Terminée",
+};
 
 /** Libellés français affichés dans l'interface. */
 export const ROLE_LABELS: Record<UserRole, string> = {
