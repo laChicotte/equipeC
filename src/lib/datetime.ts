@@ -42,6 +42,16 @@ export function conakryInputToISO(value: string): string | null {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
+/** Date du jour à Conakry, format « 2026-11-06 » (= date UTC, voir plus haut). */
+export function todayInConakry(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** « 12 novembre » à partir d'une date SQL « 2026-11-12 » (sans heure). */
+export function formatDueDate(date: string): string {
+  return formatShortDate(`${date}T12:00:00Z`);
+}
+
 /** Valeur minimale d'un champ datetime-local : maintenant, heure de Conakry. */
 export function nowAsConakryInput(): string {
   return new Date().toISOString().slice(0, 16);

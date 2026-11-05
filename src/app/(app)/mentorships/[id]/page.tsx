@@ -7,7 +7,7 @@ import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard"
 import { getMessages } from "@/features/messaging/queries";
 import { Chat } from "@/features/messaging/components/Chat";
 import { SessionsPanel } from "@/features/sessions/components/SessionsPanel";
-import { ComingSoon } from "@/components/shared/ComingSoon";
+import { GoalsPanel } from "@/features/goals/components/GoalsPanel";
 
 export const metadata: Metadata = { title: "Espace de mentorat · MentorConnect" };
 
@@ -55,10 +55,9 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
               currentUserId={profile.id}
               names={names}
             />
-            <ComingSoon
-              task="T10"
-              title="Objectifs"
-              items={["Ajouter et cocher des objectifs", "Barre de progression"]}
+            <GoalsPanel
+              mentorshipId={mentorship.id}
+              canEdit={mentorship.status === "accepted"}
             />
             <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
           </div>

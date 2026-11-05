@@ -45,6 +45,16 @@ export type SessionReview = {
   created_at: string;
 };
 
+export type Goal = {
+  id: string;
+  mentorship_id: string;
+  title: string;
+  status: GoalStatus;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Message = {
   id: number;
   mentorship_id: string;
