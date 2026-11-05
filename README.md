@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MentorConnect
 
-## Getting Started
+Plateforme de mentorat qui met en relation des jeunes (étudiants, jeunes diplômés,
+entrepreneurs, porteurs de projet, personnes en reconversion) avec des professionnels
+expérimentés, pour un accompagnement **par chat et en visio**.
 
-First, run the development server:
+Projet réalisé pour le hackathon d'innovation numérique du Salon international du livre
+de jeunesse de Conakry (Mois du Numérique, 4-7 novembre 2026).
+
+## Fonctionnalités
+
+| | |
+|---|---|
+| 👤 Profils mentors et mentorés | Domaines, expérience, situation, objectifs |
+| 🔎 Catalogue | Filtre par domaine (dont Campus France), recherche sans accents |
+| ✨ Recommandations | Score de compatibilité **expliqué** (domaines, objectifs, situation, note) |
+| 🤝 Mise en relation | Demande motivée, acceptation ou refus par le mentor |
+| 💬 Chat temps réel | Supabase Realtime, rattrapage des messages après une coupure |
+| 🎥 Séances en visio | Planification, lien Jitsi unique généré par la base |
+| ⭐ Évaluations | Notes des séances, moyenne publique des mentors |
+| 🎯 Objectifs | Suivi À faire / En cours / Fait, barre de progression |
+
+## Stack technique
+
+- **Next.js 16** (App Router, Server Components, Server Actions, `proxy.ts`), **TypeScript**, **Tailwind CSS 4**
+- **Supabase** : authentification, PostgreSQL avec **Row Level Security** sur toutes les tables, Realtime
+- **zod** pour la validation côté serveur
+
+La sécurité repose sur trois niveaux : le proxy (redirections), une vérification dans chaque
+Server Action, et surtout les **règles RLS de PostgreSQL**, testées automatiquement
+(`npm run test:rls`).
+
+## Démarrage
+
+Prérequis : Node.js 20 ou plus, un projet Supabase (plan gratuit).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # puis renseigner les valeurs (voir les commentaires)
+npm run check:supabase       # vérifie la configuration, sans afficher les clés
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Base de données : exécuter **une fois** `supabase/migrations/0001_init.sql` dans
+Supabase (*SQL Editor → New query → Run*), puis désactiver *Confirm email*
+(*Authentication → Sign In / Providers → Email*).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev    # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Données de démonstration
 
-## Learn More
+```bash
+npm run seed
+```
 
-To learn more about Next.js, take a look at the following resources:
+Crée 10 mentors et 3 mentorés **fictifs**, avec messages, séances, évaluations et objectifs.
+Nécessite `SUPABASE_SECRET_KEY` et `DEMO_PASSWORD` dans `.env.local` (jamais dans Git).
+⚠️ Supprime d'abord tous les comptes en `@example.com`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Compte | Rôle | Pour montrer |
+|---|---|---|
+| `aissatou.demo@example.com` | Mentorée | Mentorat actif : chat, séances, objectifs, avis |
+| `fatoumata.demo@example.com` | Mentore | Une demande à accepter en direct |
+| `ibrahima.demo@example.com` | Mentoré | Porteur de projet, demande en attente |
+| `nene.demo@example.com` | Mentorée | Historique d'un mentorat terminé |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Commandes
 
-## Deploy on Vercel
+| Commande | Rôle |
+|---|---|
+| `npm run dev` | Serveur de développement |
+| `npm run build` / `npm run start` | Version de production |
+| `npm run lint` / `npm run typecheck` | Qualité du code |
+| `npm test` | Tests unitaires (score de recommandation) |
+| `npm run test:rls` | Tests de sécurité de la base (crée des comptes `@example.com`) |
+| `npm run check:supabase` | Vérifie `.env.local` et la connexion |
+| `npm run seed` | Recrée les données de démonstration |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Organisation du code
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/            Pages (App Router) : (auth) connexion, (app) zone connectée
+├── components/     Interface réutilisable (ui/, layout/, shared/)
+├── features/       Code métier par fonctionnalité : queries.ts (lecture),
+│                   actions.ts (écriture, Server Actions), components/
+├── lib/            Clients Supabase, dates (fuseau Africa/Conakry)
+├── types/          Types du schéma de base de données
+└── proxy.ts        Session et protection des pages
+supabase/migrations Schéma SQL, règles RLS, triggers
+scripts/            Vérification, tests de sécurité, données de démo
+tests/              Tests unitaires
+```
