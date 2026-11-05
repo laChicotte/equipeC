@@ -2,7 +2,29 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Domain, Profile } from "@/types/database";
-import { normalize } from "./matching";
+import { normalize, type MenteeInput, type MentorInput } from "./matching";
+import { getProfileDomainIds } from "@/features/profiles/queries";
+
+/** Données d'un mentoré (profil complété) pour le moteur de recommandation. */
+export async function getMenteeInput(profile: Profile | null): Promise<MenteeInput | null> {
+  if (!profile || profile.role !== "mentee" || !profile.onboarded) return null;
+  return {
+    domainIds: await getProfileDomainIds(profile.id),
+    menteeStatus: profile.mentee_status,
+    text: [profile.goals_summary, profile.headline, profile.bio].filter(Boolean).join(" "),
+  };
+}
+
+/** Données d'un mentor pour le moteur de recommandation. */
+export function toMentorInput(m: MentorSummary): MentorInput {
+  return {
+    id: m.id,
+    domains: m.domains,
+    text: [m.headline, m.job_title, m.organization, m.bio].filter(Boolean).join(" "),
+    yearsExperience: m.years_experience,
+    rating: m.rating,
+  };
+}
 
 export type MentorRating = { avg: number; count: number };
 
@@ -70,6 +92,24 @@ export const getAvailableMentors = cache(async (): Promise<MentorSummary[]> => {
   ]);
   return ((data ?? []) as unknown as MentorRow[]).map((row) => toSummary(row, ratings));
 });
+
+export type PublicReview = {
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  reviewer_first_name: string;
+};
+
+/**
+ * Avis publics des mentorés sur un mentor (fonction SQL get_mentor_reviews,
+ * migration 0003 : uniquement prénom, note, commentaire et date).
+ */
+export async function getMentorReviews(mentorId: string): Promise<PublicReview[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("get_mentor_reviews", { p_mentor_id: mentorId, p_limit: 6 });
+  if (error) return []; // ex. migration 0003 pas encore exécutée
+  return (data ?? []) as PublicReview[];
+}
 
 /** Un mentor par son identifiant (null si introuvable ou pas mentor). */
 export async function getMentorById(id: string): Promise<MentorSummary | null> {

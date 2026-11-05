@@ -34,6 +34,7 @@ export const OPPORTUNITY_KIND_LABELS: Record<OpportunityKind, { label: string; i
   concours: { label: "Concours", icon: "🏆" },
   formation: { label: "Formation", icon: "📚" },
   evenement: { label: "Événement", icon: "📅" },
+  atelier: { label: "Atelier thématique", icon: "🧑‍🏫" },
 };
 
 export const MENTORSHIP_STATUS_LABELS: Record<MentorshipStatus, string> = {
@@ -41,6 +42,7 @@ export const MENTORSHIP_STATUS_LABELS: Record<MentorshipStatus, string> = {
   accepted: "Active",
   declined: "Refusée",
   ended: "Terminée",
+  cancelled: "Annulée",
 };
 
 /** Libellés français affichés dans l'interface. */
@@ -55,5 +57,10 @@ export const MENTEE_STATUS_LABELS: Record<MenteeStatus, string> = {
   entrepreneur: "Entrepreneur(e)",
   porteur_projet: "Porteur(se) de projet",
   reconversion: "En reconversion",
-  autre: "Autre",
+  // 6e public du cahier des charges (§2.3) ; valeur « autre » en base
+  autre: "Développer de nouvelles compétences",
 };
+
+/** Mention obligatoire (TDR §5.7) partout où Campus France apparaît. */
+export const CAMPUS_FRANCE_NOTICE =
+  "L'accompagnement Campus France relève du conseil, de l'orientation et du partage d'expérience : il ne garantit ni l'admission dans un établissement, ni l'obtention d'un visa.";

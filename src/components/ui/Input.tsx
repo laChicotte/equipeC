@@ -7,8 +7,8 @@ type FieldProps = ComponentProps<"input"> & {
 };
 
 const controlClasses = (hasError: boolean) =>
-  `w-full rounded-lg border bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-100 ${
-    hasError ? "border-red-500" : "border-zinc-300"
+  `w-full rounded-xl border bg-white px-3.5 py-3 text-sm outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-100 ${
+    hasError ? "border-red-500" : "border-zinc-200"
   }`;
 
 function FieldShell({
@@ -26,11 +26,11 @@ function FieldShell({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className="text-sm font-medium text-zinc-800">
+      <label htmlFor={name} className="text-sm font-medium text-ink-700">
         {label}
       </label>
       {children}
-      {hint && !errors?.length && <p className="text-xs text-zinc-500">{hint}</p>}
+      {hint && !errors?.length && <p className="text-xs text-ink-500">{hint}</p>}
       {Boolean(errors?.length) && (
         <p id={`${name}-error`} className="text-sm text-red-600">
           {errors!.join(" ")}
@@ -108,7 +108,7 @@ export function Field({ label, name, errors, className = "", ...props }: FieldPr
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className="text-sm font-medium text-zinc-800">
+      <label htmlFor={name} className="text-sm font-medium text-ink-700">
         {label}
       </label>
       <input
@@ -116,8 +116,8 @@ export function Field({ label, name, errors, className = "", ...props }: FieldPr
         name={name}
         aria-invalid={hasError}
         aria-describedby={hasError ? errorId : undefined}
-        className={`rounded-lg border bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-100 ${
-          hasError ? "border-red-500" : "border-zinc-300"
+        className={`rounded-xl border bg-white px-3.5 py-3 text-sm outline-none transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-100 ${
+          hasError ? "border-red-500" : "border-zinc-200"
         } ${className}`}
         {...props}
       />

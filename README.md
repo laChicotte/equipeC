@@ -40,9 +40,14 @@ cp .env.example .env.local   # puis renseigner les valeurs (voir les commentaire
 npm run check:supabase       # vérifie la configuration, sans afficher les clés
 ```
 
-Base de données : exécuter **une fois** `supabase/migrations/0001_init.sql` dans
-Supabase (*SQL Editor → New query → Run*), puis désactiver *Confirm email*
-(*Authentication → Sign In / Providers → Email*).
+Base de données : exécuter **une fois, dans l'ordre**, les fichiers de
+`supabase/migrations/` dans Supabase (*SQL Editor → New query → Run*) :
+
+1. `0001_init.sql` : tables, sécurité RLS, trigger, domaines
+2. `0002_resources_opportunities.sql` : ressources et opportunités
+3. `0003_cancel_and_public_reviews.sql` : annulation d'une demande, avis publics, ateliers
+
+Puis désactiver *Confirm email* (*Authentication → Sign In / Providers → Email*).
 
 ```bash
 npm run dev    # http://localhost:3000

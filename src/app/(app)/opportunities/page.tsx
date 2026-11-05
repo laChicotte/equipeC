@@ -23,11 +23,12 @@ export default async function OpportunitiesPage({ searchParams }: PageProps<"/op
   return (
     <>
       <PageHeader
-        title="Opportunités"
+        eyebrow="Communauté"
+        title="Saisissez les opportunités."
         description="Stages, emplois, bourses, financements et événements partagés par la communauté."
       />
 
-      <details className="mb-6 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+      <details className="mb-6 rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
         <summary className="cursor-pointer font-medium text-brand-700">+ Partager une opportunité</summary>
         <div className="mt-4">
           <OpportunityForm minDate={todayInConakry()} />
@@ -49,7 +50,7 @@ export default async function OpportunitiesPage({ searchParams }: PageProps<"/op
       </div>
 
       {opportunities.length === 0 ? (
-        <Card className="text-center text-sm text-zinc-600">
+        <Card className="text-center text-sm text-ink-500">
           Aucune opportunité ouverte pour le moment. Soyez le premier à en partager une !
         </Card>
       ) : (
@@ -59,14 +60,14 @@ export default async function OpportunitiesPage({ searchParams }: PageProps<"/op
             const meta = [o.organization, o.location].filter(Boolean).join(" · ");
             return (
               <li key={o.id}>
-                <article className="flex h-full flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+                <article className="flex h-full flex-col gap-3 rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <Badge tone="brand">
                       {kindUi.icon} {kindUi.label}
                     </Badge>
                     {o.deadline && (
                       <span
-                        className={`text-xs font-medium ${o.closingSoon ? "text-red-600" : "text-zinc-500"}`}
+                        className={`text-xs font-medium ${o.closingSoon ? "text-red-600" : "text-ink-500"}`}
                       >
                         {o.closingSoon ? "⏳ " : ""}Jusqu&apos;au {formatDueDate(o.deadline)}
                       </span>
@@ -74,10 +75,10 @@ export default async function OpportunitiesPage({ searchParams }: PageProps<"/op
                   </div>
                   <div>
                     <h2 className="font-semibold">{o.title}</h2>
-                    {meta && <p className="text-sm text-zinc-600">{meta}</p>}
+                    {meta && <p className="text-sm text-ink-500">{meta}</p>}
                   </div>
-                  <p className="text-sm whitespace-pre-line text-zinc-700">{o.description}</p>
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-zinc-500">
+                  <p className="text-sm whitespace-pre-line text-ink-700">{o.description}</p>
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-ink-500">
                     <span>
                       Partagé par {o.author?.full_name ?? "un membre"} · {formatShortDate(o.created_at)}
                     </span>
@@ -85,7 +86,7 @@ export default async function OpportunitiesPage({ searchParams }: PageProps<"/op
                       {o.author_id === userId && (
                         <form action={deleteOpportunity}>
                           <input type="hidden" name="opportunity_id" value={o.id} />
-                          <button className="text-zinc-500 hover:text-red-600">Supprimer</button>
+                          <button className="text-ink-500 hover:text-red-600">Supprimer</button>
                         </form>
                       )}
                       {o.url && (

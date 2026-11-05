@@ -51,7 +51,7 @@ export async function SessionsPanel({
       {upcoming.length > 0 ? (
         <ul className="mb-4 flex flex-col gap-2">{upcoming.map((s) => item(s, isActive))}</ul>
       ) : (
-        <p className="mb-4 text-sm text-zinc-600">Aucune séance prévue.</p>
+        <p className="mb-4 text-sm text-ink-500">Aucune séance prévue.</p>
       )}
 
       {toReview.length > 0 && (
@@ -76,7 +76,7 @@ export async function SessionsPanel({
 
       {history.length > 0 && (
         <details className="mt-4">
-          <summary className="cursor-pointer text-sm text-zinc-600">
+          <summary className="cursor-pointer text-sm text-ink-500">
             Séances passées ou annulées ({history.length})
           </summary>
           <ul className="mt-2 flex flex-col gap-2">{history.map((s) => item(s, false))}</ul>

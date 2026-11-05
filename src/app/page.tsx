@@ -53,6 +53,7 @@ const AUDIENCES = [
   { icon: "🚀", title: "Entrepreneurs", text: "Structurer, financer, développer son activité." },
   { icon: "💡", title: "Porteurs de projet", text: "Passer de l'idée au projet concret." },
   { icon: "🔄", title: "En reconversion", text: "Changer de voie, accompagné." },
+  { icon: "🌱", title: "Nouvelles compétences", text: "Apprendre auprès de ceux qui pratiquent." },
 ];
 
 const FEATURES = [
@@ -74,11 +75,11 @@ function HeroArch() {
         {HERO_PHOTO ? (
           <Image
             src="/hero.jpg"
-            alt="Une mentorée souriante, tablette à la main"
+            alt="Une jeune professionnelle accompagnée par deux mentors devant son poste de travail"
             fill
             priority
             sizes="(min-width: 1024px) 40vw, 90vw"
-            className="object-cover object-top"
+            className="object-cover object-[center_40%]"
           />
         ) : (
           // Sans photo : aperçu de l'application (fiche mentor + conversation)
@@ -280,7 +281,7 @@ export default async function HomePage() {
               Numérique, MentorConnect rapproche les jeunes des professionnels expérimentés pour
               transmettre les savoirs et construire les carrières de demain.
             </p>
-            <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {AUDIENCES.map((a) => (
                 <li key={a.title} className="rounded-3xl border border-zinc-200 p-6">
                   <span aria-hidden className="text-3xl">{a.icon}</span>
@@ -296,6 +297,13 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
+            <p className="mt-8 text-ink-500">
+              Une relation de confiance, encadrée par notre{" "}
+              <Link href="/charte" className="font-semibold text-brand-700 hover:underline">
+                charte du mentorat
+              </Link>
+              .
+            </p>
           </div>
         </section>
 
@@ -329,7 +337,9 @@ export default async function HomePage() {
             <Logo tone="light" />
             <p className="text-sm text-white/70">Une expérience à partager, un avenir à construire.</p>
           </div>
-          <p className="text-sm text-white/50">© 2026 MentorConnect · Conakry</p>
+          <p className="text-sm text-white/50">
+            <Link href="/charte" className="hover:text-white">Charte du mentorat</Link> · © 2026 MentorConnect · Conakry
+          </p>
         </div>
         <p className="mx-auto mt-6 max-w-7xl text-xs text-white/40">
           L&apos;accompagnement Campus France relève du conseil et du partage d&apos;expérience : il ne

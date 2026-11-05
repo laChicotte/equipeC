@@ -24,14 +24,15 @@ export default async function MentorshipsPage() {
     { title: "Mentorats actifs", items: all.filter((m) => m.status === "accepted") },
     {
       title: "Historique",
-      items: all.filter((m) => m.status === "declined" || m.status === "ended"),
+      items: all.filter((m) => ["declined", "ended", "cancelled"].includes(m.status)),
     },
   ];
 
   return (
     <>
       <PageHeader
-        title="Mes mentorats"
+        eyebrow="Messages"
+        title="Mes mentorats et échanges"
         description={
           isMentor
             ? "Les demandes reçues et les personnes que vous accompagnez."
@@ -41,7 +42,7 @@ export default async function MentorshipsPage() {
 
       {all.length === 0 ? (
         <Card className="text-center">
-          <p className="mb-4 text-sm text-zinc-600">
+          <p className="mb-4 text-sm text-ink-500">
             {isMentor
               ? "Vous n'avez pas encore reçu de demande. Un profil complet attire davantage de mentorés."
               : "Vous n'avez pas encore envoyé de demande."}
@@ -56,7 +57,7 @@ export default async function MentorshipsPage() {
             .filter((g) => g.items.length > 0)
             .map((group) => (
               <section key={group.title}>
-                <h2 className="mb-3 text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+                <h2 className="mb-3 text-sm font-semibold tracking-wide text-ink-500 uppercase">
                   {group.title} ({group.items.length})
                 </h2>
                 <div className="grid gap-4 lg:grid-cols-2">

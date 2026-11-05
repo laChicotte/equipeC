@@ -32,12 +32,13 @@ export default async function ResourcesPage({ searchParams }: PageProps<"/resour
   return (
     <>
       <PageHeader
-        title="Bibliothèque de ressources"
+        eyebrow="Bibliothèque"
+        title="Des ressources pour avancer."
         description="Guides, outils et conseils partagés par les mentors."
       />
 
       {isMentor && (
-        <details className="mb-6 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <details className="mb-6 rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
           <summary className="cursor-pointer font-medium text-brand-700">
             + Partager une ressource ou un conseil
           </summary>
@@ -75,7 +76,7 @@ export default async function ResourcesPage({ searchParams }: PageProps<"/resour
       </div>
 
       {resources.length === 0 ? (
-        <Card className="text-center text-sm text-zinc-600">
+        <Card className="text-center text-sm text-ink-500">
           Aucune ressource pour ces filtres pour le moment.
         </Card>
       ) : (
@@ -84,7 +85,7 @@ export default async function ResourcesPage({ searchParams }: PageProps<"/resour
             const kindUi = RESOURCE_KIND_LABELS[r.kind];
             return (
               <li key={r.id}>
-                <article className="flex h-full flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+                <article className="flex h-full flex-col gap-3 rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge tone="accent">
                       {kindUi.icon} {kindUi.label}
@@ -92,8 +93,8 @@ export default async function ResourcesPage({ searchParams }: PageProps<"/resour
                     {r.domain && <Badge tone="brand">{r.domain.name}</Badge>}
                   </div>
                   <h2 className="font-semibold">{r.title}</h2>
-                  <p className="text-sm whitespace-pre-line text-zinc-700">{r.description}</p>
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-zinc-500">
+                  <p className="text-sm whitespace-pre-line text-ink-700">{r.description}</p>
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-ink-500">
                     <span>
                       Par {r.author?.full_name ?? "un mentor"} · {formatShortDate(r.created_at)}
                     </span>
@@ -101,7 +102,7 @@ export default async function ResourcesPage({ searchParams }: PageProps<"/resour
                       {r.author_id === profile?.id && (
                         <form action={deleteResource}>
                           <input type="hidden" name="resource_id" value={r.id} />
-                          <button className="text-zinc-500 hover:text-red-600">Supprimer</button>
+                          <button className="text-ink-500 hover:text-red-600">Supprimer</button>
                         </form>
                       )}
                       {r.url && (

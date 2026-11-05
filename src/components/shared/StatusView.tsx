@@ -18,7 +18,7 @@ export function StatusView({
         {icon}
       </span>
       <h1 className="text-2xl font-semibold">{title}</h1>
-      <div className="mt-2 text-zinc-600">{children}</div>
+      <div className="mt-2 text-ink-500">{children}</div>
       <div className="mt-6 flex flex-wrap justify-center gap-3">{actions}</div>
     </div>
   );

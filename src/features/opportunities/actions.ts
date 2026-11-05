@@ -17,7 +17,7 @@ const optionalText = (max: number) =>
 
 const schema = z.object({
   kind: z.enum(
-    ["emploi", "stage", "bourse", "financement", "concours", "formation", "evenement"],
+    ["emploi", "stage", "bourse", "financement", "concours", "formation", "evenement", "atelier"],
     "Choisissez un type",
   ),
   title: z.string().trim().min(3, "3 caractères minimum").max(150, "150 caractères maximum"),

@@ -22,7 +22,7 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <PageHeader title="Mon profil" />
+      <PageHeader eyebrow="Mon compte" title="Mon profil" description="Ces informations sont visibles des autres membres selon votre rôle." />
       <div className="grid gap-4">
         <Card className="flex items-center gap-4">
           <Avatar name={profile.full_name} size="lg" />

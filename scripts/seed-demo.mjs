@@ -323,7 +323,7 @@ const opportunities = [
     "Subvention et accompagnement pour des projets de transformation agricole portés par des moins de 35 ans. Dossier : présentation du projet et budget prévisionnel.", 5],
   [id.thierno, "bourse", "Bourse d'excellence pour un master (exemple)", "Fondation partenaire (exemple)", "France",
     "Bourse couvrant les frais de scolarité pour des étudiants admis en master. Critères : résultats académiques et projet professionnel.", 30],
-  [id.mariama, "evenement", "Atelier « Réussir son entretien d'embauche »", "MentorConnect", "Conakry",
+  [id.mariama, "atelier", "Atelier « Réussir son entretien d'embauche »", "MentorConnect", "Conakry",
     "Atelier gratuit de 2 heures : simulations d'entretien en petits groupes et retours personnalisés.", 3],
   [id.ibrahima, "emploi", "Recrutement d'agents de tri saisonniers", "Coopérative de mangues (exemple)", "Kindia",
     "Recrutement pour la saison des mangues : tri et conditionnement. Partagé par un mentoré de la plateforme.", 12],

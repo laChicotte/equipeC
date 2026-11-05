@@ -57,18 +57,18 @@ function ReviewsBlock({
     <div className="flex flex-col gap-2 text-sm">
       {mine ? (
         <p>
-          <span className="text-zinc-600">Votre avis : </span>
+          <span className="text-ink-500">Votre avis : </span>
           <Stars rating={mine.rating} />
-          {mine.comment && <span className="text-zinc-600"> — {mine.comment}</span>}
+          {mine.comment && <span className="text-ink-500"> — {mine.comment}</span>}
         </p>
       ) : (
         <ReviewForm sessionId={session.id} mentorshipId={session.mentorship_id} />
       )}
       {others.map((r) => (
         <p key={r.id}>
-          <span className="text-zinc-600">Avis de {names[r.reviewer_id] ?? "l'autre participant"} : </span>
+          <span className="text-ink-500">Avis de {names[r.reviewer_id] ?? "l'autre participant"} : </span>
           <Stars rating={r.rating} />
-          {r.comment && <span className="text-zinc-600"> — {r.comment}</span>}
+          {r.comment && <span className="text-ink-500"> — {r.comment}</span>}
         </p>
       ))}
     </div>
@@ -108,7 +108,7 @@ export function SessionItem({
           >
             {formatDateTime(session.scheduled_at)}
           </p>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-ink-500">
             {duration}
             {session.topic && <> · {session.topic}</>}
           </p>
@@ -123,7 +123,7 @@ export function SessionItem({
             <form action={cancelSession}>
               <input type="hidden" name="session_id" value={session.id} />
               <input type="hidden" name="mentorship_id" value={session.mentorship_id} />
-              <button className="rounded-lg px-2 py-1.5 text-xs text-zinc-500 hover:bg-zinc-100 hover:text-red-600">
+              <button className="rounded-lg px-2 py-1.5 text-xs text-ink-500 hover:bg-zinc-100 hover:text-red-600">
                 Annuler la séance
               </button>
             </form>

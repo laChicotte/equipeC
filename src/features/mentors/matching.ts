@@ -114,6 +114,59 @@ export function scoreMentor(mentee: MenteeInput, mentor: MentorInput): Recommend
 }
 
 /**
+ * « Recherche intelligente » : déduit les domaines évoqués dans une phrase
+ * libre (ex. « valider mon idée de fintech » → entrepreneuriat, numérique).
+ * Comparaison par racine de mot (5 premières lettres), sans accents.
+ */
+const DOMAIN_HINTS: Record<string, string[]> = {
+  entrepreneuriat: [
+    "entreprise", "entrepreneur", "startup", "fintech", "agritech", "business", "creer", "creation",
+    "client", "commercial", "vendre", "idee", "projet", "marche", "lancer",
+  ],
+  numerique: [
+    "informatique", "developpeur", "developpement", "code", "coder", "programmation", "web",
+    "application", "data", "donnees", "intelligence", "cybersecurite", "securite", "digital",
+    "numerique", "design", "fintech", "tech",
+  ],
+  "orientation-insertion": [
+    "emploi", "travail", "stage", "entretien", "embauche", "recrutement", "candidature", "orientation",
+    "carriere", "reconversion", "metier",
+  ],
+  "culture-creation": [
+    "livre", "ecrire", "ecriture", "edition", "auteur", "video", "contenu", "audiovisuel", "musique",
+    "culture", "artiste", "createur",
+  ],
+  "gestion-finance": [
+    "finance", "financement", "comptabilite", "budget", "gestion", "investissement", "banque",
+    "subvention", "tresorerie", "fintech",
+  ],
+  "developpement-personnel": [
+    "confiance", "leadership", "parole", "public", "timidite", "organisation", "temps", "equipe",
+    "manager", "motivation",
+  ],
+  "campus-france": [
+    "campus", "france", "master", "licence", "etudes", "etudiant", "universite", "visa", "dossier",
+    "admission", "ecole",
+  ],
+};
+
+/** Raccourci « cv » : trop court pour la règle des 5 lettres, traité à part. */
+const SHORT_HINTS: Record<string, string> = { cv: "orientation-insertion", ia: "numerique" };
+
+export function inferDomainSlugs(text: string): string[] {
+  const words = normalize(text).match(/[a-z0-9]+/g) ?? [];
+  const slugs = new Set<string>();
+  for (const word of words) {
+    if (SHORT_HINTS[word]) slugs.add(SHORT_HINTS[word]);
+    if (word.length < 4) continue;
+    for (const [slug, hints] of Object.entries(DOMAIN_HINTS)) {
+      if (hints.some((hint) => sameRoot(word, hint))) slugs.add(slug);
+    }
+  }
+  return [...slugs];
+}
+
+/**
  * Les meilleurs mentors pour un mentoré. Ne garde que les mentors pertinents :
  * au moins un domaine en commun OU des mots-clés communs (score ≥ 20).
  */

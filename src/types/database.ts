@@ -13,7 +13,7 @@ export type MenteeStatus =
   | "reconversion"
   | "autre";
 
-export type MentorshipStatus = "pending" | "accepted" | "declined" | "ended";
+export type MentorshipStatus = "pending" | "accepted" | "declined" | "ended" | "cancelled";
 export type SessionStatus = "scheduled" | "done" | "cancelled";
 export type GoalStatus = "todo" | "in_progress" | "done";
 
@@ -25,7 +25,8 @@ export type OpportunityKind =
   | "financement"
   | "concours"
   | "formation"
-  | "evenement";
+  | "evenement"
+  | "atelier";
 
 export type Resource = {
   id: string;

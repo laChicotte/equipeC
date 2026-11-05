@@ -110,12 +110,12 @@ function SidebarContent({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-7 pt-8 pb-10">
+      <div className="px-7 pt-7 pb-6">
         <Logo href="/dashboard" />
       </div>
 
       <nav aria-label="Navigation principale" className="flex-1 overflow-y-auto px-5">
-        <ul className="flex flex-col gap-1.5">
+        <ul className="flex flex-col gap-1">
           {NAV.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             const count = badges[item.href] ?? 0;
@@ -125,7 +125,7 @@ function SidebarContent({
                   href={item.href}
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
-                  className={`flex items-center gap-4 rounded-2xl px-4 py-3.5 text-[15px] transition-colors ${
+                  className={`flex items-center gap-4 rounded-2xl px-4 py-2.5 text-[15px] transition-colors ${
                     active
                       ? "bg-brand-50 font-semibold text-brand-700"
                       : "text-ink-500 hover:bg-zinc-50 hover:text-ink-900"
@@ -146,11 +146,11 @@ function SidebarContent({
         </ul>
       </nav>
 
-      {/* Encadré d'aide (bleu nuit) */}
-      <div className="p-5">
-        <div className="rounded-3xl bg-ink-900 p-6 text-white">
+      {/* Encadré d'aide (bleu nuit) — masqué sur les écrans peu hauts */}
+      <div className="px-5 pt-4 [@media(max-height:760px)]:hidden">
+        <div className="rounded-3xl bg-ink-900 p-5 text-white">
           <span className="text-accent-400">{icon(ICONS.sparkle, "size-6")}</span>
-          <p className="mt-4 font-bold">Besoin d&apos;aide ?</p>
+          <p className="mt-3 font-bold">Besoin d&apos;aide ?</p>
           <p className="mt-1 text-sm text-white/70">
             {user?.isMentor
               ? "Partagez vos conseils avec toute la communauté."
@@ -159,12 +159,34 @@ function SidebarContent({
           <Link
             href={user?.isMentor ? "/resources" : "/mentors"}
             onClick={onNavigate}
-            className="mt-5 block rounded-xl border border-white/20 bg-white/5 px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-white/10"
+            className="mt-4 block rounded-xl border border-white/20 bg-white/5 px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-white/10"
           >
             {user?.isMentor ? "Partager une ressource" : "Trouver un mentor"}
           </Link>
         </div>
       </div>
+
+      {/* Compte : toujours visible en bas du menu (profil, déconnexion) */}
+      {user && (
+        <div className="m-5 mt-4 flex items-center gap-3 rounded-2xl border border-zinc-100 p-3">
+          <Link href="/profile" onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-3" title="Mon profil">
+            <Avatar name={user.fullName} size="sm" />
+            <span className="min-w-0 leading-tight">
+              <span className="block truncate text-sm font-semibold text-ink-900">{user.fullName}</span>
+              <span className="block text-xs text-ink-500">{user.roleLabel} · Mon profil</span>
+            </span>
+          </Link>
+          <form action={logout}>
+            <button
+              aria-label="Se déconnecter"
+              title="Se déconnecter"
+              className="inline-flex size-9 items-center justify-center rounded-xl text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              {icon(<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" />, "size-5")}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
@@ -193,9 +215,19 @@ function UserMenu({ user }: { user: ShellUser }) {
         onClick={() => setOpen((v) => !v)}
         aria-label="Menu du compte"
         aria-expanded={open}
-        className="rounded-full ring-2 ring-transparent transition hover:ring-brand-100"
+        className="flex items-center gap-3 rounded-full py-1 pr-1 pl-1 ring-2 ring-transparent transition hover:bg-zinc-50 hover:ring-brand-100 xl:pl-4"
       >
-        <Avatar name={user.fullName} size="lg" />
+        <span className="hidden text-right leading-tight xl:block">
+          <span className="block text-sm font-semibold text-ink-900">{user.fullName.split(" ")[0]}</span>
+          <span className="block text-xs text-ink-500">{user.roleLabel}</span>
+        </span>
+        <span className="inline-flex size-12 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">
+          {user.fullName
+            .split(/\s+/)
+            .slice(0, 2)
+            .map((p) => p[0]?.toUpperCase())
+            .join("")}
+        </span>
       </button>
       {open && (
         <>

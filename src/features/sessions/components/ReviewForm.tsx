@@ -45,7 +45,7 @@ export function ReviewForm({ sessionId, mentorshipId }: { sessionId: string; men
               </span>
             </label>
           ))}
-          <span className="ml-2 text-xs text-zinc-600">{LABELS[shown]}</span>
+          <span className="ml-2 text-xs text-ink-500">{LABELS[shown]}</span>
         </div>
         {state.fieldErrors?.rating && (
           <p className="text-sm text-red-600">{state.fieldErrors.rating.join(" ")}</p>

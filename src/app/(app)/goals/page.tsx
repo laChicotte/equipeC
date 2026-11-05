@@ -28,6 +28,7 @@ export default async function GoalsPage() {
   return (
     <>
       <PageHeader
+        eyebrow="Mon parcours"
         title="Mes objectifs"
         description={
           isMentor

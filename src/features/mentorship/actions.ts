@@ -78,6 +78,26 @@ export async function endMentorship(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
+/**
+ * Le mentoré annule sa demande tant qu'elle est en attente.
+ * Le trigger SQL (migration 0003) vérifie que c'est bien le mentoré.
+ */
+export async function cancelRequest(formData: FormData) {
+  const id = uuid.safeParse(formData.get("mentorship_id"));
+  const profile = await getCurrentProfile();
+  if (!id.success || !profile) return;
+
+  const supabase = await createClient();
+  await supabase
+    .from("mentorships")
+    .update({ status: "cancelled" })
+    .eq("id", id.data)
+    .eq("mentee_id", profile.id)
+    .eq("status", "pending");
+
+  revalidatePath("/", "layout");
+}
+
 const respondSchema = z.object({
   mentorship_id: uuid,
   decision: z.enum(["accepted", "declined"]),

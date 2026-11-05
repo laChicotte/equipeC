@@ -11,10 +11,10 @@ export function FilterChips({ chips, label }: { chips: Chip[]; label: string }) 
           key={chip.href}
           href={chip.href}
           aria-current={chip.active ? "true" : undefined}
-          className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-sm ${
+          className={`whitespace-nowrap rounded-full border px-5 py-2.5 text-sm transition-colors ${
             chip.active
-              ? "border-brand-600 bg-brand-600 text-white"
-              : "border-zinc-300 bg-white text-zinc-700 hover:border-brand-600"
+              ? "border-ink-900 bg-ink-900 font-medium text-white"
+              : "border-zinc-200 bg-white text-ink-700 hover:border-ink-900"
           }`}
         >
           {chip.label}

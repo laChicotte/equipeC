@@ -62,6 +62,7 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
             <GoalsPanel
               mentorshipId={mentorship.id}
               canEdit={mentorship.status === "accepted"}
+              domainSlug={mentorship.domain?.slug}
             />
             <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
           </div>

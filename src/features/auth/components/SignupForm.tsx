@@ -27,7 +27,7 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
   return (
     <form action={formAction} className="flex flex-col gap-4" noValidate>
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1.5 text-sm font-medium text-zinc-800">Vous êtes…</legend>
+        <legend className="mb-1.5 text-sm font-medium text-ink-700">Vous êtes…</legend>
         <div className="grid gap-2 sm:grid-cols-2">
           {ROLE_OPTIONS.map((option) => (
             <label
@@ -44,7 +44,7 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
                 />
                 {option.title}
               </span>
-              <span className="pl-6 text-xs text-zinc-500">{option.text}</span>
+              <span className="pl-6 text-xs text-ink-500">{option.text}</span>
             </label>
           ))}
         </div>
@@ -76,6 +76,22 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
         required
         errors={state.fieldErrors?.password}
       />
+
+      <div>
+        <label className="flex items-start gap-3 text-sm text-ink-700">
+          <input type="checkbox" name="charter" required className="mt-0.5 size-4 shrink-0 accent-brand-600" />
+          <span>
+            J&apos;ai lu et j&apos;accepte la{" "}
+            <a href="/charte" target="_blank" className="font-semibold text-brand-700 underline-offset-2 hover:underline">
+              charte du mentorat
+            </a>
+            .
+          </span>
+        </label>
+        {state.fieldErrors?.charter && (
+          <p className="mt-1 text-sm text-red-600">{state.fieldErrors.charter.join(" ")}</p>
+        )}
+      </div>
 
       {state.error && (
         <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">

@@ -18,6 +18,8 @@ const signupSchema = z.object({
   email: z.email("Adresse email invalide").trim().toLowerCase(),
   password: z.string().min(8, "Au moins 8 caractères").max(72),
   role: z.enum(["mentor", "mentee"], "Choisissez un rôle"),
+  // Case à cocher : le navigateur envoie « on » uniquement si elle est cochée
+  charter: z.literal("on", "Vous devez accepter la charte du mentorat"),
 });
 
 const loginSchema = z.object({

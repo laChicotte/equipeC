@@ -20,6 +20,7 @@ export default async function OnboardingPage() {
   return (
     <>
       <PageHeader
+        eyebrow="Bienvenue"
         title="Complétez votre profil"
         description={
           profile.role === "mentor"

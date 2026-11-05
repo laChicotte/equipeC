@@ -19,6 +19,7 @@ export default async function SessionsPage() {
   return (
     <>
       <PageHeader
+        eyebrow="Agenda"
         title="Rendez-vous"
         description="Vos séances de mentorat en visioconférence."
         actions={<ButtonLink href="/mentorships">Planifier une séance</ButtonLink>}

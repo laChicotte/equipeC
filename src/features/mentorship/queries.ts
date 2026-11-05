@@ -10,7 +10,7 @@ export type MentorshipView = {
   message: string | null;
   created_at: string;
   responded_at: string | null;
-  domain: { name: string } | null;
+  domain: { name: string; slug: string } | null;
   mentor: { id: string; full_name: string; headline: string | null; job_title: string | null };
   mentee: {
     id: string;
@@ -25,7 +25,7 @@ export type MentorshipView = {
 // (sinon Supabase ne sait pas laquelle utiliser).
 const COLUMNS = `
   id, status, message, created_at, responded_at,
-  domain:domains ( name ),
+  domain:domains ( name, slug ),
   mentor:profiles!mentorships_mentor_id_fkey ( id, full_name, headline, job_title ),
   mentee:profiles!mentorships_mentee_id_fkey ( id, full_name, headline, mentee_status, goals_summary )
 `;

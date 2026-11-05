@@ -1,118 +1,212 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getMentorById } from "@/features/mentors/queries";
-import { RatingStars } from "@/features/mentors/components/RatingStars";
+import {
+  getMenteeInput,
+  getMentorById,
+  getMentorReviews,
+  toMentorInput,
+} from "@/features/mentors/queries";
+import { formatShortDate } from "@/lib/datetime";
+import { scoreMentor } from "@/features/mentors/matching";
 import { getCurrentProfile } from "@/features/auth/queries";
 import { getActiveMentorshipWith } from "@/features/mentorship/queries";
 import { RequestForm } from "@/features/mentorship/components/RequestForm";
-import { Card } from "@/components/ui/Card";
-import { Avatar } from "@/components/ui/Avatar";
-import { Badge } from "@/components/ui/Badge";
+import { CAMPUS_FRANCE_NOTICE, DOMAIN_SHORT_LABELS } from "@/features/profiles/labels";
+import { ButtonLink } from "@/components/ui/Button";
 
-export const metadata: Metadata = { title: "Fiche mentor · MentorConnect" };
+export const metadata: Metadata = { title: "Profil du mentor · MentorConnect" };
+
+const sparkle = (
+  <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="currentColor">
+    <path d="M12 3c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7ZM19 15c.3 1.9 1.1 2.7 3 3-1.9.3-2.7 1.1-3 3-.3-1.9-1.1-2.7-3-3 1.9-.3 2.7-1.1 3-3Z" />
+  </svg>
+);
+const clock = (
+  <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" strokeLinecap="round" />
+  </svg>
+);
+
+/** Carte d'action (droite) : bloc gris arrondi de la maquette. */
+function ActionPanel({ eyebrow, title, children }: { eyebrow: string; title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-3xl bg-background p-6 sm:p-7">
+      <p className="text-[11px] font-bold tracking-[0.1em] text-brand-700 uppercase">{eyebrow}</p>
+      <p className="mt-2 mb-5 text-xl font-bold">{title}</p>
+      {children}
+    </div>
+  );
+}
 
 export default async function MentorDetailPage({ params }: PageProps<"/mentors/[id]">) {
   const { id } = await params;
   const [mentor, viewer] = await Promise.all([getMentorById(id), getCurrentProfile()]);
   if (!mentor) notFound();
-  const activeRequest =
-    viewer?.role === "mentee" ? await getActiveMentorshipWith(mentor.id) : null;
 
-  const role = [mentor.job_title, mentor.organization].filter(Boolean).join(" · ");
-  const isOwnProfile = viewer?.id === mentor.id;
+  const isMentee = viewer?.role === "mentee";
+  const [activeRequest, menteeInput, reviews] = await Promise.all([
+    isMentee ? getActiveMentorshipWith(mentor.id) : Promise.resolve(null),
+    getMenteeInput(viewer),
+    getMentorReviews(mentor.id),
+  ]);
+  const isCampusFrance = mentor.domains.some((d) => d.slug === "campus-france");
+  const compatibility = menteeInput ? scoreMentor(menteeInput, toMentorInput(mentor)) : null;
+
+  const subtitle = [mentor.job_title, mentor.organization].filter(Boolean).join(" · ");
+  const stats = [
+    mentor.rating
+      ? `${mentor.rating.avg.toLocaleString("fr-FR")} · ${mentor.rating.count} avis`
+      : "Nouveau mentor",
+    mentor.years_experience !== null ? `${mentor.years_experience} ans d'expérience` : null,
+    mentor.city,
+  ].filter(Boolean);
+  const initials = mentor.full_name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
 
   return (
-    <>
-      <Link href="/mentors" className="mb-4 inline-block text-sm text-brand-700 hover:underline">
-        ← Retour aux mentors
-      </Link>
+    <article className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_60px_-20px_rgba(23,43,69,0.25)]">
+      {/* En-tête gris */}
+      <header className="relative flex flex-col gap-6 bg-background p-6 sm:flex-row sm:items-center sm:p-12">
+        <Link
+          href="/mentors"
+          aria-label="Fermer et revenir aux mentors"
+          className="absolute top-5 right-5 inline-flex size-12 items-center justify-center rounded-full bg-white text-ink-900 shadow-sm transition-colors hover:bg-zinc-100 sm:top-6 sm:right-6"
+        >
+          <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />
+          </svg>
+        </Link>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="grid gap-4 lg:col-span-2">
-          <Card>
-            <div className="flex flex-wrap items-start gap-4">
-              <Avatar name={mentor.full_name} size="lg" />
-              <div className="min-w-0 flex-1">
-                <h1 className="text-2xl font-semibold">{mentor.full_name}</h1>
-                {role && <p className="text-zinc-600">{role}</p>}
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-zinc-600">
-                  <RatingStars rating={mentor.rating} />
-                  {mentor.years_experience !== null && (
-                    <span>{mentor.years_experience} ans d&apos;expérience</span>
-                  )}
-                  {mentor.city && <span>📍 {mentor.city}</span>}
-                </div>
-              </div>
-            </div>
-            {mentor.headline && <p className="mt-4 font-medium">{mentor.headline}</p>}
-          </Card>
-
-          <Card>
-            <h2 className="mb-2 font-semibold">Parcours</h2>
-            <p className="whitespace-pre-line text-sm text-zinc-700">
-              {mentor.bio || "Ce mentor n'a pas encore rédigé sa présentation."}
-            </p>
-          </Card>
+        <div className="flex size-36 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-brand-100 to-brand-200 text-5xl font-extrabold text-brand-800 sm:size-44">
+          {initials}
         </div>
+        <div className="min-w-0 pr-12">
+          {compatibility && compatibility.score >= 20 && (
+            <p className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-700" title={compatibility.reasons.join(" · ")}>
+              {sparkle} {compatibility.score}% compatible
+            </p>
+          )}
+          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{mentor.full_name}</h1>
+          {subtitle && <p className="mt-2 text-lg text-ink-500 sm:text-xl">{subtitle}</p>}
+          <p className="mt-4 inline-flex flex-wrap items-center gap-x-2 text-ink-700">
+            <span aria-hidden className="text-lg text-accent-400">★</span>
+            {stats.join(" · ")}
+          </p>
+        </div>
+      </header>
 
-        <div className="grid content-start gap-4">
-          <Card>
-            <h2 className="mb-3 font-semibold">Domaines d&apos;expertise</h2>
-            <div className="flex flex-wrap gap-1.5">
-              {mentor.domains.map((d) => (
-                <Link key={d.id} href={`/mentors?domain=${d.slug}`}>
-                  <Badge tone="brand">{d.name}</Badge>
-                </Link>
+      <div className="grid gap-10 p-6 sm:p-12 lg:grid-cols-[1.3fr_1fr]">
+        {/* À propos + expertises */}
+        <div>
+          <h2 className="text-xl font-bold">À propos</h2>
+          {mentor.headline && <p className="mt-2 font-medium text-ink-900">{mentor.headline}</p>}
+          <p className="mt-2 leading-relaxed whitespace-pre-line text-ink-500">
+            {mentor.bio || "Ce mentor n'a pas encore rédigé sa présentation."}
+          </p>
+
+          <h2 className="mt-8 text-xl font-bold">Expertises</h2>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {mentor.domains.map((d) => (
+              <Link
+                key={d.id}
+                href={`/mentors?domain=${d.slug}`}
+                title={d.name}
+                className="rounded-full border border-zinc-200 px-5 py-2.5 text-sm text-ink-700 transition-colors hover:border-ink-900"
+              >
+                {DOMAIN_SHORT_LABELS[d.slug] ?? d.name}
+              </Link>
+            ))}
+          </div>
+
+          <h2 className="mt-8 text-xl font-bold">Avis des mentorés</h2>
+          {reviews.length === 0 ? (
+            <p className="mt-2 text-sm text-ink-500">Pas encore d&apos;avis : soyez le premier à être accompagné !</p>
+          ) : (
+            <ul className="mt-4 flex flex-col gap-3">
+              {reviews.map((r, i) => (
+                <li key={i} className="rounded-2xl border border-zinc-100 p-4">
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <span className="font-semibold">{r.reviewer_first_name}</span>
+                    <span aria-label={`${r.rating} sur 5`} className="text-accent-400">
+                      {"★".repeat(r.rating)}
+                      <span className="text-zinc-200">{"★".repeat(5 - r.rating)}</span>
+                    </span>
+                  </div>
+                  {r.comment && <p className="mt-1 text-sm text-ink-500">« {r.comment} »</p>}
+                  <p className="mt-1 text-xs text-ink-500/70">{formatShortDate(r.created_at)}</p>
+                </li>
               ))}
+            </ul>
+          )}
+
+          {isCampusFrance && (
+            <p className="mt-6 rounded-2xl bg-amber-50 p-4 text-xs leading-relaxed text-amber-900 ring-1 ring-amber-200">
+              ℹ️ {CAMPUS_FRANCE_NOTICE}
+            </p>
+          )}
+
+          {compatibility && compatibility.reasons.length > 0 && (
+            <div className="mt-8 rounded-2xl bg-brand-50 p-5">
+              <p className="mb-2 text-sm font-bold text-brand-800">Pourquoi ce mentor pour vous ?</p>
+              <ul className="space-y-1 text-sm text-ink-700">
+                {compatibility.reasons.map((r) => (
+                  <li key={r}>✓ {r}</li>
+                ))}
+              </ul>
             </div>
-          </Card>
-
-          <Card>
-            <h2 className="mb-1 font-semibold">Disponibilités</h2>
-            <p className="text-sm text-zinc-700">{mentor.availability || "Non précisées"}</p>
-            {!mentor.is_available && (
-              <p className="mt-2 text-sm text-amber-700">
-                N&apos;accepte pas de nouvelles demandes pour le moment.
-              </p>
-            )}
-          </Card>
-
-          {viewer?.role === "mentee" && !isOwnProfile && (
-            <Card>
-              {activeRequest ? (
-                <>
-                  <h2 className="mb-1 font-semibold">
-                    {activeRequest.status === "pending" ? "Demande envoyée" : "Mentorat en cours"}
-                  </h2>
-                  <p className="mb-3 text-sm text-zinc-600">
-                    {activeRequest.status === "pending"
-                      ? "Votre demande attend la réponse du mentor."
-                      : "Ce mentor vous accompagne déjà."}
-                  </p>
-                  <Link
-                    href={activeRequest.status === "accepted" ? `/mentorships/${activeRequest.id}` : "/mentorships"}
-                    className="text-sm font-medium text-brand-700 hover:underline"
-                  >
-                    Voir mes mentorats →
-                  </Link>
-                </>
-              ) : mentor.is_available ? (
-                <>
-                  <h2 className="mb-3 font-semibold">Demander un mentorat</h2>
-                  <RequestForm
-                    mentorId={mentor.id}
-                    mentorFirstName={mentor.full_name.split(" ")[0]}
-                    domains={mentor.domains}
-                  />
-                </>
-              ) : (
-                <p className="text-sm text-zinc-600">Ce mentor n&apos;accepte pas de demande pour le moment.</p>
-              )}
-            </Card>
           )}
         </div>
+
+        {/* Carte d'action (droite) */}
+        <aside className="content-start">
+          {isMentee && activeRequest?.status === "accepted" ? (
+            <ActionPanel eyebrow="Mentorat en cours" title="Planifiez votre prochaine séance">
+              <ButtonLink href={`/mentorships/${activeRequest.id}`} variant="dark" className="w-full py-4 text-base">
+                Ouvrir l&apos;espace de mentorat
+              </ButtonLink>
+              <p className="mt-3 flex items-center justify-center gap-2 text-xs text-ink-500">
+                {clock} Chat, séances en visio et objectifs
+              </p>
+            </ActionPanel>
+          ) : isMentee && activeRequest?.status === "pending" ? (
+            <ActionPanel eyebrow="Demande envoyée" title="En attente de réponse">
+              <p className="text-sm text-ink-500">
+                {mentor.full_name.split(" ")[0]} va examiner votre demande. Vous serez prévenu(e) dans
+                « Messages ».
+              </p>
+              <ButtonLink href="/mentorships" variant="secondary" className="mt-5 w-full">
+                Voir mes demandes
+              </ButtonLink>
+            </ActionPanel>
+          ) : isMentee && mentor.is_available ? (
+            <ActionPanel eyebrow="Disponibilités" title={mentor.availability || "À convenir ensemble"}>
+              <RequestForm
+                mentorId={mentor.id}
+                mentorFirstName={mentor.full_name.split(" ")[0]}
+                domains={mentor.domains.map((d) => ({ ...d, short: DOMAIN_SHORT_LABELS[d.slug] }))}
+              />
+              <p className="mt-3 flex items-center justify-center gap-2 text-center text-xs text-ink-500">
+                {clock} Les séances se planifient ensemble après acceptation
+              </p>
+            </ActionPanel>
+          ) : (
+            <ActionPanel eyebrow="Disponibilités" title={mentor.availability || "Non précisées"}>
+              <p className="text-sm text-ink-500">
+                {!mentor.is_available
+                  ? "Ce mentor n'accepte pas de nouvelles demandes pour le moment."
+                  : viewer?.id === mentor.id
+                    ? "C'est votre profil public, tel que les mentorés le voient."
+                    : "Seuls les mentorés peuvent envoyer une demande de mentorat."}
+              </p>
+            </ActionPanel>
+          )}
+        </aside>
       </div>
-    </>
+    </article>
   );
 }

@@ -118,10 +118,10 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
   }
 
   return (
-    <section className="flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+    <section className="flex flex-col overflow-hidden rounded-3xl border border-zinc-100 bg-white shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
       <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
         <h2 className="font-semibold">Discussion</h2>
-        <span className="flex items-center gap-1.5 text-xs text-zinc-500">
+        <span className="flex items-center gap-1.5 text-xs text-ink-500">
           <span
             aria-hidden
             className={`size-2 rounded-full ${live ? "bg-brand-600" : "bg-zinc-300"}`}
@@ -136,7 +136,7 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
         aria-label="Messages"
       >
         {messages.length === 0 && (
-          <p className="m-auto max-w-xs text-center text-sm text-zinc-500">
+          <p className="m-auto max-w-xs text-center text-sm text-ink-500">
             Aucun message pour l&apos;instant. Présentez-vous et proposez un premier échange !
           </p>
         )}
@@ -151,7 +151,7 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
           return (
             <div key={message.id}>
               {newDay && (
-                <p className="my-3 text-center text-xs font-medium text-zinc-500 first-letter:uppercase">
+                <p className="my-3 text-center text-xs font-medium text-ink-500 first-letter:uppercase">
                   {formatDay(message.created_at)}
                 </p>
               )}
@@ -169,7 +169,7 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
                   className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${
                     mine
                       ? "rounded-br-md bg-brand-600 text-white"
-                      : "rounded-bl-md bg-white text-zinc-800 ring-1 ring-zinc-200"
+                      : "rounded-bl-md bg-white text-ink-700 ring-1 ring-zinc-200"
                   }`}
                 >
                   {!mine && !sameSenderAsPrevious && (
@@ -207,7 +207,7 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
           </Button>
         </form>
       ) : (
-        <p className="border-t border-zinc-200 p-3 text-center text-sm text-zinc-500">
+        <p className="border-t border-zinc-200 p-3 text-center text-sm text-ink-500">
           Ce mentorat est terminé : la conversation est en lecture seule.
         </p>
       )}

@@ -208,6 +208,28 @@ async function main() {
     await M.client.from("resources").delete().eq("id", r?.id);
   }
 
+  console.log("\n8. Annulation et avis publics (migration 0003)");
+  {
+    const { data: req } = await C.client
+      .from("mentorships").insert({ mentor_id: M.id, mentee_id: C.id, message: "Test annulation" })
+      .select("id").single();
+    const { data: byMentor } = await M.client
+      .from("mentorships").update({ status: "cancelled" }).eq("id", req?.id).select("id");
+    check("Le mentor ne peut pas « annuler » une demande à sa place", (byMentor ?? []).length === 0);
+    const { error: e1 } = await C.client.from("mentorships").update({ status: "cancelled" }).eq("id", req?.id);
+    check("Le mentoré annule sa demande en attente", !e1, e1?.message);
+    const { error: e2 } = await A.client
+      .from("mentorships").update({ status: "cancelled" }).eq("id", mentorshipId);
+    check("Impossible d'annuler un mentorat déjà accepté", Boolean(e2));
+
+    const { data: reviews, error: e3 } = await C.client.rpc("get_mentor_reviews", { p_mentor_id: M.id });
+    check("Fonction des avis publics accessible aux membres", !e3, e3?.message);
+    check(
+      "Les avis publics n'exposent que le prénom (pas d'identifiant)",
+      Array.isArray(reviews) && reviews.every((r) => !("reviewer_id" in r) && typeof r.reviewer_first_name === "string"),
+    );
+  }
+
   // Le mentor de test passe indisponible pour ne pas polluer le catalogue
   await M.client.from("profiles").update({ is_available: false }).eq("id", M.id);
 }

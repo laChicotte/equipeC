@@ -2,7 +2,22 @@
 // Lancement : npm test   (lanceur de tests intégré à Node, aucune dépendance)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { keywords, recommendMentors, scoreMentor } from "../src/features/mentors/matching.ts";
+import { inferDomainSlugs, keywords, recommendMentors, scoreMentor } from "../src/features/mentors/matching.ts";
+
+test("recherche intelligente : « valider mon idée de fintech »", () => {
+  const slugs = inferDomainSlugs("Je souhaite valider mon idée de fintech");
+  assert.ok(slugs.includes("entrepreneuriat"), slugs.join(","));
+  assert.ok(slugs.includes("numerique"), slugs.join(","));
+});
+
+test("recherche intelligente : Campus France et CV", () => {
+  assert.deepEqual(inferDomainSlugs("préparer mon dossier Campus France").sort(), ["campus-france"]);
+  assert.ok(inferDomainSlugs("améliorer mon CV").includes("orientation-insertion"));
+});
+
+test("recherche intelligente : phrase sans rapport → aucun domaine", () => {
+  assert.deepEqual(inferDomainSlugs("bonjour à tous"), []);
+});
 
 const D = {
   entrepreneuriat: { id: 1, slug: "entrepreneuriat", name: "Entrepreneuriat et gestion d'entreprise" },

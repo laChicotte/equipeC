@@ -123,7 +123,7 @@ export function ProfileForm({ profile, domains, selectedDomainIds, mode }: Props
       />
 
       <fieldset>
-        <legend className="mb-2 text-sm font-medium text-zinc-800">
+        <legend className="mb-2 text-sm font-medium text-ink-700">
           {isMentor ? "Vos domaines d'expertise" : "Les domaines qui vous intéressent"}
         </legend>
         <div className="flex flex-wrap gap-2">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAvailableMentors } from "../queries";
+import { getAvailableMentors, toMentorInput } from "../queries";
 import { recommendMentors } from "../matching";
 import { RatingStars } from "./RatingStars";
 import { getProfileDomainIds } from "@/features/profiles/queries";
@@ -30,13 +30,7 @@ export async function RecommendedMentors({ profile }: { profile: Profile }) {
       menteeStatus: profile.mentee_status,
       text: [profile.goals_summary, profile.headline, profile.bio].filter(Boolean).join(" "),
     },
-    candidates.map((m) => ({
-      id: m.id,
-      domains: m.domains,
-      text: [m.headline, m.job_title, m.organization, m.bio].filter(Boolean).join(" "),
-      yearsExperience: m.years_experience,
-      rating: m.rating,
-    })),
+    candidates.map(toMentorInput),
   );
   const byId = new Map(candidates.map((m) => [m.id, m]));
 
@@ -48,12 +42,12 @@ export async function RecommendedMentors({ profile }: { profile: Profile }) {
           ✨ Sur mesure
         </span>
       </div>
-      <p className="mb-4 text-xs text-zinc-500">
+      <p className="mb-4 text-xs text-ink-500">
         Selon vos domaines, vos objectifs et votre situation.
       </p>
 
       {recommendations.length === 0 ? (
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-ink-500">
           Pas encore de recommandation.{" "}
           <Link href="/profile" className="font-medium text-brand-700 hover:underline">
             Précisez vos domaines et vos objectifs
@@ -80,7 +74,7 @@ export async function RecommendedMentors({ profile }: { profile: Profile }) {
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold">{mentor.full_name}</p>
                         {mentor.job_title && (
-                          <p className="truncate text-xs text-zinc-500">{mentor.job_title}</p>
+                          <p className="truncate text-xs text-ink-500">{mentor.job_title}</p>
                         )}
                       </div>
                     </div>
@@ -91,7 +85,7 @@ export async function RecommendedMentors({ profile }: { profile: Profile }) {
                       {reco.score} %
                     </span>
                   </div>
-                  <ul className="flex flex-col gap-1 text-xs text-zinc-600">
+                  <ul className="flex flex-col gap-1 text-xs text-ink-500">
                     {reco.reasons.slice(0, 3).map((reason) => (
                       <li key={reason} className="flex gap-1.5">
                         <span aria-hidden className="text-brand-600">✓</span>

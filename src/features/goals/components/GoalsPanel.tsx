@@ -1,4 +1,6 @@
-import { deleteGoal, setGoalStatus } from "../actions";
+import { addSuggestedGoal, deleteGoal, setGoalStatus } from "../actions";
+import { suggestedGoals } from "../templates";
+import { DOMAIN_SHORT_LABELS } from "@/features/profiles/labels";
 import { getGoals, type GoalView } from "../queries";
 import { GoalForm } from "./GoalForm";
 import { Card } from "@/components/ui/Card";
@@ -12,7 +14,7 @@ const NEXT_STATUS: Record<GoalStatus, GoalStatus> = {
 };
 
 const STATUS_UI: Record<GoalStatus, { label: string; icon: string; className: string }> = {
-  todo: { label: "À faire", icon: "○", className: "border-zinc-300 text-zinc-500" },
+  todo: { label: "À faire", icon: "○", className: "border-zinc-300 text-ink-500" },
   in_progress: { label: "En cours", icon: "◐", className: "border-amber-400 bg-amber-50 text-amber-700" },
   done: { label: "Fait", icon: "✓", className: "border-brand-600 bg-brand-600 text-white" },
 };
@@ -53,7 +55,7 @@ function GoalRow({ goal, canEdit }: { goal: GoalView; canEdit: boolean }) {
         <p className={`text-sm break-words ${goal.status === "done" ? "text-zinc-400 line-through" : ""}`}>
           {goal.title}
         </p>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-ink-500">
           {ui.label}
           {goal.due_date && (
             <span className={goal.overdue ? "font-medium text-red-600" : ""}>
@@ -84,19 +86,23 @@ function GoalRow({ goal, canEdit }: { goal: GoalView; canEdit: boolean }) {
 export async function GoalsPanel({
   mentorshipId,
   canEdit,
+  domainSlug,
 }: {
   mentorshipId: string;
   /** Mentorat actif : ajout, changement d'état et suppression possibles */
   canEdit: boolean;
+  /** Domaine du mentorat : sert au « parcours suggéré » */
+  domainSlug?: string | null;
 }) {
   const { goals, done, total, percent } = await getGoals(mentorshipId);
+  const suggestions = canEdit ? suggestedGoals(domainSlug, goals.map((g) => g.title)).slice(0, 4) : [];
 
   return (
     <Card>
       <div className="mb-2 flex items-baseline justify-between">
         <h2 className="font-semibold">Objectifs</h2>
         {total > 0 && (
-          <span className="text-sm text-zinc-600">
+          <span className="text-sm text-ink-500">
             {done}/{total} atteint{done > 1 ? "s" : ""}
           </span>
         )}
@@ -125,9 +131,30 @@ export async function GoalsPanel({
           ))}
         </ul>
       ) : (
-        <p className="mb-3 text-sm text-zinc-600">
+        <p className="mb-3 text-sm text-ink-500">
           Fixez ensemble des objectifs concrets pour suivre la progression.
         </p>
+      )}
+
+      {suggestions.length > 0 && (
+        <div className="mb-4 rounded-2xl bg-brand-50/70 p-4">
+          <p className="mb-2 text-xs font-bold tracking-[0.1em] text-brand-700 uppercase">
+            ✦ Parcours suggéré · {domainSlug ? DOMAIN_SHORT_LABELS[domainSlug] ?? "" : ""}
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {suggestions.map((title) => (
+              <li key={title}>
+                <form action={addSuggestedGoal}>
+                  <input type="hidden" name="mentorship_id" value={mentorshipId} />
+                  <input type="hidden" name="title" value={title} />
+                  <button className="rounded-full border border-brand-200 bg-white px-3 py-1.5 text-left text-xs text-ink-700 transition-colors hover:border-brand-600 hover:text-brand-800">
+                    + {title}
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {canEdit && <GoalForm mentorshipId={mentorshipId} minDate={todayInConakry()} />}

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserId } from "@/features/auth/queries";
 import { todayInConakry } from "@/lib/datetime";
+import { GOAL_TEMPLATES } from "./templates";
 
 export type GoalFormState = {
   error?: string;
@@ -44,6 +45,23 @@ export async function createGoal(_prev: GoalFormState, formData: FormData): Prom
 
   revalidatePath(`/mentorships/${parsed.data.mentorship_id}`);
   return { savedAt: Date.now() };
+}
+
+/**
+ * Ajoute un objectif du « parcours suggéré » en un clic. Le titre doit faire
+ * partie des modèles connus (on n'accepte pas un texte arbitraire ici).
+ */
+export async function addSuggestedGoal(formData: FormData) {
+  const parsed = z
+    .object({ mentorship_id: z.uuid(), title: z.string().trim().min(3).max(200) })
+    .safeParse({ mentorship_id: formData.get("mentorship_id"), title: formData.get("title") });
+  if (!parsed.success || !(await getCurrentUserId())) return;
+  if (!Object.values(GOAL_TEMPLATES).some((list) => list.includes(parsed.data.title))) return;
+
+  const supabase = await createClient();
+  // RLS : uniquement dans un mentorat accepté dont on est participant
+  await supabase.from("goals").insert(parsed.data);
+  revalidatePath(`/mentorships/${parsed.data.mentorship_id}`);
 }
 
 const updateSchema = z.object({
