@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentProfile } from "@/features/auth/queries";
 import { getMentorshipById } from "@/features/mentorship/queries";
 import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard";
+import { EndMentorshipButton } from "@/features/mentorship/components/EndMentorshipButton";
 import { getMessages } from "@/features/messaging/queries";
 import { Chat } from "@/features/messaging/components/Chat";
 import { SessionsPanel } from "@/features/sessions/components/SessionsPanel";
@@ -28,9 +29,12 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
 
   return (
     <>
-      <Link href="/mentorships" className="mb-4 inline-block text-sm text-brand-700 hover:underline">
-        ← Mes mentorats
-      </Link>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <Link href="/mentorships" className="text-sm text-brand-700 hover:underline">
+          ← Mes mentorats
+        </Link>
+        {mentorship.status === "accepted" && <EndMentorshipButton mentorshipId={mentorship.id} />}
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="grid content-start gap-4 lg:col-span-2">

@@ -6,6 +6,17 @@ import type {
   UserRole,
 } from "@/types/database";
 
+/** Noms courts des domaines (affichages compacts : page d'accueil, pastilles). */
+export const DOMAIN_SHORT_LABELS: Record<string, string> = {
+  entrepreneuriat: "Entrepreneuriat",
+  numerique: "Numérique & tech",
+  "orientation-insertion": "Orientation & emploi",
+  "culture-creation": "Industries créatives",
+  "gestion-finance": "Gestion & finance",
+  "developpement-personnel": "Leadership",
+  "campus-france": "Campus France",
+};
+
 export const RESOURCE_KIND_LABELS: Record<ResourceKind, { label: string; icon: string }> = {
   guide: { label: "Guide", icon: "📘" },
   article: { label: "Article", icon: "📰" },

@@ -59,6 +59,25 @@ export async function requestMentorship(
   redirect("/mentorships");
 }
 
+/**
+ * Termine un mentorat actif (l'un ou l'autre participant).
+ * Le trigger SQL n'autorise que accepted → ended ; la conversation,
+ * les séances et les objectifs restent consultables en lecture seule.
+ */
+export async function endMentorship(formData: FormData) {
+  const id = uuid.safeParse(formData.get("mentorship_id"));
+  if (!id.success || !(await getCurrentProfile())) return;
+
+  const supabase = await createClient();
+  await supabase
+    .from("mentorships")
+    .update({ status: "ended" })
+    .eq("id", id.data)
+    .eq("status", "accepted");
+
+  revalidatePath("/", "layout");
+}
+
 const respondSchema = z.object({
   mentorship_id: uuid,
   decision: z.enum(["accepted", "declined"]),

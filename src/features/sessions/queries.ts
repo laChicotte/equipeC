@@ -84,3 +84,24 @@ export async function getUpcomingSessions(limit = 5): Promise<UpcomingSession[]>
     .filter((s) => s.phase === "upcoming" || s.phase === "live")
     .slice(0, limit);
 }
+
+/** Toutes mes séances, tous mentorats confondus (page « Rendez-vous »). */
+export async function getAllMySessions(): Promise<UpcomingSession[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("sessions")
+    .select(
+      `${SESSION_COLUMNS},
+       mentorship:mentorships (
+         id,
+         mentor:profiles!mentorships_mentor_id_fkey ( full_name ),
+         mentee:profiles!mentorships_mentee_id_fkey ( full_name )
+       )`,
+    )
+    .order("scheduled_at")
+    .limit(200);
+  const now = Date.now();
+  return ((data ?? []) as unknown as (Session & Pick<UpcomingSession, "mentorship">)[]).map((s) =>
+    withPhase(s, now),
+  );
+}

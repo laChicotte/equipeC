@@ -42,6 +42,28 @@ export function conakryInputToISO(value: string): string | null {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
+const dayNumberFormat = fmt({ day: "numeric" });
+const monthShortFormat = fmt({ month: "short" });
+
+/** Case de date : { day: "20", month: "FÉV." } */
+export function dateTile(iso: string) {
+  return {
+    day: dayNumberFormat.format(new Date(iso)),
+    month: monthShortFormat.format(new Date(iso)).toUpperCase(),
+  };
+}
+
+/** « 15:00 – 16:00 » */
+export function formatTimeRange(iso: string, durationMin: number) {
+  const end = new Date(new Date(iso).getTime() + durationMin * 60_000).toISOString();
+  return `${formatTime(iso)} – ${formatTime(end)}`;
+}
+
+/** « mardi 18 février » pour aujourd'hui (surtitre de l'accueil). */
+export function formatToday(): string {
+  return formatDay(new Date().toISOString());
+}
+
 /** Date du jour à Conakry, format « 2026-11-06 » (= date UTC, voir plus haut). */
 export function todayInConakry(): string {
   return new Date().toISOString().slice(0, 10);

@@ -1,27 +1,64 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentProfile } from "@/features/auth/queries";
-import { ROLE_LABELS } from "@/features/profiles/labels";
 import { getMyMentorships } from "@/features/mentorship/queries";
 import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard";
-import { UpcomingSessions } from "@/features/sessions/components/UpcomingSessions";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { getUpcomingSessions } from "@/features/sessions/queries";
+import { NextSessionCard } from "@/features/sessions/components/NextSessionCard";
+import { getMyJourneys } from "@/features/goals/queries";
+import { JourneyCard } from "@/features/goals/components/JourneyCard";
 import { RecommendedMentors } from "@/features/mentors/components/RecommendedMentors";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { ButtonLink } from "@/components/ui/Button";
+import { ProgressRing } from "@/components/ui/ProgressRing";
+import { formatToday } from "@/lib/datetime";
 
-export const metadata: Metadata = { title: "Tableau de bord · MentorConnect" };
+export const metadata: Metadata = { title: "Accueil · MentorConnect" };
 
-function Stat({ label, value, href }: { label: string; value: number; href: string }) {
+const sparkle = (
+  <svg aria-hidden viewBox="0 0 24 24" className="size-7" fill="currentColor">
+    <path d="M12 3c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7ZM19 15c.3 1.9 1.1 2.7 3 3-1.9.3-2.7 1.1-3 3-.3-1.9-1.1-2.7-3-3 1.9-.3 2.7-1.1 3-3Z" />
+  </svg>
+);
+
+/** Bandeau bleu nuit « MentorConnect Match » (maquette). */
+function MatchBanner({ isMentor, onboarded }: { isMentor: boolean; onboarded: boolean }) {
+  const content = isMentor
+    ? {
+        title: "Partagez votre expérience.",
+        text: "Complétez votre profil et publiez vos conseils : les mentorés vous trouveront plus facilement.",
+        cta: onboarded ? "Partager une ressource" : "Compléter mon profil",
+        href: onboarded ? "/resources" : "/onboarding",
+      }
+    : {
+        title: "Trouvez le mentor qui vous correspond vraiment.",
+        text: "Décrivez votre objectif, notre algorithme de mise en relation s'occupe du reste.",
+        cta: "Décrire mon objectif",
+        href: onboarded ? "/profile" : "/onboarding",
+      };
+
   return (
-    <Link
-      href={href}
-      className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-brand-600"
-    >
-      <p className="text-3xl font-bold text-brand-700">{value}</p>
-      <p className="text-sm text-zinc-600">{label}</p>
-    </Link>
+    <section className="relative overflow-hidden rounded-3xl bg-ink-900 p-6 text-white sm:p-8">
+      {/* Cercles décoratifs */}
+      <span aria-hidden className="absolute -top-24 right-40 size-72 rounded-full border border-white/5" />
+      <span aria-hidden className="absolute -bottom-32 right-10 size-72 rounded-full border border-white/5" />
+
+      <div className="relative flex flex-col gap-6 md:flex-row md:items-center">
+        <span className="inline-flex size-16 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-accent-400">
+          {sparkle}
+        </span>
+        <div className="flex-1">
+          <p className="text-xs font-bold tracking-[0.16em] text-brand-500 uppercase">MentorConnect Match</p>
+          <h2 className="mt-2 text-xl font-bold sm:text-2xl">{content.title}</h2>
+          <p className="mt-1 text-sm text-white/70">{content.text}</p>
+        </div>
+        <Link
+          href={content.href}
+          className="inline-flex items-center justify-center gap-3 rounded-xl bg-brand-600 px-6 py-4 font-semibold transition-colors hover:bg-brand-500"
+        >
+          {content.cta} <span aria-hidden>→</span>
+        </Link>
+      </div>
+    </section>
   );
 }
 
@@ -32,7 +69,7 @@ export default async function DashboardPage() {
     return (
       <Card>
         <h1 className="mb-2 text-lg font-semibold">Profil introuvable</h1>
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-ink-500">
           Vous êtes connecté, mais votre profil n&apos;existe pas encore en base. La migration
           SQL (supabase/migrations/0001_init.sql) a-t-elle été exécutée avant l&apos;inscription ?
         </p>
@@ -41,79 +78,73 @@ export default async function DashboardPage() {
   }
 
   const isMentor = profile.role === "mentor";
-  const mentorships = await getMyMentorships();
+  const [mentorships, sessions, journeys] = await Promise.all([
+    getMyMentorships(),
+    getUpcomingSessions(),
+    getMyJourneys(),
+  ]);
   const pending = mentorships.filter((m) => m.status === "pending");
   const active = mentorships.filter((m) => m.status === "accepted");
 
+  // Parcours mis en avant : le mentorat actif le moins avancé (à faire progresser)
+  const activeJourneys = journeys.filter((j) => j.active);
+  const journey = activeJourneys[0] ?? journeys[0] ?? null;
+  // Anneau : progression globale de tous les objectifs actifs
+  const totals = activeJourneys.reduce((acc, j) => ({ done: acc.done + j.done, total: acc.total + j.total }), {
+    done: 0,
+    total: 0,
+  });
+  const overall = totals.total ? Math.round((totals.done / totals.total) * 100) : null;
+
   return (
-    <>
-      <PageHeader
-        title={`Bonjour ${profile.full_name.split(" ")[0]} 👋`}
-        description="Votre espace MentorConnect."
-        actions={<Badge tone="brand">{ROLE_LABELS[profile.role]}</Badge>}
-      />
-
-      <div className="grid gap-6">
-        {!profile.onboarded && (
-          <Card className="border-brand-100 bg-brand-50">
-            <h2 className="font-semibold text-brand-800">Complétez votre profil</h2>
-            <p className="mt-1 mb-4 text-sm text-brand-800/80">
-              {isMentor
-                ? "Indiquez vos domaines d'expertise et vos disponibilités pour être visible des mentorés."
-                : "Indiquez vos objectifs et vos centres d'intérêt pour trouver le bon mentor."}
-            </p>
-            <ButtonLink href="/onboarding">Compléter mon profil</ButtonLink>
-          </Card>
-        )}
-
-        <div className="grid grid-cols-2 gap-4">
-          <Stat
-            label={isMentor ? "Demandes à traiter" : "Demandes en attente"}
-            value={pending.length}
-            href="/mentorships"
-          />
-          <Stat
-            label={isMentor ? "Mentorés accompagnés" : "Mentors actifs"}
-            value={active.length}
-            href="/mentorships"
-          />
+    <div className="flex flex-col gap-8">
+      <header className="flex flex-wrap items-start justify-between gap-6">
+        <div>
+          <p className="eyebrow">{formatToday()}</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+            Bonjour {profile.full_name.split(" ")[0]},
+          </h1>
+          <p className="mt-2 text-ink-500">
+            {isMentor
+              ? pending.length > 0
+                ? `${pending.length} demande${pending.length > 1 ? "s" : ""} de mentorat vous attend${pending.length > 1 ? "ent" : ""}.`
+                : "Merci de partager votre expérience avec la nouvelle génération."
+              : "Envie de faire avancer vos ambitions aujourd'hui ?"}
+          </p>
         </div>
+        {overall !== null && <ProgressRing percent={overall} label={isMentor ? "Mentorés" : "Parcours"} />}
+      </header>
 
-        {isMentor && pending.length > 0 && (
-          <section>
-            <h2 className="mb-3 font-semibold">Nouvelles demandes</h2>
-            <div className="grid gap-4 lg:grid-cols-2">
-              {pending.slice(0, 4).map((m) => (
-                <MentorshipCard key={m.id} mentorship={m} viewerRole="mentor" />
-              ))}
-            </div>
-          </section>
-        )}
+      <MatchBanner isMentor={isMentor} onboarded={profile.onboarded} />
 
-        {active.length > 0 && (
-          <section>
-            <h2 className="mb-3 font-semibold">{isMentor ? "Vos mentorés" : "Vos mentors"}</h2>
-            <div className="grid gap-4 lg:grid-cols-2">
-              {active.slice(0, 4).map((m) => (
-                <MentorshipCard key={m.id} mentorship={m} viewerRole={profile.role} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {!isMentor && active.length === 0 && pending.length === 0 && profile.onboarded && (
-          <Card>
-            <h2 className="mb-1 font-semibold">Trouvez votre mentor</h2>
-            <p className="mb-4 text-sm text-zinc-600">
-              Parcourez les mentors par domaine et envoyez votre première demande.
-            </p>
-            <ButtonLink href="/mentors">Voir les mentors</ButtonLink>
-          </Card>
-        )}
-
-        {!isMentor && profile.onboarded && <RecommendedMentors profile={profile} />}
-        <UpcomingSessions viewerRole={profile.role} />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <NextSessionCard sessions={sessions} viewerRole={profile.role} />
+        <JourneyCard journey={journey} />
       </div>
-    </>
+
+      {isMentor && pending.length > 0 && (
+        <section>
+          <p className="eyebrow mb-4">Nouvelles demandes</p>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {pending.slice(0, 4).map((m) => (
+              <MentorshipCard key={m.id} mentorship={m} viewerRole="mentor" />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!isMentor && profile.onboarded && <RecommendedMentors profile={profile} />}
+
+      {active.length > 0 && (
+        <section>
+          <p className="eyebrow mb-4">{isMentor ? "Vos mentorés" : "Vos mentors"}</p>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {active.slice(0, 4).map((m) => (
+              <MentorshipCard key={m.id} mentorship={m} viewerRole={profile.role} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
   );
 }

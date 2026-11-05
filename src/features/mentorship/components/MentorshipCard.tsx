@@ -65,12 +65,14 @@ export function MentorshipCard({
 
       <div className="flex flex-wrap items-center gap-3">
         {isMentor && m.status === "pending" && <RespondButtons mentorshipId={m.id} />}
-        {m.status === "accepted" && (
+        {(m.status === "accepted" || m.status === "ended") && (
           <Link
             href={`/mentorships/${m.id}`}
             className="text-sm font-medium text-brand-700 hover:underline"
           >
-            Ouvrir l&apos;espace de mentorat →
+            {m.status === "accepted"
+              ? "Ouvrir l'espace de mentorat →"
+              : "Revoir l'historique (lecture seule) →"}
           </Link>
         )}
         {!isMentor && m.status === "pending" && (

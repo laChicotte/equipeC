@@ -1,27 +1,50 @@
 @import "tailwindcss";
 
 /*
- * Thème MentorConnect (clair uniquement pour le MVP).
- * Les couleurs "brand" sont utilisables partout : bg-brand-600, text-brand-700...
+ * Thème MentorConnect (inspiré de la maquette « Mentora »).
+ * - brand : vert sarcelle (actions, éléments actifs)
+ * - ink   : bleu nuit (titres, blocs sombres)
+ * - accent: ambre (pastilles, étoiles)
+ * Utilisables partout : bg-brand-600, text-ink-900, bg-accent-400…
  */
 @theme inline {
-  --color-background: #f8faf9;
-  --color-foreground: #14201b;
+  --color-background: #f4f6f8;
+  --color-foreground: #172b45;
 
-  --color-brand-50: #ecf8f2;
-  --color-brand-100: #d2efe1;
-  --color-brand-600: #12805a;
-  --color-brand-700: #0d6848;
-  --color-brand-800: #0b5139;
+  --color-brand-50: #eaf7f4;
+  --color-brand-100: #cdeee6;
+  --color-brand-200: #9edccd;
+  --color-brand-500: #22b096;
+  --color-brand-600: #19a08a;
+  --color-brand-700: #13836f;
+  --color-brand-800: #0f6a5a;
 
-  --color-accent-400: #f2b632;
-  --color-accent-500: #e09f12;
+  --color-ink-500: #5b6b82;
+  --color-ink-700: #2f4a6f;
+  --color-ink-800: #22395a;
+  --color-ink-900: #172b45;
 
-  --font-sans: var(--font-geist-sans);
+  --color-accent-400: #f5b85c;
+  --color-accent-500: #e9a23b;
+
+  --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
+}
+
+/* Petit titre en majuscules espacées (« PROCHAINE SESSION ») */
+@utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-brand-700);
 }

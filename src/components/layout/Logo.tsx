@@ -1,13 +1,26 @@
 import Link from "next/link";
 
-export function Logo({ href = "/" }: { href?: string }) {
+/** Symbole : deux traits qui se rejoignent (le mentor et le mentoré). */
+export function LogoMark({ className = "h-7 w-9" }: { className?: string }) {
   return (
-    <Link href={href} className="flex items-center gap-2 font-semibold text-zinc-900">
-      <span className="inline-flex size-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-        M
-      </span>
-      <span>
-        Mentor<span className="text-brand-700">Connect</span>
+    <svg viewBox="0 0 36 28" aria-hidden className={className}>
+      <rect x="2" y="9" width="22" height="9" rx="4.5" transform="rotate(-38 13 13.5)" fill="#19a08a" />
+      <rect x="12" y="10" width="22" height="9" rx="4.5" transform="rotate(-38 23 14.5)" fill="#f5b85c" />
+      <rect x="12" y="10" width="11" height="9" rx="4.5" transform="rotate(-38 23 14.5)" fill="#13836f" opacity="0.55" />
+    </svg>
+  );
+}
+
+export function Logo({ href = "/", tone = "dark" }: { href?: string; tone?: "dark" | "light" }) {
+  return (
+    <Link href={href} className="flex items-center gap-2.5" aria-label="MentorConnect, accueil">
+      <LogoMark />
+      <span
+        className={`text-[1.05rem] font-extrabold tracking-[0.12em] uppercase ${
+          tone === "light" ? "text-white" : "text-ink-900"
+        }`}
+      >
+        Mentor<span className="text-brand-600">Connect</span>
       </span>
     </Link>
   );
