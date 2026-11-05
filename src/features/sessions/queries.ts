@@ -1,6 +1,7 @@
 // Lectures des séances (côté serveur). RLS : uniquement les séances
 // des mentorats dont on est participant.
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/features/auth/queries";
 import type { Session, SessionReview } from "@/types/database";
 
 const SESSION_COLUMNS =
@@ -55,8 +56,22 @@ export async function getReviewsForSessions(sessionIds: string[]): Promise<Sessi
 }
 
 export type UpcomingSession = SessionWithPhase & {
-  mentorship: { id: string; mentor: { full_name: string }; mentee: { full_name: string } };
+  mentorship: {
+    id: string;
+    mentor_id: string;
+    mentee_id: string;
+    mentor: { full_name: string };
+    mentee: { full_name: string };
+  };
 };
+
+/** Double rôle : ne garder que les séances des mentorats du mode actif. */
+async function inActiveRole<T extends Pick<UpcomingSession, "mentorship">>(sessions: T[]): Promise<T[]> {
+  const profile = await getCurrentProfile();
+  if (!profile) return [];
+  const key = profile.role === "mentor" ? "mentor_id" : "mentee_id";
+  return sessions.filter((s) => s.mentorship[key] === profile.id);
+}
 
 /** Mes prochaines séances (tous mentorats confondus), pour le tableau de bord. */
 export async function getUpcomingSessions(limit = 5): Promise<UpcomingSession[]> {
@@ -69,7 +84,7 @@ export async function getUpcomingSessions(limit = 5): Promise<UpcomingSession[]>
     .select(
       `${SESSION_COLUMNS},
        mentorship:mentorships (
-         id,
+         id, mentor_id, mentee_id,
          mentor:profiles!mentorships_mentor_id_fkey ( full_name ),
          mentee:profiles!mentorships_mentee_id_fkey ( full_name )
        )`,
@@ -79,7 +94,7 @@ export async function getUpcomingSessions(limit = 5): Promise<UpcomingSession[]>
     .order("scheduled_at")
     .limit(limit * 2);
 
-  return ((data ?? []) as unknown as (Session & Pick<UpcomingSession, "mentorship">)[])
+  return (await inActiveRole((data ?? []) as unknown as (Session & Pick<UpcomingSession, "mentorship">)[]))
     .map((s) => withPhase(s, now))
     .filter((s) => s.phase === "upcoming" || s.phase === "live")
     .slice(0, limit);
@@ -93,7 +108,7 @@ export async function getAllMySessions(): Promise<UpcomingSession[]> {
     .select(
       `${SESSION_COLUMNS},
        mentorship:mentorships (
-         id,
+         id, mentor_id, mentee_id,
          mentor:profiles!mentorships_mentor_id_fkey ( full_name ),
          mentee:profiles!mentorships_mentee_id_fkey ( full_name )
        )`,
@@ -101,7 +116,7 @@ export async function getAllMySessions(): Promise<UpcomingSession[]> {
     .order("scheduled_at")
     .limit(200);
   const now = Date.now();
-  return ((data ?? []) as unknown as (Session & Pick<UpcomingSession, "mentorship">)[]).map((s) =>
-    withPhase(s, now),
+  return (await inActiveRole((data ?? []) as unknown as (Session & Pick<UpcomingSession, "mentorship">)[])).map(
+    (s) => withPhase(s, now),
   );
 }

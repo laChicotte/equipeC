@@ -48,6 +48,8 @@ Base de données : exécuter **une fois, dans l'ordre**, les fichiers de
 3. `0003_cancel_and_public_reviews.sql` : annulation d'une demande, avis publics, ateliers
 4. `0004_profile_skills.sql` : compétences (mentor) et besoins précis (mentoré) pour la mise en relation
 5. `0005_workshops_and_impact.sql` : ateliers thématiques (inscriptions, visio) et restitution (bilans, impact)
+6. `0006_avatars.sql` : photos de profil (stockage Supabase, 2 Mo maximum, chacun dans son dossier)
+7. `0007_dual_roles.sql` : double rôle (une même personne peut être mentor ET mentorée, avec le même e-mail)
 
 Puis désactiver *Confirm email* (*Authentication → Sign In / Providers → Email*).
 

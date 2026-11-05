@@ -11,7 +11,7 @@ import type { Profile } from "@/types/database";
 /** « Mentors recommandés pour vous » (tableau de bord du mentoré). */
 export async function RecommendedMentors({ profile }: { profile: Profile }) {
   const [domainIds, mentors, mentorships] = await Promise.all([
-    getProfileDomainIds(profile.id),
+    getProfileDomainIds(profile.id, "mentee"),
     getAvailableMentors(),
     getMyMentorships(),
   ]);
@@ -22,7 +22,8 @@ export async function RecommendedMentors({ profile }: { profile: Profile }) {
       .filter((m) => m.status === "pending" || m.status === "accepted")
       .map((m) => m.mentor.id),
   );
-  const candidates = mentors.filter((m) => !excluded.has(m.id));
+  // …ni soi-même (double rôle : on peut être mentor ET mentoré)
+  const candidates = mentors.filter((m) => !excluded.has(m.id) && m.id !== profile.id);
 
   const recommendations = recommendMentors(
     {
@@ -70,7 +71,7 @@ export async function RecommendedMentors({ profile }: { profile: Profile }) {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-2">
-                      <Avatar name={mentor.full_name} size="sm" />
+                      <Avatar name={mentor.full_name} src={mentor.avatar_url} size="sm" />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold">{mentor.full_name}</p>
                         {mentor.job_title && (

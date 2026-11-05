@@ -26,7 +26,15 @@ export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
     .eq("id", userId)
     .maybeSingle<Profile>();
   // `skills` est absente tant que la migration 0004 n'est pas exécutée
-  return data ? { ...data, skills: data.skills ?? [] } : null;
+  if (!data) return null;
+  return {
+    ...data,
+    skills: data.skills ?? [],
+    needs: data.needs ?? [],
+    // Avant la migration 0007 : déduits du rôle et du profil complété
+    is_mentor: data.is_mentor ?? (data.role === "mentor" && data.onboarded),
+    is_mentee: data.is_mentee ?? (data.role === "mentee" && data.onboarded),
+  };
 });
 
 /** À utiliser dans les pages protégées : redirige vers /login si besoin. */

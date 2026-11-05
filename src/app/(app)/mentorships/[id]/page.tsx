@@ -29,6 +29,8 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
     isEnded ? getMentorshipTestimonials(mentorship.id) : Promise.resolve(null),
   ]);
   const partner = profile.id === mentorship.mentor.id ? mentorship.mentee : mentorship.mentor;
+  // Double rôle : le rôle tenu dans CE mentorat (pas le mode actif)
+  const roleHere = profile.id === mentorship.mentor.id ? "mentor" : "mentee";
   const names = {
     [mentorship.mentor.id]: mentorship.mentor.full_name,
     [mentorship.mentee.id]: mentorship.mentee.full_name,
@@ -54,7 +56,7 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
               canWrite={mentorship.status === "accepted"}
             />
           ) : (
-            <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
+            <MentorshipCard mentorship={mentorship} viewerRole={roleHere} />
           )}
         </div>
 
@@ -69,7 +71,7 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
                 </p>
                 <TestimonialForm
                   mentorshipId={mentorship.id}
-                  isMentor={profile.role === "mentor"}
+                  isMentor={roleHere === "mentor"}
                   initial={testimonials.mine}
                 />
                 {testimonials.other && (
@@ -91,7 +93,7 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
               canEdit={mentorship.status === "accepted"}
               domainSlug={mentorship.domain?.slug}
             />
-            <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
+            <MentorshipCard mentorship={mentorship} viewerRole={roleHere} />
           </div>
         )}
       </div>

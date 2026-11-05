@@ -584,7 +584,7 @@ export function ProfileForm({ profile, domains, selectedDomainIds, mode, email, 
             {errors.domain_ids && <p className="mt-3 text-sm text-red-600">{errors.domain_ids.join(" ")}</p>}
           </fieldset>
 
-          <SkillsInput initial={profile.skills} isMentor={isMentor} errors={errors.skills} onChange={markDirty} />
+          <SkillsInput initial={isMentor ? profile.skills : profile.needs} isMentor={isMentor} errors={errors.skills} onChange={markDirty} />
         </Section>
 
         <Section

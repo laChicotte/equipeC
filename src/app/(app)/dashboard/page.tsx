@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentProfile } from "@/features/auth/queries";
+import { isRoleReady } from "@/features/profiles/roles";
 import { getMyMentorships } from "@/features/mentorship/queries";
 import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard";
 import { getUpcomingSessions } from "@/features/sessions/queries";
@@ -115,7 +116,7 @@ export default async function DashboardPage() {
         {overall !== null && <ProgressRing percent={overall} label={isMentor ? "Mentorés" : "Parcours"} />}
       </header>
 
-      <MatchBanner isMentor={isMentor} onboarded={profile.onboarded} />
+      <MatchBanner isMentor={isMentor} onboarded={isRoleReady(profile)} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <NextSessionCard sessions={sessions} viewerRole={profile.role} />
@@ -133,7 +134,7 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      {!isMentor && profile.onboarded && <RecommendedMentors profile={profile} />}
+      {!isMentor && profile.is_mentee && <RecommendedMentors profile={profile} />}
 
       {active.length > 0 && (
         <section>

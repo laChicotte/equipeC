@@ -42,7 +42,7 @@ export function MentorshipCard({
     <article className="flex flex-col gap-4 rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <Avatar name={other.full_name} />
+          <Avatar name={other.full_name} src={other.avatar_url} />
           <div className="min-w-0">
             <p className="truncate font-bold text-ink-900">{other.full_name}</p>
             {subtitle && <p className="truncate text-sm text-ink-500">{subtitle}</p>}

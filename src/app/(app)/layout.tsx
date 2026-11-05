@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { getCurrentProfile, requireUserId } from "@/features/auth/queries";
 import { ROLE_LABELS } from "@/features/profiles/labels";
+import { isRoleReady, otherRole } from "@/features/profiles/roles";
 import { getMyMentorships } from "@/features/mentorship/queries";
 
 /**
@@ -18,6 +19,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         fullName: profile.full_name,
         roleLabel: ROLE_LABELS[profile.role],
         isMentor: profile.role === "mentor",
+        avatarUrl: profile.avatar_url,
+        // Double rôle : bouton « Passer en mode … » si l'autre profil est complet
+        switchTo: isRoleReady(profile, otherRole(profile.role)) ? otherRole(profile.role) : null,
       }
     : null;
 

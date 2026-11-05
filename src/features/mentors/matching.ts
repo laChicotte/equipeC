@@ -161,27 +161,28 @@ const DOMAIN_HINTS: Record<string, string[]> = {
   numerique: [
     "informatique", "developpeur", "developpement", "code", "coder", "programmation", "web",
     "application", "data", "donnees", "intelligence", "cybersecurite", "securite", "digital",
-    "numerique", "design", "fintech", "tech",
+    "numerique", "design", "fintech", "tech", "marketing", "cyber", "artificielle", "graphisme",
   ],
   "orientation-insertion": [
     "emploi", "travail", "stage", "entretien", "embauche", "recrutement", "candidature", "orientation",
-    "carriere", "reconversion", "metier",
+    "carriere", "reconversion", "metier", "lettre", "reseau", "insertion", "parcours",
   ],
   "culture-creation": [
     "livre", "ecrire", "ecriture", "edition", "auteur", "video", "contenu", "audiovisuel", "musique",
-    "culture", "artiste", "createur",
+    "culture", "artiste", "createur", "communication", "litterature", "editeur", "cinema", "photo",
   ],
   "gestion-finance": [
     "finance", "financement", "comptabilite", "budget", "gestion", "investissement", "banque",
-    "subvention", "tresorerie", "fintech",
+    "subvention", "tresorerie", "fintech", "management", "ressources", "humaines", "economie",
+    "administration", "comptable",
   ],
   "developpement-personnel": [
     "confiance", "leadership", "parole", "public", "timidite", "organisation", "temps", "equipe",
-    "manager", "motivation",
+    "manager", "motivation", "relationnel", "relations", "stress",
   ],
   "campus-france": [
     "campus", "france", "master", "licence", "etudes", "etudiant", "universite", "visa", "dossier",
-    "admission", "ecole",
+    "admission", "ecole", "mobilite", "etablissement", "academique",
   ],
 };
 

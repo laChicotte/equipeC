@@ -7,12 +7,12 @@ import { getProfileDomainIds } from "@/features/profiles/queries";
 
 /** Données d'un mentoré (profil complété) pour le moteur de recommandation. */
 export async function getMenteeInput(profile: Profile | null): Promise<MenteeInput | null> {
-  if (!profile || profile.role !== "mentee" || !profile.onboarded) return null;
+  if (!profile || profile.role !== "mentee" || !profile.is_mentee) return null;
   return {
-    domainIds: await getProfileDomainIds(profile.id),
+    domainIds: await getProfileDomainIds(profile.id, "mentee"),
     menteeStatus: profile.mentee_status,
     text: [profile.goals_summary, profile.headline, profile.bio].filter(Boolean).join(" "),
-    needs: profile.skills,
+    needs: profile.needs,
   };
 }
 
@@ -43,6 +43,7 @@ export type MentorSummary = Pick<
   | "availability"
   | "is_available"
   | "skills"
+  | "avatar_url"
 > & {
   domains: Pick<Domain, "id" | "slug" | "name">[];
   rating: MentorRating | null;
@@ -50,7 +51,7 @@ export type MentorSummary = Pick<
 
 const BASE_COLUMNS = `
   id, full_name, headline, bio, city, job_title, organization,
-  years_experience, availability, is_available`;
+  years_experience, availability, is_available, avatar_url`;
 const DOMAINS_JOIN = `profile_domains ( domains ( id, slug, name ) )`;
 
 type MentorRow = Omit<MentorSummary, "domains" | "rating" | "skills"> & {
@@ -64,10 +65,12 @@ type MentorRow = Omit<MentorSummary, "domains" | "rating" | "skills"> & {
  * reste disponible.
  */
 async function selectMentorRows(
-  run: (columns: string) => PromiseLike<{ data: unknown; error: { message: string } | null }>,
+  run: (columns: string, dualRoles: boolean) => PromiseLike<{ data: unknown; error: { message: string } | null }>,
 ) {
-  let result = await run(`${BASE_COLUMNS}, skills, ${DOMAINS_JOIN}`);
-  if (result.error?.message.includes("skills")) result = await run(`${BASE_COLUMNS}, ${DOMAINS_JOIN}`);
+  // Migration 0007 : seuls les profils de mentor complets, et leurs domaines « mentor »
+  let result = await run(`${BASE_COLUMNS}, skills, ${DOMAINS_JOIN}`, true);
+  if (result.error) result = await run(`${BASE_COLUMNS}, skills, ${DOMAINS_JOIN}`, false);
+  if (result.error?.message.includes("skills")) result = await run(`${BASE_COLUMNS}, ${DOMAINS_JOIN}`, false);
   return result.data;
 }
 
@@ -98,15 +101,14 @@ function toSummary(row: MentorRow, ratings: Map<string, MentorRating>): MentorSu
 export const getAvailableMentors = cache(async (): Promise<MentorSummary[]> => {
   const supabase = await createClient();
   const [data, ratings] = await Promise.all([
-    selectMentorRows((columns) =>
-      supabase
-        .from("profiles")
-        .select(columns)
-        .eq("role", "mentor")
-        .eq("onboarded", true)
-        .eq("is_available", true)
-        .order("years_experience", { ascending: false, nullsFirst: false }),
-    ),
+    selectMentorRows((columns, dualRoles) => {
+      const query = supabase.from("profiles").select(columns).eq("is_available", true);
+      return (
+        dualRoles
+          ? query.eq("is_mentor", true).eq("profile_domains.as_role", "mentor")
+          : query.eq("role", "mentor").eq("onboarded", true)
+      ).order("years_experience", { ascending: false, nullsFirst: false });
+    }),
     getRatings(),
   ]);
   return ((data ?? []) as unknown as MentorRow[]).map((row) => toSummary(row, ratings));
@@ -137,9 +139,12 @@ export async function getMentorById(id: string): Promise<MentorSummary | null> {
 
   const supabase = await createClient();
   const [data, ratings] = await Promise.all([
-    selectMentorRows((columns) =>
-      supabase.from("profiles").select(columns).eq("id", id).eq("role", "mentor").maybeSingle(),
-    ),
+    selectMentorRows((columns, dualRoles) => {
+      const query = supabase.from("profiles").select(columns).eq("id", id);
+      return (
+        dualRoles ? query.eq("is_mentor", true).eq("profile_domains.as_role", "mentor") : query.eq("role", "mentor")
+      ).maybeSingle();
+    }),
     getRatings(),
   ]);
   return data ? toSummary(data as unknown as MentorRow, ratings) : null;

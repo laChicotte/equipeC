@@ -14,6 +14,7 @@ import { getActiveMentorshipWith } from "@/features/mentorship/queries";
 import { RequestForm } from "@/features/mentorship/components/RequestForm";
 import { CAMPUS_FRANCE_NOTICE, DOMAIN_SHORT_LABELS } from "@/features/profiles/labels";
 import { ButtonLink } from "@/components/ui/Button";
+import { Avatar } from "@/components/ui/Avatar";
 
 export const metadata: Metadata = { title: "Profil du mentor · MentorConnect" };
 
@@ -45,7 +46,9 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
   const [mentor, viewer] = await Promise.all([getMentorById(id), getCurrentProfile()]);
   if (!mentor) notFound();
 
-  const isMentee = viewer?.role === "mentee";
+  // Double rôle : en mode mentoré, on peut voir sa propre fiche de mentor
+  const isSelf = viewer?.id === mentor.id;
+  const isMentee = viewer?.role === "mentee" && !isSelf;
   const [activeRequest, menteeInput, reviews] = await Promise.all([
     isMentee ? getActiveMentorshipWith(mentor.id) : Promise.resolve(null),
     getMenteeInput(viewer),
@@ -62,11 +65,6 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
     mentor.years_experience !== null ? `${mentor.years_experience} ans d'expérience` : null,
     mentor.city,
   ].filter(Boolean);
-  const initials = mentor.full_name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
 
   return (
     <article className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_60px_-20px_rgba(23,43,69,0.25)]">
@@ -82,9 +80,13 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
           </svg>
         </Link>
 
-        <div className="flex size-36 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-brand-100 to-brand-200 text-5xl font-extrabold text-brand-800 sm:size-44">
-          {initials}
-        </div>
+        <Avatar
+          name={mentor.full_name}
+          src={mentor.avatar_url}
+          size="2xl"
+          rounded="3xl"
+          className="bg-gradient-to-br from-brand-100 to-brand-200 font-extrabold"
+        />
         <div className="min-w-0 pr-12">
           {compatibility && compatibility.score >= 20 && (
             <p className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-700" title={compatibility.reasons.join(" · ")}>

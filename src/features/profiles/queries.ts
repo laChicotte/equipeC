@@ -1,7 +1,7 @@
 // Lectures liées aux profils (exécutées côté serveur).
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import type { Domain } from "@/types/database";
+import type { Domain, UserRole } from "@/types/database";
 
 /** Catalogue des domaines, dans l'ordre du cahier des charges. */
 export const getDomains = cache(async (): Promise<Domain[]> => {
@@ -13,12 +13,17 @@ export const getDomains = cache(async (): Promise<Domain[]> => {
   return (data as Domain[] | null) ?? [];
 });
 
-/** Identifiants des domaines choisis par un profil. */
-export async function getProfileDomainIds(profileId: string): Promise<number[]> {
+/**
+ * Domaines d'un profil POUR UN RÔLE : expertises (mentor) ou centres
+ * d'intérêt (mentoré). Sans la migration 0007, tous les domaines du profil.
+ */
+export async function getProfileDomainIds(profileId: string, role: UserRole): Promise<number[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  let { data, error } = await supabase
     .from("profile_domains")
     .select("domain_id")
-    .eq("profile_id", profileId);
+    .eq("profile_id", profileId)
+    .eq("as_role", role);
+  if (error) ({ data, error } = await supabase.from("profile_domains").select("domain_id").eq("profile_id", profileId));
   return (data ?? []).map((row) => row.domain_id as number);
 }

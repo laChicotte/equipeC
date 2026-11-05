@@ -13,7 +13,7 @@ export default async function OnboardingPage() {
 
   const [domains, selected] = await Promise.all([
     getDomains(),
-    getProfileDomainIds(profile.id),
+    getProfileDomainIds(profile.id, profile.role),
   ]);
 
   return (

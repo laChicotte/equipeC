@@ -151,3 +151,19 @@ test("détection : « entreprise » ne déclenche pas « entretien » (orientati
   assert.deepEqual(inferDomainSlugs("créer une entreprise"), ["entrepreneuriat"]);
   assert.ok(inferDomainSlugs("préparer un entretien d'embauche").includes("orientation-insertion"));
 });
+
+test("orientation : vocabulaire du cahier des charges (§5) reconnu", () => {
+  const cases = [
+    ["Je veux me former au marketing digital", "numerique"],
+    ["Rédiger ma lettre de motivation", "orientation-insertion"],
+    ["Développer mon réseau professionnel", "orientation-insertion"],
+    ["Améliorer la communication de mon association", "culture-creation"],
+    ["Comprendre les ressources humaines et le management", "gestion-finance"],
+    ["Préparer ma mobilité étudiante en France", "campus-france"],
+    ["Mieux gérer mon stress à l'oral", "developpement-personnel"],
+    ["Me lancer dans l'intelligence artificielle", "numerique"],
+  ];
+  for (const [phrase, slug] of cases) {
+    assert.ok(inferDomainSlugs(phrase).includes(slug), `${phrase} → ${inferDomainSlugs(phrase).join(",")}`);
+  }
+});

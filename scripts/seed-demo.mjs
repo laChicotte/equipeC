@@ -156,7 +156,9 @@ const SKILLS = {
   ibrahima: ["Business plan", "Recherche de financement", "Premiers clients"],
   nene: ["CV", "Préparation d'entretien", "Prise de parole"],
 };
-for (const person of [...MENTORS, ...MENTEES]) person.skills = SKILLS[person.key] ?? [];
+// Mentors : compétences ; mentorés : besoins (migration 0007)
+for (const person of MENTORS) person.skills = SKILLS[person.key] ?? [];
+for (const person of MENTEES) person.needs = SKILLS[person.key] ?? [];
 
 // --- Outils -------------------------------------------------------------------
 const DAY = 86_400_000;
@@ -205,16 +207,17 @@ async function createPerson(person, role, domainIds) {
   // Le trigger SQL a créé le profil : on le complète
   const PROFILE_FIELDS = [
     "full_name", "headline", "bio", "city", "job_title", "organization",
-    "years_experience", "availability", "mentee_status", "goals_summary", "skills",
+    "years_experience", "availability", "mentee_status", "goals_summary", "skills", "needs",
   ];
   const fields = Object.fromEntries(PROFILE_FIELDS.filter((f) => f in person).map((f) => [f, person[f]]));
   const { domains } = person;
   must(
-    await admin.from("profiles").update({ ...fields, onboarded: true, is_available: true }).eq("id", id),
+    // Profil complet pour son rôle (is_mentor / is_mentee, migration 0007)
+    await admin.from("profiles").update({ ...fields, onboarded: true, is_available: true, is_mentor: role === "mentor", is_mentee: role === "mentee" }).eq("id", id),
     `Profil de ${person.full_name}`,
   );
   must(
-    await admin.from("profile_domains").insert(domains.map((slug) => ({ profile_id: id, domain_id: domainIds[slug] }))),
+    await admin.from("profile_domains").insert(domains.map((slug) => ({ profile_id: id, domain_id: domainIds[slug], as_role: role }))),
     `Domaines de ${person.full_name}`,
   );
   return id;

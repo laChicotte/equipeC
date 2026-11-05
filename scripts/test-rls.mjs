@@ -68,8 +68,17 @@ async function main() {
     check("On ne peut pas modifier le profil d'un autre", (other ?? []).length === 0);
 
     const { error: e2 } = await M.client
-      .from("profiles").update({ onboarded: true, job_title: "Testeur" }).eq("id", M.id);
+      .from("profiles").update({ onboarded: true, job_title: "Testeur", years_experience: 5, is_mentor: true }).eq("id", M.id);
     check("On peut modifier son propre profil", !e2, e2?.message);
+
+    // Profils de mentoré complets (migration 0007 : nécessaire pour envoyer une demande)
+    for (const U of [A, C]) {
+      const { error } = await U.client
+        .from("profiles")
+        .update({ onboarded: true, mentee_status: "etudiant", goals_summary: "Objectifs du test RLS", is_mentee: true })
+        .eq("id", U.id);
+      if (error) throw new Error(`Profil mentoré de test : ${error.message}`);
+    }
   }
 
   console.log("\n2. Visibilité des profils (protection des mentorés)");
@@ -301,6 +310,67 @@ async function main() {
     check("Chiffres d'impact accessibles (agrégats)", !t6 && typeof impact?.[0]?.mentors === "number", t6?.message);
     // Le témoignage de test ne doit pas apparaître sur la page Impact
     await A.client.from("mentorship_testimonials").update({ is_public: false }).eq("mentorship_id", mentorshipId).eq("author_id", A.id);
+  }
+
+  console.log("\n12. Photos de profil (migration 0006)");
+  {
+    // Image PNG de 1×1 pixel
+    const png = Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAwS2OUAAAAABJRU5ErkJggg=="), (c) => c.charCodeAt(0));
+    const blob = new Blob([png], { type: "image/png" });
+    const mine = `${A.id}/test-${run}.png`;
+    const { error: s1 } = await A.client.storage.from("avatars").upload(mine, blob, { contentType: "image/png" });
+    check("On dépose une photo dans son propre dossier", !s1, s1?.message);
+    const { error: s2 } = await A.client.storage.from("avatars").upload(`${C.id}/intrus-${run}.png`, blob, { contentType: "image/png" });
+    check("Impossible de déposer dans le dossier d'un autre", Boolean(s2));
+    const { error: s3 } = await A.client.storage
+      .from("avatars")
+      .upload(`${A.id}/page-${run}.html`, new Blob(["<h1>x</h1>"], { type: "text/html" }), { contentType: "text/html" });
+    check("Fichier qui n'est pas une image refusé", Boolean(s3));
+    const ownUrl = A.client.storage.from("avatars").getPublicUrl(mine).data.publicUrl;
+    const { error: s4 } = await A.client.from("profiles").update({ avatar_url: ownUrl }).eq("id", A.id);
+    check("La photo de son dossier peut devenir sa photo de profil", !s4, s4?.message);
+    const { error: s5 } = await A.client.from("profiles").update({ avatar_url: "https://evil.example.com/pixel.png" }).eq("id", A.id);
+    check("Impossible d'utiliser une image hébergée ailleurs", Boolean(s5));
+    const otherUrl = A.client.storage.from("avatars").getPublicUrl(`${C.id}/photo.png`).data.publicUrl;
+    const { error: s6 } = await A.client.from("profiles").update({ avatar_url: otherUrl }).eq("id", A.id);
+    check("Impossible d'utiliser la photo du dossier d'un autre", Boolean(s6));
+    const { error: s7 } = await A.client.storage.from("avatars").remove([mine]);
+    await A.client.from("profiles").update({ avatar_url: null }).eq("id", A.id);
+    check("On supprime sa propre photo", !s7, s7?.message);
+  }
+
+  console.log("\n13. Double rôle : mentor ET mentoré avec le même compte (migration 0007)");
+  {
+    const { error: d1 } = await A.client.from("profiles").update({ is_mentor: true }).eq("id", A.id);
+    check("Impossible de se déclarer mentor sans poste ni expérience", Boolean(d1));
+    const res = { author_id: A.id, kind: "guide", title: "Ressource double rôle", description: "Test du double rôle." };
+    const { error: d2 } = await A.client.from("resources").insert(res);
+    check("En mode mentoré : pas de publication de ressource", Boolean(d2));
+    const { error: d3 } = await A.client.rpc("switch_role", { p_role: "mentor" });
+    check("On peut passer en mode mentor", !d3, d3?.message);
+    const { error: d4 } = await A.client.from("resources").insert(res);
+    check("Mode mentor mais profil de mentor incomplet : publication refusée", Boolean(d4));
+    const { error: d5 } = await A.client
+      .from("profiles").update({ job_title: "Analyste", years_experience: 4, is_mentor: true }).eq("id", A.id);
+    check("Profil de mentor complété (même compte, même e-mail)", !d5, d5?.message);
+    const { data: pub, error: d6 } = await A.client.from("resources").insert(res).select("id").single();
+    check("En mode mentor : publication acceptée", !d6, d6?.message);
+    if (pub) await A.client.from("resources").delete().eq("id", pub.id);
+    const { error: d7 } = await A.client
+      .from("mentorships").insert({ mentor_id: M.id, mentee_id: A.id, message: "mode mentor" });
+    check("En mode mentor : pas de demande de mentorat", Boolean(d7));
+    const { error: d8 } = await A.client.rpc("switch_role", { p_role: "mentee" });
+    const { error: d9 } = await A.client.from("resources").insert(res);
+    check("Retour en mode mentoré : la publication est de nouveau refusée", !d8 && Boolean(d9), d8?.message);
+    const { error: d10 } = await A.client
+      .from("mentorships").insert({ mentor_id: A.id, mentee_id: A.id, message: "moi-même" });
+    check("Impossible de se demander un mentorat à soi-même", Boolean(d10));
+    const { data: me } = await A.client.from("profiles").select("role, is_mentor, is_mentee").eq("id", A.id).single();
+    check("Les deux profils restent complets", me?.role === "mentee" && me?.is_mentor === true && me?.is_mentee === true);
+    const { error: d11 } = await A.client.from("profiles").update({ role: "mentor" }).eq("id", A.id);
+    check("Le rôle ne se modifie toujours pas directement (seulement par switch_role)", Boolean(d11));
+    // Le compte de test sort du catalogue des mentors
+    await A.client.from("profiles").update({ is_mentor: false }).eq("id", A.id);
   }
 
   // Le mentor de test passe indisponible pour ne pas polluer le catalogue

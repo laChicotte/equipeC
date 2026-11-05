@@ -14,9 +14,10 @@ export function ResourceForm({ domains }: { domains: { id: number; name: string 
   const errors = state.fieldErrors ?? {};
 
   return (
-    <form key={state.savedAt ?? 0} action={formAction} className="grid gap-3 sm:grid-cols-2" noValidate>
+    <form key={state.savedAt ?? 0} action={formAction} className="grid gap-4 sm:grid-cols-2" noValidate>
       <SelectField
         label="Type"
+        required
         name="kind"
         placeholder="Choisir…"
         options={Object.entries(RESOURCE_KIND_LABELS).map(([value, k]) => ({ value, label: `${k.icon} ${k.label}` }))}
@@ -54,17 +55,17 @@ export function ResourceForm({ domains }: { domains: { id: number; name: string 
         />
       </div>
       {state.error && (
-        <p role="alert" className="text-sm text-red-600 sm:col-span-2">
+        <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 sm:col-span-2">
           {state.error}
         </p>
       )}
       {state.savedAt && !state.error && (
-        <p role="status" className="text-sm text-brand-700 sm:col-span-2">
+        <p role="status" className="rounded-xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800 sm:col-span-2">
           Ressource publiée ✓
         </p>
       )}
       <div className="sm:col-span-2">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} className="w-full sm:w-auto">
           {pending ? "Publication…" : "Publier la ressource"}
         </Button>
       </div>

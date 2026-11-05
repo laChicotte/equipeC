@@ -6,6 +6,9 @@ import { logout } from "@/features/auth/actions";
 import { getDomains, getProfileDomainIds } from "@/features/profiles/queries";
 import { MENTEE_STATUS_LABELS } from "@/features/profiles/labels";
 import { ProfileForm } from "@/features/profiles/components/ProfileForm";
+import { AvatarUploader } from "@/features/profiles/components/AvatarUploader";
+import { RolesCard } from "@/features/profiles/components/RolesCard";
+import { isRoleReady } from "@/features/profiles/roles";
 import { PROFILE_FORM_ID } from "@/features/profiles/constants";
 import { getMentorById, getMentorReviews, type PublicReview } from "@/features/mentors/queries";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -24,6 +27,7 @@ export const metadata: Metadata = { title: "Mon profil · MentorConnect" };
 function completion(profile: Profile, domainCount: number) {
   const isMentor = profile.role === "mentor";
   const items: [boolean, string][] = [
+    [Boolean(profile.avatar_url), "photo"],
     [Boolean(profile.full_name), "section-identite"],
     [Boolean(profile.city), "section-identite"],
     [Boolean(profile.headline), "section-identite"],
@@ -39,7 +43,7 @@ function completion(profile: Profile, domainCount: number) {
           [Boolean(profile.goals_summary), "section-cadre"],
         ] as [boolean, string][])),
     [domainCount > 0, "section-expertises"],
-    [profile.skills.length > 0, "section-expertises"],
+    [(isMentor ? profile.skills : profile.needs).length > 0, "section-expertises"],
     [Boolean(profile.bio), "section-parcours"],
   ];
   const done = items.filter(([ok]) => ok).length;
@@ -134,7 +138,7 @@ export default async function ProfilePage() {
   const supabase = await createClient();
   const [domains, selected, claims, mentor, reviews] = await Promise.all([
     getDomains(),
-    getProfileDomainIds(profile.id),
+    getProfileDomainIds(profile.id, profile.role),
     supabase.auth.getClaims(),
     isMentor ? getMentorById(profile.id) : Promise.resolve(null),
     isMentor ? getMentorReviews(profile.id) : Promise.resolve([]),
@@ -192,14 +196,12 @@ export default async function ProfilePage() {
         <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-brand-50 blur-3xl" />
         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center">
           <div className="flex flex-1 flex-col gap-6 sm:flex-row sm:items-center">
-            <div className="relative shrink-0 self-start sm:self-center">
-              <div className="flex size-28 items-center justify-center rounded-3xl bg-gradient-to-br from-brand-50 to-brand-100 text-4xl font-extrabold text-brand-800">
-                {initialsOf(profile.full_name)}
-              </div>
-              {profile.onboarded && (
+            <div id="photo" className="relative shrink-0 scroll-mt-24 self-start sm:self-center">
+              <AvatarUploader userId={profile.id} name={profile.full_name} avatarUrl={profile.avatar_url} />
+              {isRoleReady(profile) && (
                 <span
                   title="Profil complété"
-                  className="absolute -right-1.5 -bottom-1.5 inline-flex size-8 items-center justify-center rounded-full border-4 border-white bg-brand-600 text-xs font-bold text-white"
+                  className="pointer-events-none absolute top-[88px] -right-1.5 inline-flex size-8 items-center justify-center rounded-full border-4 border-white bg-brand-600 text-xs font-bold text-white"
                 >
                   ✓
                 </span>
@@ -259,6 +261,8 @@ export default async function ProfilePage() {
           </div>
         </div>
       </section>
+
+      <RolesCard profile={profile} />
 
       <ProfileForm
         profile={profile}

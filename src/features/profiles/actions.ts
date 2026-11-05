@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/features/auth/queries";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 import { MAX_MENTOR_DOMAINS, MIN_MENTOR_YEARS } from "./constants";
 
 export type ProfileFormState = {
@@ -98,29 +99,38 @@ export async function saveProfile(
   const { domain_ids, skills, ...fields } = parsed.data;
   const supabase = await createClient();
 
-  // 1. Champs du profil (RLS : uniquement sa propre ligne)
-  let { error } = await supabase
-    .from("profiles")
-    .update({ ...fields, skills, onboarded: true })
-    .eq("id", profile.id);
-  // Colonne `skills` absente (migration 0004 non exécutée) : on enregistre le reste
-  let skillsSkipped = false;
-  if (error?.message.includes("skills")) {
-    skillsSkipped = true;
-    ({ error } = await supabase.from("profiles").update({ ...fields, onboarded: true }).eq("id", profile.id));
-  }
-  if (error) return { error: "Enregistrement impossible. Réessayez." };
+  const isMentorMode = profile.role === "mentor";
 
-  // 2. Domaines : on remplace l'ancienne sélection par la nouvelle
+  // 1. Champs du profil (RLS : uniquement sa propre ligne). Le profil du mode
+  //    actif devient « complet » (is_mentor / is_mentee) : des contraintes SQL
+  //    le refusent si les champs obligatoires manquent.
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      ...fields,
+      ...(isMentorMode ? { skills, is_mentor: true } : { needs: skills, is_mentee: true }),
+      onboarded: true,
+    })
+    .eq("id", profile.id);
+  if (error) {
+    return {
+      error: /is_mentor|is_mentee|needs/.test(error.message)
+        ? "Enregistrement impossible : exécutez la migration 0007 (double rôle)."
+        : "Enregistrement impossible. Réessayez.",
+    };
+  }
+
+  // 2. Domaines DU MODE ACTIF : on remplace l'ancienne sélection par la nouvelle
   const { error: deleteError } = await supabase
     .from("profile_domains")
     .delete()
-    .eq("profile_id", profile.id);
+    .eq("profile_id", profile.id)
+    .eq("as_role", profile.role);
   if (deleteError) return { error: "Enregistrement des domaines impossible." };
 
   const { error: insertError } = await supabase
     .from("profile_domains")
-    .insert(domain_ids.map((domain_id) => ({ profile_id: profile.id, domain_id })));
+    .insert(domain_ids.map((domain_id) => ({ profile_id: profile.id, domain_id, as_role: profile.role })));
   if (insertError) return { error: "Enregistrement des domaines impossible." };
 
   // Rafraîchit les pages qui affichent le profil (en-tête, tableau de bord…)
@@ -128,9 +138,61 @@ export async function saveProfile(
 
   // Premier remplissage → tableau de bord ; modification → rester sur la page
   if (formData.get("mode") === "onboarding") redirect("/dashboard");
-  return {
-    success: skillsSkipped
-      ? "Profil enregistré (compétences non enregistrées : migration 0004 à exécuter)."
-      : "Profil enregistré.",
-  };
+  return { success: "Profil enregistré." };
+}
+
+/**
+ * Double rôle : passe en mode mentor ou mentoré (fonction SQL switch_role).
+ * Si le profil de ce rôle n'est pas encore complet, on l'envoie le compléter.
+ */
+export async function switchRole(formData: FormData) {
+  const target = formData.get("role");
+  const profile = await getCurrentProfile();
+  if (!profile || (target !== "mentor" && target !== "mentee") || target === profile.role) return;
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("switch_role", { p_role: target });
+  if (error) redirect("/profile?mode=indisponible");
+
+  revalidatePath("/", "layout");
+  const ready = target === "mentor" ? profile.is_mentor : profile.is_mentee;
+  redirect(ready ? "/dashboard" : "/onboarding");
+}
+
+export type AvatarState = { error?: string };
+
+/**
+ * Enregistre (ou retire, avec null) la photo de profil. Le fichier a déjà été
+ * déposé par le navigateur dans avatars/<id>/ (règles du stockage, migration
+ * 0006) ; on vérifie ici que l'URL pointe bien vers CE dossier, puis on
+ * supprime l'ancienne photo pour ne pas accumuler de fichiers.
+ */
+export async function setAvatar(url: string | null): Promise<AvatarState> {
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Session expirée. Reconnectez-vous." };
+
+  const { url: base } = getSupabaseEnv();
+  const prefix = `${base}/storage/v1/object/public/avatars/${profile.id}/`;
+  if (url !== null && (!url.startsWith(prefix) || url.length > 500 || !/^[\w.-]+$/.test(url.slice(prefix.length)))) {
+    return { error: "Photo invalide." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
+  if (error) {
+    return {
+      error: error.message.includes("avatar_url_own_folder")
+        ? "Photo refusée."
+        : "Enregistrement impossible : la migration 0006 est-elle exécutée ?",
+    };
+  }
+
+  // Nettoyage de l'ancienne photo (sans bloquer si elle a déjà disparu)
+  const old = profile.avatar_url;
+  if (old && old !== url && old.startsWith(prefix)) {
+    await supabase.storage.from("avatars").remove([`${profile.id}/${old.slice(prefix.length)}`]);
+  }
+
+  revalidatePath("/", "layout");
+  return {};
 }

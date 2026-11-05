@@ -115,6 +115,11 @@ export type Profile = {
   goals_summary: string | null;
   /** Compétences (mentor) ou besoins précis (mentoré) — migration 0004 */
   skills: string[];
+  /** Besoins précis du mentoré — migration 0007 */
+  needs: string[];
+  /** Profil de mentor complet / profil de mentoré complet — migration 0007 */
+  is_mentor: boolean;
+  is_mentee: boolean;
   onboarded: boolean;
   created_at: string;
   updated_at: string;

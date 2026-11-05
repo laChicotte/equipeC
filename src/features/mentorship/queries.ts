@@ -2,6 +2,7 @@
 // RLS garantit qu'on ne reçoit QUE les mentorats dont on est participant.
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/features/auth/queries";
 import type { MenteeStatus, MentorshipStatus } from "@/types/database";
 
 export type MentorshipView = {
@@ -11,13 +12,14 @@ export type MentorshipView = {
   created_at: string;
   responded_at: string | null;
   domain: { name: string; slug: string } | null;
-  mentor: { id: string; full_name: string; headline: string | null; job_title: string | null };
+  mentor: { id: string; full_name: string; headline: string | null; job_title: string | null; avatar_url: string | null };
   mentee: {
     id: string;
     full_name: string;
     headline: string | null;
     mentee_status: MenteeStatus | null;
     goals_summary: string | null;
+    avatar_url: string | null;
   };
 };
 
@@ -26,16 +28,20 @@ export type MentorshipView = {
 const COLUMNS = `
   id, status, message, created_at, responded_at,
   domain:domains ( name, slug ),
-  mentor:profiles!mentorships_mentor_id_fkey ( id, full_name, headline, job_title ),
-  mentee:profiles!mentorships_mentee_id_fkey ( id, full_name, headline, mentee_status, goals_summary )
+  mentor:profiles!mentorships_mentor_id_fkey ( id, full_name, headline, job_title, avatar_url ),
+  mentee:profiles!mentorships_mentee_id_fkey ( id, full_name, headline, mentee_status, goals_summary, avatar_url )
 `;
 
 /** Tous mes mentorats (en tant que mentor ou mentoré), les plus récents d'abord. */
 export const getMyMentorships = cache(async (): Promise<MentorshipView[]> => {
   const supabase = await createClient();
+  const profile = await getCurrentProfile();
+  if (!profile) return [];
+  // Double rôle : en mode mentor, mes mentorés ; en mode mentoré, mes mentors
   const { data } = await supabase
     .from("mentorships")
     .select(COLUMNS)
+    .eq(profile.role === "mentor" ? "mentor_id" : "mentee_id", profile.id)
     .order("created_at", { ascending: false });
   return (data ?? []) as unknown as MentorshipView[];
 });
