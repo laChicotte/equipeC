@@ -6,7 +6,7 @@ import { getMyMentorships } from "@/features/mentorship/queries";
 import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard";
 import { UpcomingSessions } from "@/features/sessions/components/UpcomingSessions";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { ComingSoon } from "@/components/shared/ComingSoon";
+import { RecommendedMentors } from "@/features/mentors/components/RecommendedMentors";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
@@ -111,13 +111,7 @@ export default async function DashboardPage() {
           </Card>
         )}
 
-        {!isMentor && (
-          <ComingSoon
-            task="T9"
-            title="Mentors recommandés pour vous"
-            items={["Score de compatibilité selon vos domaines et objectifs", "Raison affichée"]}
-          />
-        )}
+        {!isMentor && profile.onboarded && <RecommendedMentors profile={profile} />}
         <UpcomingSessions viewerRole={profile.role} />
       </div>
     </>

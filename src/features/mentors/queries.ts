@@ -2,6 +2,7 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Domain, Profile } from "@/types/database";
+import { normalize } from "./matching";
 
 export type MentorRating = { avg: number; count: number };
 
@@ -86,11 +87,6 @@ export async function getMentorById(id: string): Promise<MentorSummary | null> {
     getRatings(),
   ]);
   return data ? toSummary(data as unknown as MentorRow, ratings) : null;
-}
-
-/** Normalise un texte pour la recherche (minuscules, sans accents). */
-function normalize(text: string) {
-  return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
 /** Filtre par domaine (slug) et par mot-clé (nom, poste, organisation, présentation). */
