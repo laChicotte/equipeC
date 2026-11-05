@@ -24,6 +24,18 @@ export type Domain = {
   description: string | null;
 };
 
+export type Session = {
+  id: string;
+  mentorship_id: string;
+  scheduled_at: string;
+  duration_min: number;
+  topic: string | null;
+  meeting_url: string;
+  status: SessionStatus;
+  created_by: string;
+  created_at: string;
+};
+
 export type Message = {
   id: number;
   mentorship_id: string;

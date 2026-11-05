@@ -6,6 +6,7 @@ import { getMentorshipById } from "@/features/mentorship/queries";
 import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard";
 import { getMessages } from "@/features/messaging/queries";
 import { Chat } from "@/features/messaging/components/Chat";
+import { SessionsPanel } from "@/features/sessions/components/SessionsPanel";
 import { ComingSoon } from "@/components/shared/ComingSoon";
 
 export const metadata: Metadata = { title: "Espace de mentorat · MentorConnect" };
@@ -47,12 +48,11 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
 
         {hasChat && (
           <div className="grid content-start gap-4">
-            <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
-            <ComingSoon
-              task="T7 · T8"
-              title="Séances"
-              items={["Planifier une séance", "Rejoindre la visio", "Évaluer la séance"]}
+            <SessionsPanel
+              mentorshipId={mentorship.id}
+              isActive={mentorship.status === "accepted"}
             />
+            <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
             <ComingSoon
               task="T10"
               title="Objectifs"

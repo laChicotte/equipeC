@@ -4,6 +4,7 @@ import { getCurrentProfile } from "@/features/auth/queries";
 import { ROLE_LABELS } from "@/features/profiles/labels";
 import { getMyMentorships } from "@/features/mentorship/queries";
 import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard";
+import { UpcomingSessions } from "@/features/sessions/components/UpcomingSessions";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ComingSoon } from "@/components/shared/ComingSoon";
 import { Card } from "@/components/ui/Card";
@@ -117,11 +118,7 @@ export default async function DashboardPage() {
             items={["Score de compatibilité selon vos domaines et objectifs", "Raison affichée"]}
           />
         )}
-        <ComingSoon
-          task="T7"
-          title="Prochaines séances"
-          items={["Date, heure et sujet", "Lien pour rejoindre la visio"]}
-        />
+        <UpcomingSessions viewerRole={profile.role} />
       </div>
     </>
   );

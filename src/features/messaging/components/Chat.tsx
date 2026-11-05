@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEven
 import { createClient } from "@/lib/supabase/client";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
+import { dayKey, formatDay, formatTime } from "@/lib/datetime";
 import type { Message } from "@/types/database";
 
 type Props = {
@@ -17,8 +18,6 @@ type Props = {
 };
 
 const MAX_LENGTH = 2000;
-const timeFormat = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" });
-const dayFormat = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 
 /** Ajoute un message s'il n'est pas déjà présent (il peut arriver deux fois :
  *  par la réponse de l'envoi ET par le temps réel). */
@@ -144,10 +143,8 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
 
         {messages.map((message, index) => {
           const mine = message.sender_id === currentUserId;
-          const date = new Date(message.created_at);
           const previous = messages[index - 1];
-          const newDay =
-            !previous || new Date(previous.created_at).toDateString() !== date.toDateString();
+          const newDay = !previous || dayKey(previous.created_at) !== dayKey(message.created_at);
           const sameSenderAsPrevious = !newDay && previous?.sender_id === message.sender_id;
           const name = names[message.sender_id] ?? "Participant";
 
@@ -155,7 +152,7 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
             <div key={message.id}>
               {newDay && (
                 <p className="my-3 text-center text-xs font-medium text-zinc-500 first-letter:uppercase">
-                  {dayFormat.format(date)}
+                  {formatDay(message.created_at)}
                 </p>
               )}
               <div
@@ -180,7 +177,7 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
                   )}
                   <p className="break-words whitespace-pre-wrap">{message.content}</p>
                   <p className={`mt-1 text-right text-[11px] ${mine ? "text-white/70" : "text-zinc-400"}`}>
-                    <time dateTime={message.created_at}>{timeFormat.format(date)}</time>
+                    <time dateTime={message.created_at}>{formatTime(message.created_at)}</time>
                   </p>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { MENTEE_STATUS_LABELS, MENTORSHIP_STATUS_LABELS } from "@/features/profiles/labels";
+import { formatShortDate } from "@/lib/datetime";
 import type { UserRole } from "@/types/database";
 import type { MentorshipView } from "../queries";
 import { RespondButtons } from "./RespondButtons";
@@ -13,7 +14,6 @@ const STATUS_TONE = {
   ended: "neutral",
 } as const;
 
-const dateFormat = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" });
 
 /**
  * Une relation de mentorat vue par l'un des deux participants.
@@ -46,7 +46,7 @@ export function MentorshipCard({
       </div>
 
       <p className="text-xs text-zinc-500">
-        Demande du {dateFormat.format(new Date(m.created_at))}
+        Demande du {formatShortDate(m.created_at)}
         {m.domain && <> · {m.domain.name}</>}
       </p>
 
