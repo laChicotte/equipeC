@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -95,6 +96,110 @@ export async function login(
   if (error) return { error: translateAuthError(error.code) };
 
   redirect(safeNextPath(formData.get("next")));
+}
+
+/** Adresse du site (http://localhost:3000 en dev, le domaine en production). */
+async function siteOrigin(): Promise<string> {
+  const h = await headers();
+  const origin = h.get("origin");
+  if (origin) return origin;
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  return `${proto}://${host}`;
+}
+
+const OAUTH_PROVIDERS = ["google", "github", "facebook"] as const;
+
+/**
+ * Connexion avec Google ou GitHub : Supabase renvoie l'URL du fournisseur,
+ * qui redirigera ensuite vers /auth/callback.
+ * Le fournisseur doit être activé dans Supabase (Authentication → Providers).
+ */
+export async function signInWithProvider(formData: FormData): Promise<void> {
+  const provider = formData.get("provider");
+  if (!OAUTH_PROVIDERS.includes(provider as (typeof OAUTH_PROVIDERS)[number])) {
+    redirect("/login");
+  }
+
+  const origin = await siteOrigin();
+  const next = safeNextPath(formData.get("next"));
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: provider as (typeof OAUTH_PROVIDERS)[number],
+    options: { redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}` },
+  });
+
+  if (error || !data.url) redirect("/login?error=oauth");
+  redirect(data.url);
+}
+
+const resetRequestSchema = z.object({
+  email: z.email("Adresse email invalide").trim().toLowerCase(),
+});
+
+/** Envoie l'email de réinitialisation du mot de passe. */
+export async function requestPasswordReset(
+  _prev: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const parsed = resetRequestSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { fieldErrors: z.flattenError(parsed.error).fieldErrors };
+  }
+
+  const origin = await siteOrigin();
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: `${origin}/auth/callback?next=/reset-password`,
+  });
+
+  // Limite de débit : on le signale. Sinon, même message que le compte existe
+  // ou non (ne pas révéler quels emails sont inscrits).
+  if (error?.code === "over_email_send_rate_limit" || error?.code === "over_request_rate_limit") {
+    return { error: translateAuthError(error.code) };
+  }
+  return {
+    info: "Si un compte existe avec cette adresse, vous allez recevoir un lien pour choisir un nouveau mot de passe.",
+  };
+}
+
+const newPasswordSchema = z
+  .object({
+    password: z.string().min(8, "Au moins 8 caractères").max(72),
+    confirm: z.string(),
+  })
+  .refine((d) => d.password === d.confirm, {
+    path: ["confirm"],
+    message: "Les deux mots de passe ne correspondent pas",
+  });
+
+/** Enregistre le nouveau mot de passe (session ouverte par le lien reçu). */
+export async function updatePassword(
+  _prev: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const parsed = newPasswordSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { fieldErrors: z.flattenError(parsed.error).fieldErrors };
+  }
+
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) {
+    return { error: "Lien expiré. Refaites une demande de réinitialisation." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  if (error) {
+    return {
+      error:
+        error.code === "same_password"
+          ? "Choisissez un mot de passe différent de l'ancien."
+          : translateAuthError(error.code),
+    };
+  }
+
+  redirect("/dashboard");
 }
 
 export async function logout() {

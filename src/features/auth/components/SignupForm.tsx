@@ -1,55 +1,70 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { useActionState } from "react";
 import { signup, type AuthFormState } from "../actions";
 import { Field } from "@/components/ui/Input";
+import { PasswordField } from "@/components/ui/PasswordField";
 import { Button } from "@/components/ui/Button";
+import { ArrowRightIcon, CheckIcon, FeatherIcon, GraduationIcon, LockIcon, MailIcon, UserIcon } from "@/components/ui/icons";
 import type { UserRole } from "@/types/database";
 
 const initialState: AuthFormState = {};
 
-const ROLE_OPTIONS: { value: UserRole; title: string; text: string }[] = [
-  { value: "mentee", title: "Je cherche un mentor", text: "Étudiant, jeune diplômé, entrepreneur…" },
-  { value: "mentor", title: "Je veux accompagner", text: "Professionnel expérimenté (3 ans minimum)" },
+// Les valeurs (« mentee » / « mentor ») sont celles attendues par l'action serveur
+const ROLE_OPTIONS: { value: UserRole; title: string; text: string; icon: ComponentType<{ className?: string }> }[] = [
+  { value: "mentee", title: "Je veux apprendre", text: "Étudiant, jeune diplômé, entrepreneur, lecteur…", icon: GraduationIcon },
+  { value: "mentor", title: "Je veux transmettre", text: "Professionnel, auteur… (3 ans d'expérience minimum)", icon: FeatherIcon },
 ];
+
+const iconClass = "h-[18px] w-[18px]";
 
 export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole }) {
   const [state, formAction, pending] = useActionState(signup, initialState);
 
   if (state.info) {
     return (
-      <p role="status" className="rounded-lg bg-brand-50 px-3 py-3 text-sm text-brand-800">
+      <p role="status" className="rounded-xl bg-brand-50 px-4 py-4 text-sm leading-relaxed text-brand-800">
         {state.info}
       </p>
     );
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-4" noValidate>
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1.5 text-sm font-medium text-ink-700">Vous êtes…</legend>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {ROLE_OPTIONS.map((option) => (
+    <form action={formAction} className="flex flex-col gap-5" noValidate>
+      <fieldset>
+        <legend className="mb-2.5 text-sm font-semibold text-ink-900">Vous êtes ici pour…</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {ROLE_OPTIONS.map(({ value, title, text, icon: Icon }) => (
             <label
-              key={option.value}
-              className="flex cursor-pointer flex-col rounded-xl border border-zinc-300 bg-white p-3 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50"
+              key={value}
+              className="group relative flex cursor-pointer flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 transition-colors hover:border-brand-200 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-600"
             >
-              <span className="flex items-center gap-2 text-sm font-medium">
-                <input
-                  type="radio"
-                  name="role"
-                  value={option.value}
-                  defaultChecked={option.value === defaultRole}
-                  className="accent-brand-600"
-                />
-                {option.title}
+              <input
+                type="radio"
+                name="role"
+                value={value}
+                defaultChecked={value === defaultRole}
+                className="sr-only"
+              />
+              <span className="flex items-center justify-between">
+                <span className="inline-flex size-10 items-center justify-center rounded-xl bg-paper text-brand-700 group-has-[:checked]:bg-white">
+                  <Icon className="size-5" />
+                </span>
+                {/* Pastille de sélection */}
+                <span className="inline-flex size-5 items-center justify-center rounded-full border border-zinc-300 text-transparent group-has-[:checked]:border-brand-600 group-has-[:checked]:bg-brand-600 group-has-[:checked]:text-white">
+                  <CheckIcon className="size-3" />
+                </span>
               </span>
-              <span className="pl-6 text-xs text-ink-500">{option.text}</span>
+              <span>
+                <span className="block font-semibold text-ink-900">{title}</span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-ink-500">{text}</span>
+              </span>
             </label>
           ))}
         </div>
         {state.fieldErrors?.role && (
-          <p className="text-sm text-red-600">{state.fieldErrors.role.join(" ")}</p>
+          <p className="mt-1.5 text-sm text-red-600">{state.fieldErrors.role.join(" ")}</p>
         )}
       </fieldset>
 
@@ -57,6 +72,10 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
         label="Nom complet"
         name="full_name"
         autoComplete="name"
+        placeholder="Prénom et nom"
+        icon={<UserIcon className={iconClass} />}
+        appearance="outline"
+        hideRequiredMark
         required
         errors={state.fieldErrors?.full_name}
       />
@@ -65,14 +84,21 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
         name="email"
         type="email"
         autoComplete="email"
+        placeholder="Entrez votre adresse email"
+        icon={<MailIcon className={iconClass} />}
+        appearance="outline"
+        hideRequiredMark
         required
         errors={state.fieldErrors?.email}
       />
-      <Field
-        label="Mot de passe (8 caractères minimum)"
+      <PasswordField
+        label="Mot de passe"
         name="password"
-        type="password"
         autoComplete="new-password"
+        placeholder="8 caractères minimum"
+        icon={<LockIcon className={iconClass} />}
+        appearance="outline"
+        hideRequiredMark
         required
         errors={state.fieldErrors?.password}
       />
@@ -99,7 +125,12 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
         </p>
       )}
 
-      <Button type="submit" disabled={pending}>
+      <Button
+        type="submit"
+        disabled={pending}
+        className="mt-1 bg-gradient-to-r from-brand-600 to-brand-700 py-3.5 text-base hover:from-brand-700 hover:to-brand-700"
+      >
+        <ArrowRightIcon className="h-5 w-5" />
         {pending ? "Création du compte…" : "Créer mon compte"}
       </Button>
     </form>

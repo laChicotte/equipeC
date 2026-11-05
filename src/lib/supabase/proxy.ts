@@ -19,7 +19,7 @@ const PROTECTED_PREFIXES = [
 ];
 
 /** Pages inutiles quand on est déjà connecté. */
-const AUTH_PAGES = ["/login", "/signup"];
+const AUTH_PAGES = ["/login", "/signup", "/forgot-password"];
 
 function matches(pathname: string, prefixes: string[]) {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
