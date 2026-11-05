@@ -15,13 +15,17 @@ export type MenteeInput = {
   menteeStatus: MenteeStatus | null;
   /** Objectifs, titre et présentation du mentoré */
   text: string;
+  /** Besoins précis saisis par le mentoré (ex. « Lettre de motivation ») */
+  needs?: string[];
 };
 
 export type MentorInput = {
   id: string;
   domains: { id: number; slug: string; name: string }[];
-  /** Poste, titre, organisation, présentation… */
+  /** Poste, titre, organisation, présentation, compétences… */
   text: string;
+  /** Compétences précises déclarées par le mentor (ex. « Business plan ») */
+  skills?: string[];
   yearsExperience: number | null;
   rating: { avg: number; count: number } | null;
 };
@@ -64,6 +68,25 @@ function sameRoot(a: string, b: string) {
   return a.slice(0, 5) === b.slice(0, 5);
 }
 
+/**
+ * Besoins du mentoré couverts par un mentor : tous les mots significatifs du
+ * besoin se retrouvent (même racine) dans ses compétences ou son profil.
+ * Un besoin très court (ex. « CV ») est cherché mot pour mot.
+ */
+export function coveredNeeds(needs: string[], mentor: Pick<MentorInput, "text" | "skills">): string[] {
+  const haystack = `${(mentor.skills ?? []).join(" ")} ${mentor.text}`;
+  const mentorWords = keywords(haystack);
+  const mentorTokens = new Set(normalize(haystack).match(/[a-z0-9]+/g) ?? []);
+  return needs.filter((need) => {
+    const words = keywords(need);
+    if (words.length === 0) {
+      const tokens = normalize(need).match(/[a-z0-9]+/g) ?? [];
+      return tokens.length > 0 && tokens.every((t) => mentorTokens.has(t));
+    }
+    return words.every((w) => mentorWords.some((m) => sameRoot(w, m)));
+  });
+}
+
 export function scoreMentor(mentee: MenteeInput, mentor: MentorInput): Recommendation {
   const reasons: string[] = [];
   let score = 0;
@@ -89,7 +112,19 @@ export function scoreMentor(mentee: MenteeInput, mentor: MentorInput): Recommend
     );
   }
 
-  // 3. Affinité avec la situation du mentoré
+  // 3. Besoins précis du mentoré couverts par les compétences du mentor
+  const covered = coveredNeeds(mentee.needs ?? [], mentor);
+  if (covered.length > 0) {
+    score += Math.min(20, covered.length * 10);
+    reasons.push(
+      `Répond à ${covered.length > 1 ? "vos besoins" : "votre besoin"} : ${covered
+        .slice(0, 3)
+        .map((n) => `« ${n} »`)
+        .join(", ")}`,
+    );
+  }
+
+  // 4. Affinité avec la situation du mentoré
   if (mentee.menteeStatus) {
     const affinity = STATUS_AFFINITY[mentee.menteeStatus];
     if (mentor.domains.some((d) => affinity.slugs.includes(d.slug))) {
@@ -98,7 +133,7 @@ export function scoreMentor(mentee: MenteeInput, mentor: MentorInput): Recommend
     }
   }
 
-  // 4. Qualité : note moyenne (au-dessus de 3/5) et expérience
+  // 5. Qualité : note moyenne (au-dessus de 3/5) et expérience
   if (mentor.rating && mentor.rating.count > 0 && mentor.rating.avg > 3) {
     score += Math.round((mentor.rating.avg - 3) * 3);
     if (mentor.rating.avg >= 4) {
@@ -153,17 +188,68 @@ const DOMAIN_HINTS: Record<string, string[]> = {
 /** Raccourci « cv » : trop court pour la règle des 5 lettres, traité à part. */
 const SHORT_HINTS: Record<string, string> = { cv: "orientation-insertion", ia: "numerique" };
 
-export function inferDomainSlugs(text: string): string[] {
-  const words = normalize(text).match(/[a-z0-9]+/g) ?? [];
-  const slugs = new Set<string>();
-  for (const word of words) {
-    if (SHORT_HINTS[word]) slugs.add(SHORT_HINTS[word]);
+/**
+ * Mot ↔ indice de domaine : même racine, et pour deux mots longs 6 lettres
+ * communes (sinon « entreprise » et « entretien » se confondraient).
+ */
+function hintMatches(word: string, hint: string) {
+  if (!sameRoot(word, hint)) return false;
+  return word.length < 7 || hint.length < 7 || word.slice(0, 6) === hint.slice(0, 6);
+}
+
+/** Domaines évoqués dans un texte, avec les mots qui les ont déclenchés. */
+export function inferDomainMatches(text: string): Map<string, string[]> {
+  // Mots d'origine (accents conservés pour l'affichage), comparés sans accents
+  const originals = text.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+  const matches = new Map<string, string[]>();
+  const add = (slug: string, word: string) => {
+    const list = matches.get(slug) ?? [];
+    if (!list.includes(word)) list.push(word);
+    matches.set(slug, list);
+  };
+  for (const original of originals) {
+    const word = normalize(original);
+    if (SHORT_HINTS[word]) add(SHORT_HINTS[word], original);
     if (word.length < 4) continue;
     for (const [slug, hints] of Object.entries(DOMAIN_HINTS)) {
-      if (hints.some((hint) => sameRoot(word, hint))) slugs.add(slug);
+      if (hints.some((hint) => hintMatches(word, hint))) add(slug, original);
     }
   }
-  return [...slugs];
+  return matches;
+}
+
+export function inferDomainSlugs(text: string): string[] {
+  return [...inferDomainMatches(text).keys()];
+}
+
+export type DomainAdvice = { slug: string; reason: string };
+
+/**
+ * Orientation d'un bénéficiaire (TDR §7.2 « orienter les bénéficiaires ») :
+ * à partir d'une phrase libre et, s'il est connu, de son profil, propose les
+ * domaines par lesquels commencer, chacun avec sa justification.
+ * 1. Domaines évoqués dans la phrase (les plus cités d'abord)
+ * 2. Puis domaines souvent utiles pour sa situation (étudiant, entrepreneur…)
+ */
+export function orientDomains(text: string, menteeStatus: MenteeStatus | null): DomainAdvice[] {
+  const advice: DomainAdvice[] = [...inferDomainMatches(text)]
+    .sort((a, b) => b[1].length - a[1].length)
+    .map(([slug, words]) => ({
+      slug,
+      reason: `Vous parlez de ${words
+        .slice(0, 3)
+        .map((w) => `« ${w} »`)
+        .join(", ")}`,
+    }));
+  if (menteeStatus) {
+    const affinity = STATUS_AFFINITY[menteeStatus];
+    for (const slug of affinity.slugs) {
+      if (!advice.some((a) => a.slug === slug)) {
+        advice.push({ slug, reason: `Souvent utile ${affinity.label}` });
+      }
+    }
+  }
+  return advice;
 }
 
 /**

@@ -122,6 +122,44 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
               </Link>
             ))}
           </div>
+          {mentor.skills.length > 0 && (
+            <>
+              <h3 className="mt-6 text-sm font-semibold text-ink-900">Compétences précises</h3>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {mentor.skills.map((skill) => (
+                  <li key={skill}>
+                    <Link
+                      href={`/mentors?q=${encodeURIComponent(skill)}`}
+                      className="inline-block rounded-full bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-800 ring-1 ring-brand-100 ring-inset hover:bg-brand-100"
+                    >
+                      {skill}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {/* Engagements de tout mentor (cahier des charges : profil des mentors) */}
+          <div className="mt-8 rounded-2xl border border-zinc-100 p-5">
+            <h2 className="text-base font-bold">Les engagements de chaque mentor</h2>
+            <ul className="mt-3 grid gap-2 text-sm text-ink-700 sm:grid-cols-2">
+              {[
+                "Écoute, bienveillance et professionnalisme",
+                "Partage d'expérience et de connaissances",
+                "Disponibilités réalistes, séances honorées",
+                "Vous aider à décider par vous-même, sans faire à votre place",
+              ].map((item) => (
+                <li key={item} className="flex gap-2">
+                  <span aria-hidden className="text-brand-600">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link href="/charte" className="mt-3 inline-block text-xs font-semibold text-brand-700 hover:underline">
+              Lire la charte du mentorat →
+            </Link>
+          </div>
 
           <h2 className="mt-8 text-xl font-bold">Avis des mentorés</h2>
           {reviews.length === 0 ? (

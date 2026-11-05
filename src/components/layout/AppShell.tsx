@@ -28,6 +28,14 @@ const icon = (path: ReactNode, className = "size-[22px]") => (
 
 const ICONS = {
   home: <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
+  grid: (
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </>
+  ),
   compass: (
     <>
       <circle cx="12" cy="12" r="9" />
@@ -86,11 +94,22 @@ const ICONS = {
 const NAV = [
   { href: "/dashboard", label: "Accueil", icon: ICONS.home },
   { href: "/mentors", label: "Découvrir", icon: ICONS.compass },
+  { href: "/domains", label: "Domaines", icon: ICONS.grid },
   { href: "/mentorships", label: "Messages", icon: ICONS.messages },
   { href: "/goals", label: "Mes objectifs", icon: ICONS.target },
   { href: "/resources", label: "Ressources", icon: ICONS.book },
   { href: "/sessions", label: "Rendez-vous", icon: ICONS.calendar },
   { href: "/opportunities", label: "Opportunités", icon: ICONS.briefcase },
+  {
+    href: "/profile",
+    label: "Mon profil",
+    icon: (
+      <>
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 21a8 8 0 0 1 16 0" />
+      </>
+    ),
+  },
 ];
 
 type ShellUser = { fullName: string; roleLabel: string; isMentor: boolean } | null;

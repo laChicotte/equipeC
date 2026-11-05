@@ -230,6 +230,18 @@ async function main() {
     );
   }
 
+  console.log("\n9. Compétences et besoins (migration 0004)");
+  {
+    const { error: e1 } = await M.client.from("profiles").update({ skills: ["Business plan", "CV"] }).eq("id", M.id);
+    check("On peut modifier ses propres compétences", !e1, e1?.message);
+    const { data: other } = await C.client
+      .from("profiles").update({ skills: ["Piratage"] }).eq("id", M.id).select("id");
+    check("On ne peut pas modifier les compétences d'un autre", (other ?? []).length === 0);
+    const { error: e2 } = await M.client
+      .from("profiles").update({ skills: Array.from({ length: 11 }, (_, i) => `Compétence ${i}`) }).eq("id", M.id);
+    check("Plus de 10 compétences refusées par la base", Boolean(e2));
+  }
+
   // Le mentor de test passe indisponible pour ne pas polluer le catalogue
   await M.client.from("profiles").update({ is_available: false }).eq("id", M.id);
 }

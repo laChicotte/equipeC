@@ -10,7 +10,7 @@ const initialState: AuthFormState = {};
 
 const ROLE_OPTIONS: { value: UserRole; title: string; text: string }[] = [
   { value: "mentee", title: "Je cherche un mentor", text: "Étudiant, jeune diplômé, entrepreneur…" },
-  { value: "mentor", title: "Je veux accompagner", text: "Professionnel expérimenté" },
+  { value: "mentor", title: "Je veux accompagner", text: "Professionnel expérimenté (3 ans minimum)" },
 ];
 
 export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole }) {

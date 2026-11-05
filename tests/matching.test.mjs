@@ -2,7 +2,7 @@
 // Lancement : npm test   (lanceur de tests intégré à Node, aucune dépendance)
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { inferDomainSlugs, keywords, recommendMentors, scoreMentor } from "../src/features/mentors/matching.ts";
+import { coveredNeeds, inferDomainSlugs, orientDomains, keywords, recommendMentors, scoreMentor } from "../src/features/mentors/matching.ts";
 
 test("recherche intelligente : « valider mon idée de fintech »", () => {
   const slugs = inferDomainSlugs("Je souhaite valider mon idée de fintech");
@@ -93,4 +93,61 @@ test("une note médiocre n'ajoute aucun point", () => {
   const base = scoreMentor({ domainIds: [1], menteeStatus: null, text: "" }, mentor("m", [D.entrepreneuriat]));
   const bad = scoreMentor({ domainIds: [1], menteeStatus: null, text: "" }, mentor("m", [D.entrepreneuriat], "", { rating: { avg: 2, count: 3 } }));
   assert.equal(bad.score, base.score);
+});
+
+test("besoins précis : couverts par les compétences du mentor (+10 par besoin)", () => {
+  const needs = ["Business plan", "Recherche de financement", "Lettre de motivation"];
+  const m = mentor("m", [], "", { skills: ["Business plan", "Recherche de financement"] });
+  assert.deepEqual(coveredNeeds(needs, m), ["Business plan", "Recherche de financement"]);
+  const r = scoreMentor({ domainIds: [], menteeStatus: null, text: "", needs }, m);
+  assert.equal(r.score, 20);
+  assert.match(r.reasons.at(-1), /^Répond à vos besoins : « Business plan », « Recherche de financement »/);
+});
+
+test("besoins précis : un besoin court (« CV ») est cherché mot pour mot", () => {
+  assert.deepEqual(coveredNeeds(["CV"], mentor("rh", [], "", { skills: ["CV", "Recrutement"] })), ["CV"]);
+  assert.deepEqual(coveredNeeds(["CV"], mentor("dev", [], "Développeur web chevronné")), []);
+});
+
+test("besoins précis : tous les mots du besoin doivent être présents", () => {
+  // « Lettre de motivation » ne correspond pas à un mentor qui parle seulement de « motivation »
+  assert.deepEqual(coveredNeeds(["Lettre de motivation"], mentor("coach", [], "Coach en motivation")), []);
+});
+
+test("besoins précis : départage deux mentors du même domaine", () => {
+  const ibrahima = {
+    domainIds: [D.entrepreneuriat.id],
+    menteeStatus: null,
+    text: "",
+    needs: ["Business plan", "Recherche de financement"],
+  };
+  const recos = recommendMentors(ibrahima, [
+    mentor("auteur", [D.entrepreneuriat], "Éditeur indépendant", { skills: ["Écriture"] }),
+    mentor("agritech", [D.entrepreneuriat], "Fondateur d'une startup", { skills: ["Business plan", "Recherche de financement"] }),
+  ]);
+  assert.equal(recos[0].mentorId, "agritech");
+  assert.ok(recos[0].score > recos[1].score);
+});
+
+test("orientation : domaines évoqués d'abord, avec les mots déclencheurs (accents conservés)", () => {
+  const advice = orientDomains("Je veux lancer mon idée de fintech et trouver un financement", null);
+  assert.ok(advice.length >= 2);
+  assert.equal(advice[0].slug, "entrepreneuriat");
+  assert.match(advice[0].reason, /« idée »/);
+  assert.ok(advice.some((a) => a.slug === "gestion-finance" && a.reason.includes("« financement »")));
+});
+
+test("orientation : la situation complète les domaines évoqués, sans doublon", () => {
+  const advice = orientDomains("préparer mon dossier Campus France", "etudiant");
+  assert.deepEqual(advice.map((a) => a.slug), ["campus-france", "orientation-insertion"]);
+  assert.equal(advice[1].reason, "Souvent utile aux étudiants");
+});
+
+test("orientation : phrase sans rapport et sans situation → aucun conseil", () => {
+  assert.deepEqual(orientDomains("bonjour à tous", null), []);
+});
+
+test("détection : « entreprise » ne déclenche pas « entretien » (orientation)", () => {
+  assert.deepEqual(inferDomainSlugs("créer une entreprise"), ["entrepreneuriat"]);
+  assert.ok(inferDomainSlugs("préparer un entretien d'embauche").includes("orientation-insertion"));
 });

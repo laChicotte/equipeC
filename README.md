@@ -46,6 +46,7 @@ Base de données : exécuter **une fois, dans l'ordre**, les fichiers de
 1. `0001_init.sql` : tables, sécurité RLS, trigger, domaines
 2. `0002_resources_opportunities.sql` : ressources et opportunités
 3. `0003_cancel_and_public_reviews.sql` : annulation d'une demande, avis publics, ateliers
+4. `0004_profile_skills.sql` : compétences (mentor) et besoins précis (mentoré) pour la mise en relation
 
 Puis désactiver *Confirm email* (*Authentication → Sign In / Providers → Email*).
 

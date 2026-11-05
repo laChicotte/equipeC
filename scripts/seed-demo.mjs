@@ -139,6 +139,25 @@ const MENTEES = [
   },
 ];
 
+// Compétences précises (mentors) et besoins précis (mentorés) — migration 0004.
+// Le moteur de recommandation rapproche les besoins des compétences.
+const SKILLS = {
+  fatoumata: ["Dossier Campus France", "Lettre de motivation", "Préparation d'entretien", "Choix de formation"],
+  thierno: ["Projet d'études", "Lettre de motivation", "Économie"],
+  mamadou: ["Business plan", "Premiers clients", "Recherche de financement", "Agritech"],
+  alpha: ["Comptabilité", "Business plan", "Recherche de financement", "Fiscalité"],
+  kadiatou: ["Développement web", "Data", "Entretien technique"],
+  aminata: ["Cybersécurité", "Reconversion vers la tech"],
+  mariama: ["CV", "Préparation d'entretien", "Recherche d'emploi"],
+  oumar: ["Prise de parole", "Confiance en soi", "Leadership"],
+  ibrahima_sory: ["Écriture", "Édition", "Autoédition"],
+  hawa: ["Production vidéo", "Création de contenu", "Montage"],
+  aissatou: ["Dossier Campus France", "Lettre de motivation", "Data"],
+  ibrahima: ["Business plan", "Recherche de financement", "Premiers clients"],
+  nene: ["CV", "Préparation d'entretien", "Prise de parole"],
+};
+for (const person of [...MENTORS, ...MENTEES]) person.skills = SKILLS[person.key] ?? [];
+
 // --- Outils -------------------------------------------------------------------
 const DAY = 86_400_000;
 /** Date à J+offset (jours), à l'heure de Conakry (= UTC) donnée. */
@@ -186,7 +205,7 @@ async function createPerson(person, role, domainIds) {
   // Le trigger SQL a créé le profil : on le complète
   const PROFILE_FIELDS = [
     "full_name", "headline", "bio", "city", "job_title", "organization",
-    "years_experience", "availability", "mentee_status", "goals_summary",
+    "years_experience", "availability", "mentee_status", "goals_summary", "skills",
   ];
   const fields = Object.fromEntries(PROFILE_FIELDS.filter((f) => f in person).map((f) => [f, person[f]]));
   const { domains } = person;

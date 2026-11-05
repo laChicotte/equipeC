@@ -17,6 +17,17 @@ export const DOMAIN_SHORT_LABELS: Record<string, string> = {
   "campus-france": "Campus France",
 };
 
+/** Pictogrammes des domaines (page « Domaines »). */
+export const DOMAIN_ICONS: Record<string, string> = {
+  entrepreneuriat: "🚀",
+  numerique: "💻",
+  "orientation-insertion": "🧭",
+  "culture-creation": "📚",
+  "gestion-finance": "📊",
+  "developpement-personnel": "🌱",
+  "campus-france": "🎓",
+};
+
 export const RESOURCE_KIND_LABELS: Record<ResourceKind, { label: string; icon: string }> = {
   guide: { label: "Guide", icon: "📘" },
   article: { label: "Article", icon: "📰" },

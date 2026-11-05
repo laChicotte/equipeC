@@ -12,6 +12,7 @@ export async function getMenteeInput(profile: Profile | null): Promise<MenteeInp
     domainIds: await getProfileDomainIds(profile.id),
     menteeStatus: profile.mentee_status,
     text: [profile.goals_summary, profile.headline, profile.bio].filter(Boolean).join(" "),
+    needs: profile.skills,
   };
 }
 
@@ -20,7 +21,8 @@ export function toMentorInput(m: MentorSummary): MentorInput {
   return {
     id: m.id,
     domains: m.domains,
-    text: [m.headline, m.job_title, m.organization, m.bio].filter(Boolean).join(" "),
+    text: [m.headline, m.job_title, m.organization, m.bio, ...m.skills].filter(Boolean).join(" "),
+    skills: m.skills,
     yearsExperience: m.years_experience,
     rating: m.rating,
   };
@@ -40,20 +42,34 @@ export type MentorSummary = Pick<
   | "years_experience"
   | "availability"
   | "is_available"
+  | "skills"
 > & {
   domains: Pick<Domain, "id" | "slug" | "name">[];
   rating: MentorRating | null;
 };
 
-const MENTOR_COLUMNS = `
+const BASE_COLUMNS = `
   id, full_name, headline, bio, city, job_title, organization,
-  years_experience, availability, is_available,
-  profile_domains ( domains ( id, slug, name ) )
-`;
+  years_experience, availability, is_available`;
+const DOMAINS_JOIN = `profile_domains ( domains ( id, slug, name ) )`;
 
-type MentorRow = Omit<MentorSummary, "domains" | "rating"> & {
+type MentorRow = Omit<MentorSummary, "domains" | "rating" | "skills"> & {
+  skills?: string[] | null;
   profile_domains: { domains: Pick<Domain, "id" | "slug" | "name"> | null }[];
 };
+
+/**
+ * Lit les mentors AVEC leurs compétences ; si la colonne `skills` n'existe pas
+ * encore (migration 0004 non exécutée), relit sans elle pour que le catalogue
+ * reste disponible.
+ */
+async function selectMentorRows(
+  run: (columns: string) => PromiseLike<{ data: unknown; error: { message: string } | null }>,
+) {
+  let result = await run(`${BASE_COLUMNS}, skills, ${DOMAINS_JOIN}`);
+  if (result.error?.message.includes("skills")) result = await run(`${BASE_COLUMNS}, ${DOMAINS_JOIN}`);
+  return result.data;
+}
 
 /** Notes moyennes de tous les mentors (fonction SQL get_mentor_ratings). */
 const getRatings = cache(async (): Promise<Map<string, MentorRating>> => {
@@ -66,9 +82,10 @@ const getRatings = cache(async (): Promise<Map<string, MentorRating>> => {
 });
 
 function toSummary(row: MentorRow, ratings: Map<string, MentorRating>): MentorSummary {
-  const { profile_domains, ...rest } = row;
+  const { profile_domains, skills, ...rest } = row;
   return {
     ...rest,
+    skills: skills ?? [],
     domains: profile_domains
       .map((pd) => pd.domains)
       .filter((d): d is NonNullable<typeof d> => d !== null)
@@ -80,14 +97,16 @@ function toSummary(row: MentorRow, ratings: Map<string, MentorRating>): MentorSu
 /** Tous les mentors disponibles ayant complété leur profil. */
 export const getAvailableMentors = cache(async (): Promise<MentorSummary[]> => {
   const supabase = await createClient();
-  const [{ data }, ratings] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select(MENTOR_COLUMNS)
-      .eq("role", "mentor")
-      .eq("onboarded", true)
-      .eq("is_available", true)
-      .order("years_experience", { ascending: false, nullsFirst: false }),
+  const [data, ratings] = await Promise.all([
+    selectMentorRows((columns) =>
+      supabase
+        .from("profiles")
+        .select(columns)
+        .eq("role", "mentor")
+        .eq("onboarded", true)
+        .eq("is_available", true)
+        .order("years_experience", { ascending: false, nullsFirst: false }),
+    ),
     getRatings(),
   ]);
   return ((data ?? []) as unknown as MentorRow[]).map((row) => toSummary(row, ratings));
@@ -117,13 +136,10 @@ export async function getMentorById(id: string): Promise<MentorSummary | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
 
   const supabase = await createClient();
-  const [{ data }, ratings] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select(MENTOR_COLUMNS)
-      .eq("id", id)
-      .eq("role", "mentor")
-      .maybeSingle(),
+  const [data, ratings] = await Promise.all([
+    selectMentorRows((columns) =>
+      supabase.from("profiles").select(columns).eq("id", id).eq("role", "mentor").maybeSingle(),
+    ),
     getRatings(),
   ]);
   return data ? toSummary(data as unknown as MentorRow, ratings) : null;
@@ -148,6 +164,7 @@ export function filterMentors(
         mentor.organization,
         mentor.bio,
         mentor.city,
+        ...mentor.skills,
         ...mentor.domains.map((d) => d.name),
       ]
         .filter(Boolean)

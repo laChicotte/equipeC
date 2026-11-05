@@ -4,7 +4,6 @@ import { getCurrentProfile } from "@/features/auth/queries";
 import { getDomains, getProfileDomainIds } from "@/features/profiles/queries";
 import { ProfileForm } from "@/features/profiles/components/ProfileForm";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = { title: "Compléter mon profil · MentorConnect" };
 
@@ -28,14 +27,12 @@ export default async function OnboardingPage() {
             : "Ces informations nous aident à vous recommander les bons mentors."
         }
       />
-      <Card>
-        <ProfileForm
-          profile={profile}
-          domains={domains}
-          selectedDomainIds={selected}
-          mode="onboarding"
-        />
-      </Card>
+      <ProfileForm
+        profile={profile}
+        domains={domains}
+        selectedDomainIds={selected}
+        mode="onboarding"
+      />
     </>
   );
 }

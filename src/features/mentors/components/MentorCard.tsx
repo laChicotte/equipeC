@@ -72,6 +72,14 @@ export function MentorCard({
               {DOMAIN_SHORT_LABELS[d.slug] ?? d.name}
             </span>
           ))}
+          {mentor.skills.slice(0, 2).map((skill) => (
+            <span key={skill} className="rounded-lg bg-brand-50 px-2.5 py-1 text-xs text-brand-800">
+              {skill}
+            </span>
+          ))}
+          {mentor.skills.length > 2 && (
+            <span className="px-1 py-1 text-xs text-ink-500">+{mentor.skills.length - 2}</span>
+          )}
         </div>
 
         <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-4 text-sm text-ink-500">

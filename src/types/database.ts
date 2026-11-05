@@ -113,6 +113,8 @@ export type Profile = {
   is_available: boolean;
   mentee_status: MenteeStatus | null;
   goals_summary: string | null;
+  /** Compétences (mentor) ou besoins précis (mentoré) — migration 0004 */
+  skills: string[];
   onboarded: boolean;
   created_at: string;
   updated_at: string;

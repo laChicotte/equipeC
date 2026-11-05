@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/features/auth/queries";
+import { MAX_MENTOR_DOMAINS, MIN_MENTOR_YEARS } from "./constants";
 
 export type ProfileFormState = {
   error?: string;
@@ -25,15 +26,28 @@ const commonSchema = z.object({
     .array(z.coerce.number().int().positive())
     .min(1, "Choisissez au moins un domaine")
     .max(7),
+  // Compétences (mentor) ou besoins précis (mentoré), saisis librement
+  skills: z
+    .array(z.string().trim().min(2, "2 caractères minimum par élément").max(40, "40 caractères maximum par élément"))
+    .max(10, "10 éléments maximum")
+    // Sans doublons (insensible à la casse)
+    .transform((list) =>
+      list.filter((s, i) => list.findIndex((o) => o.toLowerCase() === s.toLowerCase()) === i),
+    ),
 });
 
 const mentorSchema = commonSchema.extend({
+  // Un mentor se concentre sur les domaines qu'il maîtrise vraiment
+  domain_ids: z
+    .array(z.coerce.number().int().positive())
+    .min(1, "Choisissez au moins un domaine")
+    .max(MAX_MENTOR_DOMAINS, `${MAX_MENTOR_DOMAINS} domaines maximum : choisissez ceux que vous maîtrisez le mieux`),
   job_title: z.string().trim().min(2, "Indiquez votre poste").max(120),
   organization: optionalText(120),
   years_experience: z.coerce
     .number("Nombre attendu")
     .int("Nombre entier attendu")
-    .min(0, "Valeur invalide")
+    .min(MIN_MENTOR_YEARS, `Le programme mobilise des professionnels expérimentés : ${MIN_MENTOR_YEARS} ans d'expérience minimum`)
     .max(60, "Valeur invalide"),
   availability: optionalText(300),
   is_available: z.boolean(),
@@ -66,6 +80,7 @@ export async function saveProfile(
   const raw = {
     ...Object.fromEntries(formData),
     domain_ids: formData.getAll("domain_ids"),
+    skills: formData.getAll("skills"),
     is_available: formData.get("is_available") === "on",
   };
 
@@ -80,14 +95,20 @@ export async function saveProfile(
     };
   }
 
-  const { domain_ids, ...fields } = parsed.data;
+  const { domain_ids, skills, ...fields } = parsed.data;
   const supabase = await createClient();
 
   // 1. Champs du profil (RLS : uniquement sa propre ligne)
-  const { error } = await supabase
+  let { error } = await supabase
     .from("profiles")
-    .update({ ...fields, onboarded: true })
+    .update({ ...fields, skills, onboarded: true })
     .eq("id", profile.id);
+  // Colonne `skills` absente (migration 0004 non exécutée) : on enregistre le reste
+  let skillsSkipped = false;
+  if (error?.message.includes("skills")) {
+    skillsSkipped = true;
+    ({ error } = await supabase.from("profiles").update({ ...fields, onboarded: true }).eq("id", profile.id));
+  }
   if (error) return { error: "Enregistrement impossible. Réessayez." };
 
   // 2. Domaines : on remplace l'ancienne sélection par la nouvelle
@@ -107,5 +128,9 @@ export async function saveProfile(
 
   // Premier remplissage → tableau de bord ; modification → rester sur la page
   if (formData.get("mode") === "onboarding") redirect("/dashboard");
-  return { success: "Profil enregistré." };
+  return {
+    success: skillsSkipped
+      ? "Profil enregistré (compétences non enregistrées : migration 0004 à exécuter)."
+      : "Profil enregistré.",
+  };
 }
