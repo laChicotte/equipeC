@@ -13,7 +13,8 @@ export default async function SignupPage({ searchParams }: PageProps<"/signup">)
   return (
     <AuthShell variant="signup">
       <AuthHeader
-        icon={<UserIcon className="h-8 w-8" />}
+        icon={<UserIcon className="h-7 w-7" />}
+        compact
         title={
           <>
             Rejoindre <BrandName />
@@ -22,7 +23,7 @@ export default async function SignupPage({ searchParams }: PageProps<"/signup">)
         subtitle="Gratuit, en moins d'une minute."
       />
       <SignupForm defaultRole={role === "mentor" ? "mentor" : "mentee"} />
-      <p className="mt-8 text-center text-ink-500">
+      <p className="mt-5 text-center text-ink-500">
         Déjà inscrit ?{" "}
         <Link href="/login" className="font-bold text-brand-700 hover:underline">
           Se connecter

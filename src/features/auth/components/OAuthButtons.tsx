@@ -10,13 +10,13 @@ const PROVIDERS = [
 /** Séparateur « Ou continuer avec » + boutons Google / Facebook / GitHub. */
 export function OAuthButtons({ next }: { next?: string }) {
   return (
-    <div className="mt-7">
+    <div className="mt-5">
       <div className="flex items-center gap-4 text-sm text-ink-500">
         <span className="h-px flex-1 bg-zinc-200" />
         Ou continuer avec
         <span className="h-px flex-1 bg-zinc-200" />
       </div>
-      <form action={signInWithProvider} className="mt-5 grid gap-3 sm:grid-cols-3">
+      <form action={signInWithProvider} className="mt-4 grid gap-3 sm:grid-cols-3">
         {next && <input type="hidden" name="next" value={next} />}
         {PROVIDERS.map((p) => (
           <button

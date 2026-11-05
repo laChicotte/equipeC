@@ -15,7 +15,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <AuthShell>
       <AuthHeader
-        icon={<UserIcon className="h-8 w-8" />}
+        icon={<UserIcon className="h-7 w-7" />}
         title={
           <>
             Connexion à <BrandName />
@@ -30,7 +30,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       )}
       <LoginForm next={nextPath} />
       <OAuthButtons next={nextPath} />
-      <p className="mt-8 text-center text-ink-500">
+      <p className="mt-6 text-center text-ink-500">
         Pas encore de compte ?{" "}
         <Link href="/signup" className="font-bold text-brand-700 hover:underline">
           S&apos;inscrire

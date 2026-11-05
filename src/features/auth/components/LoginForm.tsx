@@ -14,7 +14,7 @@ export function LoginForm({ next }: { next?: string }) {
   const [state, formAction, pending] = useActionState(login, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-5" noValidate>
+    <form action={formAction} className="flex flex-col gap-4" noValidate>
       {next && <input type="hidden" name="next" value={next} />}
       <Field
         label="Email"
@@ -28,7 +28,7 @@ export function LoginForm({ next }: { next?: string }) {
         required
         errors={state.fieldErrors?.email}
       />
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-2">
         <PasswordField
           label="Mot de passe"
           name="password"
@@ -55,7 +55,7 @@ export function LoginForm({ next }: { next?: string }) {
       <Button
         type="submit"
         disabled={pending}
-        className="mt-1 bg-gradient-to-r from-brand-600 to-brand-700 py-3.5 text-base hover:from-brand-700 hover:to-brand-700"
+        className="bg-gradient-to-r from-brand-600 to-brand-700 py-3.5 text-base hover:from-brand-700 hover:to-brand-700"
       >
         <ArrowRightIcon className="h-5 w-5" />
         {pending ? "Connexion…" : "Se connecter"}

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Literata, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -25,6 +25,18 @@ export const metadata: Metadata = {
   title: "MentorConnect",
   description:
     "Plateforme de mentorat et de transmission des savoirs : jeunes, mentors, auteurs et professionnels de Guinée et d'Afrique.",
+  applicationName: "MentorConnect",
+  // iPhone : « Sur l'écran d'accueil » ouvre l'appli en plein écran (icône : app/apple-icon.png)
+  appleWebApp: {
+    title: "MentorConnect",
+    capable: true,
+    statusBarStyle: "default",
+  },
+};
+
+// Couleur de la barre du navigateur / du téléphone (vert forêt de la marque)
+export const viewport: Viewport = {
+  themeColor: "#0b3a31",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

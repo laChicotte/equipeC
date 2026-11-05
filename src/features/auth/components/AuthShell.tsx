@@ -63,9 +63,10 @@ export function AuthShell({ variant = "login", children }: { variant?: Variant; 
   const panel = PANELS[variant];
 
   return (
-    <main className="relative grid flex-1 overflow-hidden bg-background lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    // Ordinateur : la page tient exactement dans l'écran (pas de défilement de page)
+    <main className="relative grid flex-1 overflow-hidden bg-background lg:h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       {/* Panneau visuel (ordinateur) */}
-      <aside className="relative hidden min-h-screen overflow-hidden rounded-r-[64px] bg-brand-900 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col">
+      <aside className="relative hidden overflow-hidden rounded-r-[64px] bg-brand-900 lg:flex lg:h-full lg:flex-col">
         <PhotoSlot
           name={panel.photo}
           legacySrc={panel.legacySrc}
@@ -97,17 +98,17 @@ export function AuthShell({ variant = "login", children }: { variant?: Variant; 
           <Logo tone="light" />
         </div>
 
-        <div className="relative mt-auto px-12 pb-14 text-white">
-          <p className="max-w-lg font-display text-[2.6rem] leading-[1.1] font-semibold tracking-tight xl:text-5xl">
+        <div className="relative mt-auto px-12 pb-10 text-white">
+          <p className="max-w-lg font-display text-[2.3rem] leading-[1.1] font-semibold tracking-tight xl:text-[2.75rem]">
             {panel.title}
           </p>
-          <p className="mt-5 max-w-md text-lg leading-relaxed text-white/85">{panel.text}</p>
+          <p className="mt-4 max-w-md text-lg leading-relaxed text-white/85">{panel.text}</p>
 
-          <ul className="mt-9 flex flex-wrap gap-3">
+          <ul className="mt-7 flex flex-wrap gap-3">
             {panel.highlights.map(({ icon: Icon, text }) => (
               <li
                 key={text}
-                className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/5 px-4 py-3 text-sm leading-snug font-medium backdrop-blur-sm"
+                className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/5 px-4 py-2.5 text-sm leading-snug font-medium backdrop-blur-sm"
               >
                 <Icon className="h-6 w-6 shrink-0 text-accent-300" />
                 <span className="max-w-[8.5rem]">{text}</span>
@@ -118,7 +119,7 @@ export function AuthShell({ variant = "login", children }: { variant?: Variant; 
       </aside>
 
       {/* Formulaire */}
-      <div className="relative flex flex-col px-4 py-6 sm:px-8 lg:py-10">
+      <div className="relative flex flex-col px-4 py-6 sm:px-8 lg:h-full lg:overflow-x-hidden lg:overflow-y-auto lg:py-6 [@media(max-height:720px)]:lg:py-3">
         {/* Formes décoratives d'arrière-plan */}
         <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-accent-50" />
         <div aria-hidden className="pointer-events-none absolute -top-10 right-10 h-56 w-56 rounded-full border-[28px] border-white/70" />
@@ -126,8 +127,9 @@ export function AuthShell({ variant = "login", children }: { variant?: Variant; 
         <div className="relative lg:hidden">
           <Logo />
         </div>
-        <div className="relative mx-auto flex w-full max-w-[34rem] flex-1 flex-col justify-center py-8">
-          <div className="rounded-[28px] border border-zinc-100 bg-white px-5 py-9 shadow-[0_24px_60px_-24px_rgba(11,58,49,0.25)] sm:px-12 sm:py-10">
+        {/* my-auto : centré verticalement, sans couper le haut si l'écran est très petit */}
+        <div className="relative mx-auto my-auto w-full max-w-[34rem] py-6 lg:py-0">
+          <div className="rounded-[28px] border border-zinc-100 bg-white px-5 py-8 shadow-[0_24px_60px_-24px_rgba(11,58,49,0.25)] sm:px-11 sm:py-8 [@media(max-height:720px)]:sm:py-5">
             {children}
           </div>
         </div>

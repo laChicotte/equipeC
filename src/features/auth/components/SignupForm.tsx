@@ -13,8 +13,8 @@ const initialState: AuthFormState = {};
 
 // Les valeurs (« mentee » / « mentor ») sont celles attendues par l'action serveur
 const ROLE_OPTIONS: { value: UserRole; title: string; text: string; icon: ComponentType<{ className?: string }> }[] = [
-  { value: "mentee", title: "Je veux apprendre", text: "Étudiant, jeune diplômé, entrepreneur, lecteur…", icon: GraduationIcon },
-  { value: "mentor", title: "Je veux transmettre", text: "Professionnel, auteur… (3 ans d'expérience minimum)", icon: FeatherIcon },
+  { value: "mentee", title: "Apprendre", text: "Étudiant, diplômé, entrepreneur, lecteur…", icon: GraduationIcon },
+  { value: "mentor", title: "Transmettre", text: "Professionnel, auteur… (3 ans d'expérience min.)", icon: FeatherIcon },
 ];
 
 const iconClass = "h-[18px] w-[18px]";
@@ -31,14 +31,14 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-5" noValidate>
+    <form action={formAction} className="flex flex-col gap-4 [@media(max-height:720px)]:lg:gap-3" noValidate>
       <fieldset>
-        <legend className="mb-2.5 text-sm font-semibold text-ink-900">Vous êtes ici pour…</legend>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <legend className="mb-2 text-sm font-semibold text-ink-900">Vous êtes ici pour…</legend>
+        <div className="grid gap-2.5 sm:grid-cols-2">
           {ROLE_OPTIONS.map(({ value, title, text, icon: Icon }) => (
             <label
               key={value}
-              className="group relative flex cursor-pointer flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 transition-colors hover:border-brand-200 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-600"
+              className="group flex cursor-pointer flex-col gap-1.5 rounded-2xl border border-zinc-200 bg-white p-3 transition-colors hover:border-brand-200 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-600"
             >
               <input
                 type="radio"
@@ -47,19 +47,18 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
                 defaultChecked={value === defaultRole}
                 className="sr-only"
               />
-              <span className="flex items-center justify-between">
-                <span className="inline-flex size-10 items-center justify-center rounded-xl bg-paper text-brand-700 group-has-[:checked]:bg-white">
-                  <Icon className="size-5" />
+              {/* Ligne 1 : icône, rôle, pastille de sélection */}
+              <span className="flex items-center gap-2.5">
+                <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-paper text-brand-700 group-has-[:checked]:bg-white">
+                  <Icon className="size-[18px]" />
                 </span>
-                {/* Pastille de sélection */}
-                <span className="inline-flex size-5 items-center justify-center rounded-full border border-zinc-300 text-transparent group-has-[:checked]:border-brand-600 group-has-[:checked]:bg-brand-600 group-has-[:checked]:text-white">
+                <span className="flex-1 font-semibold text-ink-900">{title}</span>
+                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full border border-zinc-300 text-transparent group-has-[:checked]:border-brand-600 group-has-[:checked]:bg-brand-600 group-has-[:checked]:text-white">
                   <CheckIcon className="size-3" />
                 </span>
               </span>
-              <span>
-                <span className="block font-semibold text-ink-900">{title}</span>
-                <span className="mt-0.5 block text-xs leading-relaxed text-ink-500">{text}</span>
-              </span>
+              {/* Ligne 2 : description (masquée sur les écrans très peu hauts) */}
+              <span className="text-xs leading-snug text-ink-500 [@media(max-height:720px)]:lg:hidden">{text}</span>
             </label>
           ))}
         </div>
@@ -128,7 +127,7 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
       <Button
         type="submit"
         disabled={pending}
-        className="mt-1 bg-gradient-to-r from-brand-600 to-brand-700 py-3.5 text-base hover:from-brand-700 hover:to-brand-700"
+        className="bg-gradient-to-r from-brand-600 to-brand-700 py-3.5 text-base hover:from-brand-700 hover:to-brand-700"
       >
         <ArrowRightIcon className="h-5 w-5" />
         {pending ? "Création du compte…" : "Créer mon compte"}

@@ -12,6 +12,9 @@ const supabaseHost = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  // Développement uniquement : autorise l'ouverture du site depuis un téléphone
+  // du réseau local (ex. http://192.168.43.66:3000, partage de connexion).
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*"],
   images: {
     remotePatterns: supabaseHost
       ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/avatars/**" }]
