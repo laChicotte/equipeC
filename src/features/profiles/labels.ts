@@ -1,4 +1,29 @@
-import type { MenteeStatus, MentorshipStatus, UserRole } from "@/types/database";
+import type {
+  MenteeStatus,
+  MentorshipStatus,
+  OpportunityKind,
+  ResourceKind,
+  UserRole,
+} from "@/types/database";
+
+export const RESOURCE_KIND_LABELS: Record<ResourceKind, { label: string; icon: string }> = {
+  guide: { label: "Guide", icon: "📘" },
+  article: { label: "Article", icon: "📰" },
+  video: { label: "Vidéo", icon: "🎬" },
+  outil: { label: "Outil", icon: "🛠️" },
+  modele: { label: "Modèle", icon: "📄" },
+  formation: { label: "Formation", icon: "🎓" },
+};
+
+export const OPPORTUNITY_KIND_LABELS: Record<OpportunityKind, { label: string; icon: string }> = {
+  emploi: { label: "Emploi", icon: "💼" },
+  stage: { label: "Stage", icon: "🧑‍💻" },
+  bourse: { label: "Bourse", icon: "🎓" },
+  financement: { label: "Financement", icon: "💰" },
+  concours: { label: "Concours", icon: "🏆" },
+  formation: { label: "Formation", icon: "📚" },
+  evenement: { label: "Événement", icon: "📅" },
+};
 
 export const MENTORSHIP_STATUS_LABELS: Record<MentorshipStatus, string> = {
   pending: "En attente",

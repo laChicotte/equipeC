@@ -9,6 +9,8 @@ const PROTECTED_PREFIXES = [
   "/mentors",
   "/mentorships",
   "/profile",
+  "/resources",
+  "/opportunities",
 ];
 
 /** Pages inutiles quand on est déjà connecté. */

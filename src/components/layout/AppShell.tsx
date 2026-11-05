@@ -54,6 +54,26 @@ const NAV = [
     ),
   },
   {
+    href: "/resources",
+    label: "Ressources",
+    icon: icon(
+      <>
+        <path d="M4 19.5V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2" />
+        <path d="M8 7h6M8 11h6" />
+      </>,
+    ),
+  },
+  {
+    href: "/opportunities",
+    label: "Opportunités",
+    icon: icon(
+      <>
+        <rect x="3" y="7" width="18" height="13" rx="2" />
+        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18" />
+      </>,
+    ),
+  },
+  {
     href: "/profile",
     label: "Mon profil",
     icon: icon(

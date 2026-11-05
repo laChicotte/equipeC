@@ -179,6 +179,35 @@ async function main() {
     check("Un tiers ne voit pas les objectifs", data?.length === 0);
   }
 
+  console.log("\n7. Ressources et opportunités (migration 0002)");
+  {
+    const resource = { kind: "guide", title: "Ressource de test", description: "Description de test suffisante" };
+    const { data: r, error } = await M.client
+      .from("resources").insert({ ...resource, author_id: M.id }).select("id").single();
+    check("Un mentor publie une ressource", !error, error?.message);
+    const { error: e2 } = await A.client.from("resources").insert({ ...resource, author_id: A.id });
+    check("Un mentoré ne peut pas publier de ressource", Boolean(e2));
+    const { error: e3 } = await M.client
+      .from("resources").insert({ ...resource, author_id: M.id, url: "javascript:alert(1)" });
+    check("Lien non https refusé par la base", Boolean(e3));
+    const { data: seen } = await C.client.from("resources").select("id").eq("id", r?.id);
+    check("Tout membre connecté lit les ressources", seen?.length === 1);
+    const { data: delOther } = await A.client.from("resources").delete().eq("id", r?.id).select("id");
+    check("Impossible de supprimer la ressource d'un autre", (delOther ?? []).length === 0);
+
+    const opportunity = { kind: "stage", title: "Stage de test", description: "Description de test suffisante" };
+    const { data: o, error: e4 } = await A.client
+      .from("opportunities").insert({ ...opportunity, author_id: A.id }).select("id").single();
+    check("Un mentoré partage une opportunité", !e4, e4?.message);
+    const { error: e5 } = await A.client.from("opportunities").insert({ ...opportunity, author_id: M.id });
+    check("Impossible de publier au nom d'un autre", Boolean(e5));
+    const { data: delO } = await C.client.from("opportunities").delete().eq("id", o?.id).select("id");
+    check("Impossible de supprimer l'opportunité d'un autre", (delO ?? []).length === 0);
+    const { data: own } = await A.client.from("opportunities").delete().eq("id", o?.id).select("id");
+    check("L'auteur supprime son opportunité", own?.length === 1);
+    await M.client.from("resources").delete().eq("id", r?.id);
+  }
+
   // Le mentor de test passe indisponible pour ne pas polluer le catalogue
   await M.client.from("profiles").update({ is_available: false }).eq("id", M.id);
 }

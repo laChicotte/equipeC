@@ -17,6 +17,40 @@ export type MentorshipStatus = "pending" | "accepted" | "declined" | "ended";
 export type SessionStatus = "scheduled" | "done" | "cancelled";
 export type GoalStatus = "todo" | "in_progress" | "done";
 
+export type ResourceKind = "guide" | "article" | "video" | "outil" | "modele" | "formation";
+export type OpportunityKind =
+  | "emploi"
+  | "stage"
+  | "bourse"
+  | "financement"
+  | "concours"
+  | "formation"
+  | "evenement";
+
+export type Resource = {
+  id: string;
+  author_id: string;
+  domain_id: number | null;
+  kind: ResourceKind;
+  title: string;
+  description: string;
+  url: string | null;
+  created_at: string;
+};
+
+export type Opportunity = {
+  id: string;
+  author_id: string;
+  kind: OpportunityKind;
+  title: string;
+  organization: string | null;
+  location: string | null;
+  description: string;
+  url: string | null;
+  deadline: string | null;
+  created_at: string;
+};
+
 export type Domain = {
   id: number;
   slug: string;
