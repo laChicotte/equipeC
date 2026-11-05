@@ -4,6 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentProfile } from "@/features/auth/queries";
 import { getMentorshipById } from "@/features/mentorship/queries";
 import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard";
+import { getMessages } from "@/features/messaging/queries";
+import { Chat } from "@/features/messaging/components/Chat";
 import { ComingSoon } from "@/components/shared/ComingSoon";
 
 export const metadata: Metadata = { title: "Espace de mentorat · MentorConnect" };
@@ -15,6 +17,10 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
   // Introuvable OU pas participant (RLS ne renvoie rien) : même réponse 404
   if (!mentorship) notFound();
 
+  // La conversation existe pour un mentorat actif (écriture) ou terminé (lecture seule)
+  const hasChat = mentorship.status === "accepted" || mentorship.status === "ended";
+  const messages = hasChat ? await getMessages(mentorship.id) : [];
+
   return (
     <>
       <Link href="/mentorships" className="mb-4 inline-block text-sm text-brand-700 hover:underline">
@@ -23,17 +29,25 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="grid content-start gap-4 lg:col-span-2">
-          <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
-          {mentorship.status === "accepted" && (
-            <ComingSoon
-              task="T6"
-              title="Discussion"
-              items={["Messages en temps réel entre mentor et mentoré", "Historique de la conversation"]}
+          {hasChat ? (
+            <Chat
+              mentorshipId={mentorship.id}
+              currentUserId={profile.id}
+              names={{
+                [mentorship.mentor.id]: mentorship.mentor.full_name,
+                [mentorship.mentee.id]: mentorship.mentee.full_name,
+              }}
+              initialMessages={messages}
+              canWrite={mentorship.status === "accepted"}
             />
+          ) : (
+            <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
           )}
         </div>
-        {mentorship.status === "accepted" && (
+
+        {hasChat && (
           <div className="grid content-start gap-4">
+            <MentorshipCard mentorship={mentorship} viewerRole={profile.role} />
             <ComingSoon
               task="T7 · T8"
               title="Séances"

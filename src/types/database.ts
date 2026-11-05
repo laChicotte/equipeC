@@ -24,6 +24,14 @@ export type Domain = {
   description: string | null;
 };
 
+export type Message = {
+  id: number;
+  mentorship_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+};
+
 export type Profile = {
   id: string;
   role: UserRole;
