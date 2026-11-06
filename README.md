@@ -4,8 +4,8 @@ Plateforme de mentorat qui met en relation des jeunes (étudiants, jeunes diplô
 entrepreneurs, porteurs de projet, personnes en reconversion) avec des professionnels
 expérimentés, pour un accompagnement **par chat et en visio**.
 
-Projet réalisé pour le hackathon d'innovation numérique du Salon international du livre
-de jeunesse de Conakry (Mois du Numérique, 4-7 novembre 2026).
+Projet réalisé pour le hackathon d'innovation numérique « Talents connect » du Salon
+international du livre de jeunesse de Conakry (Mois du Numérique, 4-7 novembre 2026).
 
 ## Fonctionnalités
 
@@ -13,10 +13,10 @@ de jeunesse de Conakry (Mois du Numérique, 4-7 novembre 2026).
 |---|---|
 | 👤 Profils mentors et mentorés | Domaines, expérience, situation, objectifs |
 | 🔎 Catalogue | Filtre par domaine (dont Campus France), recherche sans accents |
-| ✨ Recommandations | Score de compatibilité **expliqué** (domaines, objectifs, situation, note) |
+| ✨ Recommandations | Recherche et orientation par **IA** (Claude, d'Anthropic) qui explique chaque choix ; repli automatique sur un score de compatibilité explicable (domaines, objectifs, situation, note) |
 | 🤝 Mise en relation | Demande motivée, acceptation ou refus par le mentor |
 | 💬 Chat temps réel | Supabase Realtime, rattrapage des messages après une coupure |
-| 🎥 Séances en visio | Planification, lien Jitsi unique généré par la base |
+| 🎥 Séances en visio | Planification, visio intégrée à l'application (WebRTC, appel direct entre mentor et mentoré), salle Jitsi en secours |
 | ⭐ Évaluations | Notes des séances, moyenne publique des mentors |
 | 🎯 Objectifs | Suivi À faire / En cours / Fait, barre de progression |
 

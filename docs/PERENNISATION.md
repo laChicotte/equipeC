@@ -2,7 +2,8 @@
 
 Livrable n° 4 : pistes de développement, besoins d'accompagnement et conditions
 de déploiement.
-Hackathon « Le mentorat à l'ère du numérique », Conakry, novembre 2026.
+Hackathon « Le mentorat à l'ère du numérique » (programme « Talents connect »),
+Salon international du livre de jeunesse de Conakry, Mois du Numérique, novembre 2026.
 
 > Les éléments entre crochets `[…]` sont à compléter (montants, partenaires,
 > dates). Aucun chiffre n'a été inventé dans ce document.
@@ -23,9 +24,11 @@ utilisé par une première promotion réelle**, puis l'étendre progressivement.
 
 **Ce qui fonctionne aujourd'hui :**
 - **Profils et mise en relation** : profils mentors et mentorés, catalogue des
-  7 domaines, recherche, orientation intelligente, recommandations expliquées,
+  7 domaines, recherche, orientation et recherche par IA (Claude, d'Anthropic,
+  avec repli automatique sur un score explicable), recommandations expliquées,
   demande puis acceptation par le mentor.
-- **Accompagnement** : chat en temps réel, séances et ateliers en visio (Jitsi),
+- **Accompagnement** : chat en temps réel, visio intégrée à l'application pour
+  les séances (appel direct entre les deux participants), ateliers collectifs en visio (Jitsi),
   objectifs et progression, ressources, opportunités.
 - **Suivi et restitution** : évaluation des séances, bilans de fin de mentorat,
   page d'impact avec les chiffres réels de la plateforme.
@@ -48,27 +51,29 @@ utilisé par une première promotion réelle**, puis l'étendre progressivement.
 |---|---|
 | **0 à 3 mois — pilote** | Déploiement en ligne · notifications par e-mail · signalement d'un comportement · espace administrateur (validation des mentors, suivi des mentorats) · pilote avec **[nombre]** mentors et **[nombre]** jeunes |
 | **3 à 12 mois — consolidation** | Application mobile (ou version installable) · rappels par SMS · mode connexion faible · certificats de participation · statistiques pour les partenaires · extension à d'autres villes **[à préciser]** |
-| **Au-delà** | Assistant d'orientation par modèle de langage, avec consentement explicite · intégration aux dispositifs d'orientation et d'insertion existants · ouverture à la diaspora (mentors guinéens à l'étranger) |
+| **Au-delà** | Assistant d'orientation conversationnel (l'analyse par IA existe déjà), avec consentement explicite · serveur relais pour la visio sur les réseaux mobiles restrictifs · intégration aux dispositifs d'orientation et d'insertion existants · ouverture à la diaspora (mentors guinéens à l'étranger) |
 
 ## 4. Besoins d'accompagnement
 
 | Besoin | Détail | Qui pourrait y répondre |
 |---|---|---|
-| **Mobilisation des mentors** | Recruter et fidéliser des professionnels des 7 domaines | IFG, CCFG, entreprises, ordres professionnels, associations d'anciens étudiants **[à préciser]** |
+| **Perfectionnement de l'application** | Revue technique, sécurité, passage à l'échelle, accompagnement de l'équipe | **Efficience Globale**, partenaire prévu par les termes de référence (§8) pour l'équipe lauréate |
+| **Mobilisation des mentors** | Recruter et fidéliser des professionnels des 7 domaines | IFG, CCFG, entreprises, ordres professionnels, associations d'anciens étudiants |
 | **Animation de la communauté** | Un référent pour accueillir, relancer, organiser les ateliers | **[structure porteuse]** |
-| **Hébergement et exploitation** | Hébergement, nom de domaine, sauvegardes, maintenance | **[partenaire technique]** |
+| **Hébergement et exploitation** | Hébergement, nom de domaine, sauvegardes, maintenance | Pilote : Vercel et Supabase (offres gratuites, déjà en service) ; ensuite **[partenaire technique]** |
 | **Accompagnement juridique** | Protection des données personnelles, conditions d'utilisation, cadre pour les mineurs | **[conseil juridique]** |
 | **Financement** | Budget de fonctionnement annuel : **[montant]** | Partenaires institutionnels, mécénat d'entreprises, subventions **[à préciser]** |
 
 ## 5. Conditions de déploiement
 
 1. **Une structure porteuse identifiée.** Elle porte le service, la charte et la
-   relation avec les mentors : **[IFG ou autre]**.
+   relation avec les mentors. Proposition : **l'IFG**, structure organisatrice du
+   programme, **[à confirmer]**.
 2. **Des mentors vérifiés.** Les critères (3 ans d'expérience minimum, charte)
    sont déjà appliqués par la plateforme. Une validation humaine des profils mentors est à ajouter.
 3. **La protection des jeunes et de leurs données.**
    - Déjà en place : profils des mentorés invisibles hors de leurs relations,
-     échanges dans l'application, visio par liens générés.
+     échanges et visio dans l'application (l'appel vidéo ne transite pas par nos serveurs).
    - Reste à définir avant l'ouverture au public :
      - l'âge minimum ou l'accord parental ;
      - les conditions d'utilisation ;
