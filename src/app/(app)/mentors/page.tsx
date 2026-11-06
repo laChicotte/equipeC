@@ -97,7 +97,7 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
             className="object-cover object-[center_35%]"
           />
         </div>
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/30" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink-950 via-brand-800/85 to-brand-800/30" />
         <div className="relative px-6 py-8 sm:px-10 sm:py-12">
           <p className="text-xs font-bold tracking-[0.14em] text-accent-300 uppercase">Découvrir</p>
           <h1 className="mt-3 max-w-2xl font-display text-3xl leading-tight font-bold tracking-tight sm:text-[2.75rem]">

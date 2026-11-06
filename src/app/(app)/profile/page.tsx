@@ -201,7 +201,7 @@ export default async function ProfilePage() {
               {isRoleReady(profile) && (
                 <span
                   title="Profil complété"
-                  className="pointer-events-none absolute top-[88px] -right-1.5 inline-flex size-8 items-center justify-center rounded-full border-4 border-white bg-brand-600 text-xs font-bold text-white"
+                  className="pointer-events-none absolute top-[88px] -right-1.5 inline-flex size-8 items-center justify-center rounded-full border-4 border-white bg-brand-700 text-xs font-bold text-white"
                 >
                   ✓
                 </span>

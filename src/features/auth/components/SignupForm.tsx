@@ -62,7 +62,7 @@ export function SignupForm({ defaultRole = "mentee" }: { defaultRole?: UserRole 
                   <Icon className="size-[18px]" />
                 </span>
                 <span className="flex-1 font-semibold text-ink-900">{title}</span>
-                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-transparent group-has-[:checked]:border-brand-600 group-has-[:checked]:bg-brand-600 group-has-[:checked]:text-white">
+                <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-transparent group-has-[:checked]:border-brand-600 group-has-[:checked]:bg-brand-700 group-has-[:checked]:text-white">
                   <CheckIcon className="size-3" />
                 </span>
               </span>

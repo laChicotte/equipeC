@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Mes objectifs · MentorConnect" };
 const STATUS_UI = {
   todo: { icon: "○", className: "border-slate-300 text-ink-500", label: "À faire" },
   in_progress: { icon: "◐", className: "border-amber-400 bg-amber-50 text-amber-700", label: "En cours" },
-  done: { icon: "✓", className: "border-brand-600 bg-brand-600 text-white", label: "Fait" },
+  done: { icon: "✓", className: "border-brand-600 bg-brand-700 text-white", label: "Fait" },
 } as const;
 
 /** Tous les objectifs, regroupés par mentorat (le suivi se fait dans chaque espace). */

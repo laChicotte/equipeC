@@ -12,7 +12,7 @@ const LINKS = [
 /** Pied de page des pages publiques (bleu nuit). */
 export function PublicFooter() {
   return (
-    <footer className="bg-ink-950 px-4 pt-14 pb-8 text-white sm:px-8">
+    <footer className="bg-gradient-dark px-4 pt-14 pb-8 text-white sm:px-8">
       <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.4fr_1fr]">
         <div>
           <Logo tone="light" />

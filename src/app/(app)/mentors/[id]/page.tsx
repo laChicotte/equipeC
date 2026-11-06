@@ -76,7 +76,7 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
       </Link>
 
       {/* En-tête : bandeau bleu nuit, halo émeraude */}
-      <header className="relative overflow-hidden rounded-[2rem] bg-ink-950 p-6 text-white sm:p-10">
+      <header className="relative overflow-hidden rounded-3xl bg-gradient-dark p-6 text-white sm:p-10">
         <div aria-hidden className="absolute -top-24 -right-16 size-80 rounded-full bg-brand-500/30 blur-[90px]" />
         <div aria-hidden className="absolute -bottom-32 left-10 size-72 rounded-full bg-accent-400/15 blur-[90px]" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
@@ -298,7 +298,7 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
           <a
             href="#demande"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3.5 font-semibold text-white shadow-sm transition-[background-color,transform] active:scale-[0.97]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 py-3.5 font-semibold text-white shadow-sm transition-[background-color,transform] active:scale-[0.97]"
           >
             Demander un mentorat à {mentor.full_name.split(" ")[0]}
           </a>

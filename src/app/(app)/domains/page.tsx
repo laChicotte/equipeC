@@ -159,7 +159,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
           />
           <PendingSubmitButton
             pendingLabel={isAiEnabled() ? "L'IA analyse…" : "Analyse…"}
-            className="rounded-xl bg-brand-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-brand-700"
+            className="rounded-xl bg-brand-700 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-brand-800"
           >
             M&apos;orienter
           </PendingSubmitButton>
@@ -277,7 +277,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
           const badges = (
             <>
               {advised && (
-                <span className="rounded-full bg-brand-600 px-2.5 py-0.5 text-xs font-semibold text-white">Conseillé pour vous</span>
+                <span className="rounded-full bg-brand-700 px-2.5 py-0.5 text-xs font-semibold text-white">Conseillé pour vous</span>
               )}
               {mine && (
                 <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-800 ring-1 ring-brand-100 ring-inset">

@@ -187,7 +187,7 @@ export default async function ResourcesPage({ searchParams }: PageProps<"/resour
                         href={r.url}
                         target="_blank"
                         rel="noopener noreferrer nofollow"
-                        className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+                        className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-800"
                       >
                         Ouvrir la ressource ↗
                       </a>

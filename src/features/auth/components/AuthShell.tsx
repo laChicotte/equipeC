@@ -87,9 +87,9 @@ export function AuthShell({ variant = "login", children }: { variant?: Variant; 
   const panel = PANELS[variant];
 
   return (
-    <main className="relative grid min-h-dvh flex-1 overflow-hidden bg-[#f3f7f5] lg:h-dvh lg:min-h-0 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
+    <main className="relative grid min-h-dvh flex-1 overflow-hidden bg-mint lg:h-dvh lg:min-h-0 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
       {/* Panneau visuel (ordinateur) */}
-      <aside className="relative hidden overflow-hidden rounded-tr-[140px] bg-gradient-to-br from-[#0d403d] via-[#0a3533] to-[#072826] text-white lg:flex lg:h-full lg:flex-col">
+      <aside className="relative hidden overflow-hidden rounded-tr-[140px] bg-gradient-dark text-white lg:flex lg:h-full lg:flex-col">
         {/* Photo à droite, fondue dans le sarcelle */}
         <div className="absolute inset-y-0 right-0 w-[58%]">
           <PhotoSlot
@@ -103,9 +103,9 @@ export function AuthShell({ variant = "login", children }: { variant?: Variant; 
             className="object-cover object-[center_45%]"
           />
           {/* Fondus légers : la photo reste lumineuse, seuls les bords se fondent dans le sarcelle */}
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#0a3533] from-0% via-[#0a3533]/25 via-30% to-transparent to-60%" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-[#0d403d]/70 from-0% via-transparent via-25% to-transparent" />
-          <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[#072826] to-transparent" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#0b2e31] from-0% via-[#0b2e31]/25 via-30% to-transparent to-60%" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-[#0f172a]/70 from-0% via-transparent via-25% to-transparent" />
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[#0a3f39] to-transparent" />
         </div>
 
         <div className="relative flex h-full flex-col px-12 py-10 xl:px-16 short:py-8 tiny:py-6">
@@ -145,7 +145,7 @@ export function AuthShell({ variant = "login", children }: { variant?: Variant; 
               {[GraduationIcon, UsersIcon, FeatherIcon].map((PillIcon, i) => (
                 <span
                   key={i}
-                  className="inline-flex size-11 items-center justify-center rounded-full bg-[#0d403d] text-accent-400 ring-2 ring-white/80"
+                  className="inline-flex size-11 items-center justify-center rounded-full bg-ink-900 text-accent-400 ring-2 ring-white/80"
                 >
                   <PillIcon className="size-5" />
                 </span>
@@ -179,7 +179,7 @@ export function AuthShell({ variant = "login", children }: { variant?: Variant; 
         </div>
         {/* my-auto : centré verticalement, sans couper le haut si l'écran est très petit */}
         <div className="relative mx-auto my-auto w-full max-w-[34rem] sm:py-6 lg:py-0">
-          <div className="rounded-3xl border border-slate-100 bg-white px-4 py-5 shadow-[0_24px_60px_-24px_rgba(11,58,49,0.25)] sm:rounded-[28px] sm:px-10 sm:py-8 short:sm:py-6 tiny:py-4 tiny:sm:py-5">
+          <div className="rounded-3xl border border-slate-200/80 bg-white px-4 py-5 shadow-[0_24px_60px_-24px_rgba(11,58,49,0.25)] sm:rounded-[28px] sm:px-10 sm:py-8 short:sm:py-6 tiny:py-4 tiny:sm:py-5">
             {children}
           </div>
         </div>

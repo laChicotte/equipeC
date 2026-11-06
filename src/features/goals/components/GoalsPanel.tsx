@@ -16,7 +16,7 @@ const NEXT_STATUS: Record<GoalStatus, GoalStatus> = {
 const STATUS_UI: Record<GoalStatus, { label: string; icon: string; className: string }> = {
   todo: { label: "À faire", icon: "○", className: "border-slate-300 text-ink-500" },
   in_progress: { label: "En cours", icon: "◐", className: "border-amber-400 bg-amber-50 text-amber-700" },
-  done: { label: "Fait", icon: "✓", className: "border-brand-600 bg-brand-600 text-white" },
+  done: { label: "Fait", icon: "✓", className: "border-brand-600 bg-brand-700 text-white" },
 };
 
 function GoalRow({ goal, canEdit }: { goal: GoalView; canEdit: boolean }) {

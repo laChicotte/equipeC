@@ -102,7 +102,7 @@ export function MentorSearch({
         <PendingSubmitButton
           key={mode}
           pendingLabel={mode === "keyword" ? "Recherche…" : aiEnabled ? "L'IA analyse…" : "Analyse…"}
-          className="rounded-xl bg-brand-600 px-6 py-3.5 font-semibold text-white shadow-sm transition-[background-color,transform] duration-200 hover:bg-brand-700 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+          className="rounded-xl bg-brand-700 px-6 py-3.5 font-semibold text-white shadow-sm transition-[background-color,transform] duration-200 hover:bg-brand-800 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
         >
           {mode === "keyword" ? "Rechercher" : "Analyser"}
         </PendingSubmitButton>

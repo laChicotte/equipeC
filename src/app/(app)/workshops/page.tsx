@@ -58,7 +58,7 @@ function StatusBadge({ w }: { w: WorkshopView }) {
         : w.isHost
           ? ["Vous animez", "bg-ink-900 text-white"]
           : w.isRegistered
-            ? ["✓ Inscrit(e)", "bg-brand-600 text-white"]
+            ? ["✓ Inscrit(e)", "bg-brand-700 text-white"]
             : full
               ? ["Complet", "bg-slate-100 text-ink-500"]
               : [`${plural(left, "place")} restante${left > 1 ? "s" : ""}`, "bg-slate-100 text-ink-500"];
@@ -125,7 +125,7 @@ function WorkshopCard({ w }: { w: WorkshopView }) {
                   href={w.meetingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+                  className="rounded-xl bg-brand-700 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-800"
                 >
                   Rejoindre la visio
                 </a>

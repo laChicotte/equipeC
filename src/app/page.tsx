@@ -216,7 +216,7 @@ export default async function HomePage() {
 
       <main id="contenu">
         {/* ─── Accroche (bleu nuit) ──────────────────────────────── */}
-        <section className="relative overflow-hidden bg-ink-950 text-white">
+        <section className="relative overflow-hidden bg-gradient-dark text-white">
           {/* Halos et grille discrète */}
           <div aria-hidden className="absolute -top-40 -left-32 size-[520px] rounded-full bg-brand-500/25 blur-[120px]" />
           <div aria-hidden className="absolute -right-40 bottom-0 size-[420px] rounded-full bg-accent-400/15 blur-[120px]" />
@@ -404,7 +404,7 @@ export default async function HomePage() {
                       title={d.name}
                       className="group flex h-full items-center gap-4 rounded-2xl border border-slate-200/70 bg-white px-5 py-4 shadow-card transition-[box-shadow,transform,border-color] duration-300 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover"
                     >
-                      <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white">
+                      <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-800 group-hover:text-white">
                         <DomainIcon slug={d.slug} className="size-5" />
                       </span>
                       <span className="flex-1 font-semibold text-ink-900">{DOMAIN_SHORT_LABELS[d.slug] ?? d.name}</span>
@@ -448,7 +448,7 @@ export default async function HomePage() {
                   key={title}
                   className="reveal group rounded-3xl border border-slate-200/70 bg-white p-6 shadow-card transition-[box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-card-hover"
                 >
-                  <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white">
+                  <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-800 group-hover:text-white">
                     <Icon className="size-6" />
                   </span>
                   <p className="mt-4 font-bold text-ink-900">{title}</p>
@@ -488,7 +488,7 @@ export default async function HomePage() {
 
         {/* ─── Appel à l'action ─────────────────────────────────── */}
         <section className="px-4 pb-20 sm:px-8 lg:pb-28">
-          <div className="reveal relative mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-ink-950 px-6 py-14 text-white sm:px-12 lg:py-20">
+          <div className="reveal relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-gradient-dark px-6 py-14 text-white sm:px-12 lg:py-20">
             <PhotoSlot name="accueil-atelier" alt="" sizes="(min-width: 1280px) 1280px, 100vw" motif="workshop" tone="dark" className="object-cover opacity-30" />
             <div aria-hidden className="absolute -top-24 -right-24 size-96 rounded-full bg-brand-500/30 blur-[100px]" />
             <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/90 to-ink-950/40" />

@@ -329,7 +329,7 @@ function SkillsInput({
             type="button"
             onClick={() => add(draft)}
             disabled={!draft.trim()}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
+            className="rounded-lg bg-brand-700 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50"
           >
             Ajouter
           </button>

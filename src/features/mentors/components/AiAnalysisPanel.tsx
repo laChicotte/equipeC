@@ -9,7 +9,7 @@ export function AiAnalysisPanel({ analysis }: { analysis: AiAnalysis }) {
   return (
     <section
       aria-labelledby="analyse-ia"
-      className="relative overflow-hidden rounded-3xl bg-ink-950 p-6 text-white sm:p-8"
+      className="relative overflow-hidden rounded-3xl bg-gradient-dark p-6 text-white sm:p-8"
     >
       <div aria-hidden className="absolute -top-20 -right-16 size-64 rounded-full bg-brand-500/30 blur-[80px]" />
       <div className="relative">

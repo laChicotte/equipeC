@@ -6,7 +6,7 @@ import { ArrowRightIcon, SparkleIcon, StarIcon } from "@/components/ui/icons";
 
 /** Bandes de couleur de l'en-tête (choisie à partir de l'identifiant) + pastille d'initiales assortie. */
 const COVERS = [
-  { band: "from-brand-100 via-brand-50 to-white", initials: "bg-brand-600 text-white" },
+  { band: "from-brand-100 via-brand-50 to-white", initials: "bg-brand-700 text-white" },
   { band: "from-slate-200 via-slate-100 to-white", initials: "bg-ink-900 text-white" },
   { band: "from-sky-100 via-sky-50 to-white", initials: "bg-sky-700 text-white" },
   { band: "from-violet-100 via-violet-50 to-white", initials: "bg-violet-700 text-white" },
@@ -145,7 +145,7 @@ export function MentorCard({
 
         <span
           aria-hidden
-          className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-brand-200 py-2.5 text-sm font-semibold text-brand-700 transition-colors group-hover:border-brand-600 group-hover:bg-brand-600 group-hover:text-white"
+          className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-brand-200 py-2.5 text-sm font-semibold text-brand-700 transition-colors group-hover:border-brand-600 group-hover:bg-brand-800 group-hover:text-white"
         >
           Voir le profil <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
         </span>

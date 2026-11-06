@@ -44,7 +44,7 @@ export function RolesCard({ profile }: { profile: Profile }) {
                 </p>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    active ? "bg-brand-600 text-white" : ready ? "bg-brand-50 text-brand-800" : "bg-slate-200 text-ink-500"
+                    active ? "bg-brand-700 text-white" : ready ? "bg-brand-50 text-brand-800" : "bg-slate-200 text-ink-500"
                   }`}
                 >
                   {active ? (ready ? "Mode actif" : "Mode actif · à compléter") : ready ? "Profil complet" : "Non activé"}

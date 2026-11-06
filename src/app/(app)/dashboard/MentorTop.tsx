@@ -55,6 +55,7 @@ function StatCard({
 }
 
 export function MentorTop({
+  isMentor = true,
   firstName,
   today,
   pendingCount,
@@ -64,6 +65,8 @@ export function MentorTop({
   overall,
   onboarded,
 }: {
+  /** false : tableau de bord mentoré (mêmes blocs, libellés adaptés) */
+  isMentor?: boolean;
   firstName: string;
   today: string;
   pendingCount: number;
@@ -73,7 +76,8 @@ export function MentorTop({
   overall: number | null;
   onboarded: boolean;
 }) {
-  const banner = {
+  const banner = isMentor
+    ? {
     title: "Partagez votre expérience.",
     // On ne demande de compléter le profil que s'il est incomplet
     text: onboarded
@@ -81,7 +85,16 @@ export function MentorTop({
       : "Complétez votre profil : les mentorés vous trouveront plus facilement.",
     cta: onboarded ? "Partager une ressource" : "Compléter mon profil",
     href: onboarded ? "/resources" : "/onboarding",
-  };
+  }
+    : {
+        title: "Trouvez le mentor qui vous correspond vraiment.",
+        // Texte et bouton cohérents avec la destination réelle du lien
+        text: onboarded
+          ? "Vos recommandations s'appuient sur vos domaines et vos objectifs, chacune expliquée."
+          : "Décrivez votre objectif, notre algorithme de mise en relation s'occupe du reste.",
+        cta: onboarded ? "Découvrir les mentors" : "Décrire mon objectif",
+        href: onboarded ? "/mentors" : "/onboarding",
+      };
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
@@ -96,22 +109,24 @@ export function MentorTop({
             </span>
           </h1>
           <p className="mt-1.5 text-base text-ink-700">
-            {pendingCount > 0
-              ? `${pendingCount} demande${pendingCount > 1 ? "s" : ""} de mentorat vous attend${pendingCount > 1 ? "ent" : ""}.`
-              : "Merci de partager votre expérience avec la nouvelle génération."}
+            {!isMentor
+              ? "Envie de faire avancer vos ambitions aujourd'hui ?"
+              : pendingCount > 0
+                ? `${pendingCount} demande${pendingCount > 1 ? "s" : ""} de mentorat vous attend${pendingCount > 1 ? "ent" : ""}.`
+                : "Merci de partager votre expérience avec la nouvelle génération."}
           </p>
         </div>
         {overall !== null && (
-          <ProgressRing percent={overall} label="Mentorés" color="#10b981" trackColor="#d1fae5" />
+          <ProgressRing percent={overall} label={isMentor ? "Mentorés" : "Parcours"} color="#10b981" trackColor="#d1fae5" />
         )}
       </header>
 
       {/* 2. Statistiques : uniquement des chiffres réels */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <StatCard icon={UsersIcon} label="Mentorés suivis" value={String(activeCount)} href="/mentorships" tone="green" />
+        <StatCard icon={UsersIcon} label={isMentor ? "Mentorés suivis" : "Mentorats actifs"} value={String(activeCount)} href="/mentorships" tone="green" />
         <StatCard
           icon={MessageIcon}
-          label="Demandes à traiter"
+          label={isMentor ? "Demandes à traiter" : "Demandes en attente"}
           value={String(pendingCount)}
           href="/mentorships"
           tone="amber"
