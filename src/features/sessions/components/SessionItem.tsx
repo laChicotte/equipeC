@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cancelSession } from "../actions";
 import { DURATION_LABELS } from "../constants";
 import type { SessionWithPhase } from "../queries";
@@ -7,18 +8,16 @@ import { Badge } from "@/components/ui/Badge";
 import { buttonClasses } from "@/components/ui/Button";
 import { formatDateTime } from "@/lib/datetime";
 
-/** Lien vers la salle de visio (Jitsi Meet), ouvert dans un nouvel onglet. */
+/** Lien vers la salle de visio intégrée à l'application (Jitsi reste proposé en secours dans la salle). */
 export function JoinLink({ session }: { session: SessionWithPhase }) {
   const live = session.phase === "live";
   return (
-    <a
-      href={session.meeting_url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={`/sessions/${session.id}/visio`}
       className={buttonClasses(live ? "primary" : "secondary", "w-full sm:w-auto")}
     >
-      🎥 {live ? "Rejoindre la visio" : "Lien de la visio"}
-    </a>
+      🎥 {live ? "Rejoindre la visio" : "Tester la visio"}
+    </Link>
   );
 }
 

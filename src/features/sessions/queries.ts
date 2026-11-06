@@ -120,3 +120,35 @@ export async function getAllMySessions(): Promise<UpcomingSession[]> {
     (s) => withPhase(s, now),
   );
 }
+
+export type CallSession = SessionWithPhase & {
+  mentorship: {
+    id: string;
+    mentor_id: string;
+    mentee_id: string;
+    mentor: { full_name: string; avatar_url: string | null };
+    mentee: { full_name: string; avatar_url: string | null };
+  };
+};
+
+/**
+ * Une séance et ses deux participants, pour la salle de visio intégrée.
+ * RLS : renvoie null si la séance n'existe pas ou si l'on n'y participe pas.
+ */
+export async function getSessionForCall(id: string): Promise<CallSession | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("sessions")
+    .select(
+      `${SESSION_COLUMNS},
+       mentorship:mentorships (
+         id, mentor_id, mentee_id,
+         mentor:profiles!mentorships_mentor_id_fkey ( full_name, avatar_url ),
+         mentee:profiles!mentorships_mentee_id_fkey ( full_name, avatar_url )
+       )`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (!data) return null;
+  return withPhase(data as unknown as Omit<CallSession, "phase">, Date.now()) as CallSession;
+}

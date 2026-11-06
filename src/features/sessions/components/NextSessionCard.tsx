@@ -54,14 +54,12 @@ export function SessionRow({ session, viewerRole }: { session: UpcomingSession; 
         </div>
       </div>
       {session.phase !== "past" && session.phase !== "cancelled" && (
-        <a
-          href={session.meeting_url}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={`/sessions/${session.id}/visio`}
           className={buttonClasses(live ? "primary" : "secondary", "w-full sm:w-auto")}
         >
-          {live ? "Rejoindre la visio" : "Lien de la visio"}
-        </a>
+          {live ? "Rejoindre la visio" : "Tester la visio"}
+        </Link>
       )}
     </div>
   );
