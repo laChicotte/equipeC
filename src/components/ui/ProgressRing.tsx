@@ -1,12 +1,20 @@
-/** Anneau de progression (ex. « 68 % Parcours »). */
+/**
+ * Anneau de progression (ex. « 68 % Parcours »).
+ * `color` / `trackColor` : facultatifs ; sans eux, l'apparence reste celle
+ * utilisée partout (Objectifs, Profil…).
+ */
 export function ProgressRing({
   percent,
   label,
   size = 96,
+  color = "#19a08a",
+  trackColor = "#e7efed",
 }: {
   percent: number;
   label: string;
   size?: number;
+  color?: string;
+  trackColor?: string;
 }) {
   const stroke = 7;
   const radius = (size - stroke) / 2;
@@ -24,13 +32,13 @@ export function ProgressRing({
       style={{ width: size, height: size }}
     >
       <svg viewBox={`0 0 ${size} ${size}`} className="-rotate-90" width={size} height={size} aria-hidden>
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#e7efed" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={trackColor} strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#19a08a"
+          stroke={color}
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circumference}

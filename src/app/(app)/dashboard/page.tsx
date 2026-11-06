@@ -15,6 +15,7 @@ import { ProgressRing } from "@/components/ui/ProgressRing";
 import { formatToday } from "@/lib/datetime";
 import { ArrowRightIcon, CalendarIcon, CheckIcon, MessageIcon, SparkleIcon, UsersIcon } from "@/components/ui/icons";
 import type { ComponentType } from "react";
+import { MentorTop } from "./MentorTop";
 
 export const metadata: Metadata = { title: "Accueil · MentorConnect" };
 
@@ -144,56 +145,71 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-wrap items-start justify-between gap-6">
-        <div>
-          <p className="eyebrow">{formatToday()}</p>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Bonjour {profile.full_name.split(" ")[0]},
-          </h1>
-          <p className="mt-2 text-ink-500">
-            {isMentor
-              ? pending.length > 0
-                ? `${pending.length} demande${pending.length > 1 ? "s" : ""} de mentorat vous attend${pending.length > 1 ? "ent" : ""}.`
-                : "Merci de partager votre expérience avec la nouvelle génération."
-              : "Envie de faire avancer vos ambitions aujourd'hui ?"}
-          </p>
+      {isMentor ? (
+        <MentorTop
+          firstName={profile.full_name.split(" ")[0]}
+          today={formatToday()}
+          pendingCount={pending.length}
+          activeCount={active.length}
+          sessionCount={sessions.length}
+          goals={totals}
+          overall={overall}
+          onboarded={isRoleReady(profile)}
+        />
+      ) : (
+        <>
+        <header className="flex flex-wrap items-start justify-between gap-6">
+          <div>
+            <p className="eyebrow">{formatToday()}</p>
+            <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Bonjour {profile.full_name.split(" ")[0]},
+            </h1>
+            <p className="mt-2 text-ink-500">
+              {isMentor
+                ? pending.length > 0
+                  ? `${pending.length} demande${pending.length > 1 ? "s" : ""} de mentorat vous attend${pending.length > 1 ? "ent" : ""}.`
+                  : "Merci de partager votre expérience avec la nouvelle génération."
+                : "Envie de faire avancer vos ambitions aujourd'hui ?"}
+            </p>
+          </div>
+          {overall !== null && <ProgressRing percent={overall} label={isMentor ? "Mentorés" : "Parcours"} />}
+        </header>
+
+        {/* Statistiques : uniquement des chiffres réels */}
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <StatCard
+            icon={UsersIcon}
+            label={isMentor ? "Mentorés suivis" : "Mentorats actifs"}
+            value={String(active.length)}
+            href="/mentorships"
+          />
+          <StatCard
+            icon={MessageIcon}
+            label={isMentor ? "Demandes à traiter" : "Demandes en attente"}
+            value={String(pending.length)}
+            href="/mentorships"
+            tone="amber"
+          />
+          <StatCard
+            icon={CalendarIcon}
+            label="Séances à venir"
+            value={String(sessions.length)}
+            href="/sessions"
+            tone="sky"
+          />
+          <StatCard
+            icon={CheckIcon}
+            label="Objectifs atteints"
+            value={totals.total ? `${totals.done}/${totals.total}` : "0"}
+            hint={overall !== null ? `${overall} % du parcours` : undefined}
+            href="/goals"
+            tone="violet"
+          />
         </div>
-        {overall !== null && <ProgressRing percent={overall} label={isMentor ? "Mentorés" : "Parcours"} />}
-      </header>
 
-      {/* Statistiques : uniquement des chiffres réels */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard
-          icon={UsersIcon}
-          label={isMentor ? "Mentorés suivis" : "Mentorats actifs"}
-          value={String(active.length)}
-          href="/mentorships"
-        />
-        <StatCard
-          icon={MessageIcon}
-          label={isMentor ? "Demandes à traiter" : "Demandes en attente"}
-          value={String(pending.length)}
-          href="/mentorships"
-          tone="amber"
-        />
-        <StatCard
-          icon={CalendarIcon}
-          label="Séances à venir"
-          value={String(sessions.length)}
-          href="/sessions"
-          tone="sky"
-        />
-        <StatCard
-          icon={CheckIcon}
-          label="Objectifs atteints"
-          value={totals.total ? `${totals.done}/${totals.total}` : "0"}
-          hint={overall !== null ? `${overall} % du parcours` : undefined}
-          href="/goals"
-          tone="violet"
-        />
-      </div>
-
-      <MatchBanner isMentor={isMentor} onboarded={isRoleReady(profile)} />
+        <MatchBanner isMentor={isMentor} onboarded={isRoleReady(profile)} />
+        </>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <NextSessionCard sessions={sessions} viewerRole={profile.role} />
