@@ -32,7 +32,7 @@ function Stars({ rating }: { rating: number }) {
   return (
     <span aria-label={`${rating} sur 5`} className="tracking-tight text-accent-500">
       {"★".repeat(rating)}
-      <span className="text-zinc-300">{"★".repeat(5 - rating)}</span>
+      <span className="text-slate-300">{"★".repeat(5 - rating)}</span>
     </span>
   );
 }
@@ -96,13 +96,13 @@ export function SessionItem({
 
   return (
     <li
-      className={`flex flex-col gap-2 rounded-xl border border-zinc-200 p-3 ${open ? "bg-white" : "bg-zinc-50"}`}
+      className={`flex flex-col gap-2 rounded-xl border border-slate-200 p-3 ${open ? "bg-white" : "bg-slate-50"}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
           <p
             className={`text-sm font-medium first-letter:uppercase ${
-              session.phase === "cancelled" ? "text-zinc-400 line-through" : ""
+              session.phase === "cancelled" ? "text-slate-400 line-through" : ""
             }`}
           >
             {formatDateTime(session.scheduled_at)}
@@ -122,7 +122,7 @@ export function SessionItem({
             <form action={cancelSession}>
               <input type="hidden" name="session_id" value={session.id} />
               <input type="hidden" name="mentorship_id" value={session.mentorship_id} />
-              <button className="rounded-lg px-2 py-1.5 text-xs text-ink-500 hover:bg-zinc-100 hover:text-red-600">
+              <button className="rounded-lg px-2 py-1.5 text-xs text-ink-500 hover:bg-slate-100 hover:text-red-600">
                 Annuler la séance
               </button>
             </form>

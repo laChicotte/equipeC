@@ -1,13 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import { inter } from "@/lib/fonts";
 import "./globals.css";
 import { LogoMark } from "@/components/layout/Logo";
 
-// Police unique : géométrique, moderne et lisible (titres et textes)
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
-  subsets: ["latin"],
-});
 
 
 const geistMono = Geist_Mono({
@@ -37,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
-      className={`${jakarta.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans text-ink-900">
         {/* Écran de lancement de l'application installée (voir .app-splash dans globals.css) */}

@@ -89,7 +89,7 @@ export function NextSessionCard({
         <>
           <SessionRow session={next} viewerRole={viewerRole} />
           {later.length > 0 && (
-            <p className="mt-6 border-t border-zinc-100 pt-4 text-sm text-ink-500">
+            <p className="mt-6 border-t border-slate-100 pt-4 text-sm text-ink-500">
               + {later.length} autre{later.length > 1 ? "s" : ""} séance{later.length > 1 ? "s" : ""} prévue
               {later.length > 1 ? "s" : ""}
             </p>

@@ -12,7 +12,7 @@ import { formatDueDate } from "@/lib/datetime";
 export const metadata: Metadata = { title: "Mes objectifs · MentorConnect" };
 
 const STATUS_UI = {
-  todo: { icon: "○", className: "border-zinc-300 text-ink-500", label: "À faire" },
+  todo: { icon: "○", className: "border-slate-300 text-ink-500", label: "À faire" },
   in_progress: { icon: "◐", className: "border-amber-400 bg-amber-50 text-amber-700", label: "En cours" },
   done: { icon: "✓", className: "border-brand-600 bg-brand-600 text-white", label: "Fait" },
 } as const;
@@ -56,7 +56,7 @@ export default async function GoalsPage() {
               <div className="flex items-start justify-between gap-2">
                 <p className="eyebrow">{isMentor ? `Avec ${j.menteeName}` : `Avec ${j.mentorName}`}</p>
                 {!j.active && (
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-ink-500">Terminé</span>
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ink-500">Terminé</span>
                 )}
               </div>
               <div className="mt-4">

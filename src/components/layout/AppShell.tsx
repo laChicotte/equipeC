@@ -193,7 +193,7 @@ function SidebarContent({
 
       {/* Encadré d'aide (vert forêt) — masqué sur les écrans peu hauts */}
       <div className="px-5 pt-4 [@media(max-height:760px)]:hidden">
-        <div className="relative overflow-hidden rounded-3xl bg-ink-950 p-5 text-white">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-dark p-5 text-white">
           <div aria-hidden className="absolute -top-12 -right-12 size-36 rounded-full bg-brand-500/35 blur-2xl" />
           <span className="relative text-accent-400">{icon(ICONS.sparkle, "size-6")}</span>
           <p className="relative mt-3 text-lg font-bold">Besoin d&apos;aide ?</p>

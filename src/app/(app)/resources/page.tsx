@@ -171,7 +171,7 @@ export default async function ResourcesPage({ searchParams }: PageProps<"/resour
                     Par {r.author?.full_name ?? "un mentor"}
                     {r.author?.job_title && ` · ${r.author.job_title}`} · {formatShortDate(r.created_at)}
                   </p>
-                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 pt-5">
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
                     {r.author_id === profile?.id ? (
                       <form action={deleteResource}>
                         <input type="hidden" name="resource_id" value={r.id} />

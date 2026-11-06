@@ -8,7 +8,7 @@ const TABS = [
 /** Onglets de l'espace « Mentorat » : relations et échanges, puis agenda des séances. */
 export function MentorshipTabs({ active }: { active: (typeof TABS)[number]["href"] }) {
   return (
-    <nav aria-label="Espace mentorat" className="mb-8 flex gap-2 border-b border-zinc-200">
+    <nav aria-label="Espace mentorat" className="mb-8 flex gap-2 border-b border-slate-200">
       {TABS.map((tab) => {
         const current = tab.href === active;
         return (

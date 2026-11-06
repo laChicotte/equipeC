@@ -3,7 +3,7 @@
  * (le menu latéral reste visible). Squelette animé plutôt qu'un écran blanc.
  */
 export default function Loading() {
-  const block = "animate-pulse rounded-2xl bg-zinc-200/70";
+  const block = "animate-pulse rounded-2xl bg-slate-200/70";
   return (
     <div role="status" aria-label="Chargement" className="flex flex-col gap-4">
       <div className={`${block} h-8 w-64`} />

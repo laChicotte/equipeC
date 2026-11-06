@@ -32,7 +32,7 @@ export function ErrorScreen({ error, retry }: { error: unknown; retry: () => voi
       }
     >
       <p>Vérifiez votre connexion Internet puis réessayez.</p>
-      {digest && <p className="mt-2 text-xs text-zinc-400">Référence : {digest}</p>}
+      {digest && <p className="mt-2 text-xs text-slate-400">Référence : {digest}</p>}
     </StatusView>
   );
 }

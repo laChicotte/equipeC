@@ -47,11 +47,11 @@ const calendar = (
 
 /** Pastille de date limite : rouge si elle tombe dans les 7 jours. */
 function Deadline({ o }: { o: OpportunityView }) {
-  if (!o.deadline) return <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium whitespace-nowrap text-ink-500">Sans date limite</span>;
+  if (!o.deadline) return <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium whitespace-nowrap text-ink-500">Sans date limite</span>;
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${
-        o.closingSoon ? "bg-red-50 text-red-600 ring-1 ring-red-100" : "bg-zinc-100 text-ink-500"
+        o.closingSoon ? "bg-red-50 text-red-600 ring-1 ring-red-100" : "bg-slate-100 text-ink-500"
       }`}
     >
       {o.closingSoon ? "⏳" : calendar} Jusqu&apos;au {formatDueDate(o.deadline)}
@@ -167,7 +167,7 @@ export default async function OpportunitiesPage({ searchParams }: PageProps<"/op
                   <p className="mt-6 text-sm text-ink-500">
                     Partagé par {o.author?.full_name ?? "un membre"} · {formatShortDate(o.created_at)}
                   </p>
-                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 pt-5">
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
                     {o.author_id === userId ? (
                       <form action={deleteOpportunity}>
                         <input type="hidden" name="opportunity_id" value={o.id} />

@@ -10,7 +10,7 @@ import {
 
 const ACTIONS = {
   register: { action: registerToWorkshop, label: "S'inscrire", pending: "Inscription…", style: "bg-ink-900 text-white hover:bg-ink-800" },
-  unregister: { action: unregisterFromWorkshop, label: "Se désinscrire", pending: "…", style: "text-ink-500 hover:bg-zinc-100 hover:text-ink-900" },
+  unregister: { action: unregisterFromWorkshop, label: "Se désinscrire", pending: "…", style: "text-ink-500 hover:bg-slate-100 hover:text-ink-900" },
   cancel: { action: cancelWorkshop, label: "Annuler l'atelier", pending: "…", style: "text-ink-500 hover:bg-red-50 hover:text-red-600" },
 } as const;
 

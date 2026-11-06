@@ -39,7 +39,7 @@ export function RequestForm({
                   defaultChecked={i === 0}
                   className="peer sr-only"
                 />
-                <span className="flex h-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-center text-sm leading-snug text-ink-700 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:font-medium peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-brand-600">
+                <span className="flex h-full items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-center text-sm leading-snug text-ink-700 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:font-medium peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-brand-600">
                   {d.short ?? d.name}
                 </span>
               </label>
@@ -62,7 +62,7 @@ export function RequestForm({
           aria-invalid={Boolean(errors.message)}
           placeholder="Présentez-vous et expliquez ce que vous attendez de cet accompagnement."
           className={`rounded-xl border bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 ${
-            errors.message ? "border-red-500" : "border-zinc-200"
+            errors.message ? "border-red-500" : "border-slate-200"
           }`}
         />
         {errors.message && <p className="text-sm text-red-600">{errors.message.join(" ")}</p>}

@@ -81,7 +81,7 @@ export default async function ImpactPage() {
       ) : (
         <dl className="mb-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
           {stats.map((s) => (
-            <div key={s.label} className="rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
+            <div key={s.label} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
               <dt className="sr-only">{s.label}</dt>
               <dd>
                 <span className="block text-3xl font-bold text-ink-900 sm:text-4xl">{s.value}</span>
@@ -96,7 +96,7 @@ export default async function ImpactPage() {
         <h2 className="text-2xl font-bold">Témoignages</h2>
         <p className="mt-1 text-ink-500">Bilans rédigés à la fin d&apos;un mentorat et partagés par leurs auteurs.</p>
         {testimonials.length === 0 ? (
-          <p className="mt-5 rounded-3xl border border-dashed border-zinc-200 bg-white p-8 text-center text-ink-500">
+          <p className="mt-5 rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center text-ink-500">
             Les premiers témoignages apparaîtront ici à la fin des premiers mentorats.{" "}
             <Link href="/mentorships" className="font-medium text-brand-700 hover:underline">
               Rédiger mon bilan
@@ -105,7 +105,7 @@ export default async function ImpactPage() {
         ) : (
           <ul className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {testimonials.map((t, i) => (
-              <li key={i} className="flex flex-col justify-between gap-5 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] ring-1 ring-zinc-100">
+              <li key={i} className="flex flex-col justify-between gap-5 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] ring-1 ring-slate-100">
                 <p className="leading-relaxed text-ink-700 italic">« {t.content} »</p>
                 <div className="flex items-center gap-3">
                   <span className="inline-flex size-10 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-800">
@@ -131,7 +131,7 @@ export default async function ImpactPage() {
         <p className="mt-1 text-ink-500">Le déroulement prévu par le programme, et ce que fait MentorConnect à chaque étape.</p>
         <ol className="mt-5 grid gap-4 md:grid-cols-2">
           {STEPS.map((step, i) => (
-            <li key={step.title} className="flex gap-4 rounded-3xl border border-zinc-100 bg-white p-5">
+            <li key={step.title} className="flex gap-4 rounded-3xl border border-slate-100 bg-white p-5">
               <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-ink-900 text-sm font-bold text-white">
                 {i + 1}
               </span>

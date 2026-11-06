@@ -155,7 +155,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
             defaultValue={besoin}
             maxLength={300}
             placeholder="Ex : Je termine ma licence et je veux créer une entreprise dans l'agriculture…"
-            className="min-w-0 flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-3.5 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
+            className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3.5 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
           />
           <PendingSubmitButton
             pendingLabel={isAiEnabled() ? "L'IA analyse…" : "Analyse…"}
@@ -306,7 +306,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
                       advised || mine ? (
                         <span className="flex flex-col items-end gap-1">{badges}</span>
                       ) : (
-                        <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-ink-500">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-ink-500">
                           {plural(domainMentors.length, "mentor")}
                         </span>
                       )
@@ -394,7 +394,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
                   </p>
                 )}
 
-                <div className="mt-6 flex flex-wrap gap-3 border-t border-zinc-100 pt-5">
+                <div className="mt-6 flex flex-wrap gap-3 border-t border-slate-100 pt-5">
                   {domainMentors.length > 0 && (
                     <Link
                       href={`/mentors?domain=${domain.slug}`}
@@ -405,7 +405,7 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
                   )}
                   <Link
                     href={`/resources?domain=${domain.slug}`}
-                    className="inline-flex items-center rounded-xl border border-zinc-200 px-5 py-3 text-sm font-semibold text-ink-900 hover:bg-zinc-50"
+                    className="inline-flex items-center rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-ink-900 hover:bg-slate-50"
                   >
                     {plural(resourceCount, "ressource")}
                   </Link>

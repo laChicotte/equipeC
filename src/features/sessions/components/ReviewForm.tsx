@@ -35,7 +35,7 @@ export function ReviewForm({ sessionId, mentorshipId }: { sessionId: string; men
               <span
                 aria-hidden
                 className={`block text-2xl leading-none transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-brand-600 ${
-                  n <= shown ? "text-accent-500" : "text-zinc-300"
+                  n <= shown ? "text-accent-500" : "text-slate-300"
                 }`}
               >
                 ★
@@ -61,7 +61,7 @@ export function ReviewForm({ sessionId, mentorshipId }: { sessionId: string; men
         rows={2}
         maxLength={1000}
         placeholder="Un commentaire ? (facultatif)"
-        className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
+        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
       />
       {state.error && (
         <p role="alert" className="text-sm text-red-600">

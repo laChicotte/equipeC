@@ -41,7 +41,7 @@ export function TestimonialForm({
             ? "ex. Nous avons structuré son projet, il a obtenu son premier financement…"
             : "ex. Grâce à ma mentore, j'ai déposé mon dossier et gagné en confiance…"
         }
-        className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-sm leading-relaxed outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
+        className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm leading-relaxed outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
       />
       {errors.content && <p className="text-sm text-red-600">{errors.content.join(" ")}</p>}
       <label className="flex items-start gap-2.5 text-sm text-ink-700">

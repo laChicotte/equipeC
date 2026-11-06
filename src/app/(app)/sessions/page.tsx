@@ -34,7 +34,7 @@ export default async function SessionsPage() {
             Aucune séance prévue. Les séances se planifient dans l&apos;espace d&apos;un mentorat actif.
           </Card>
         ) : (
-          <Card className="divide-y divide-zinc-100 py-2 sm:py-2">
+          <Card className="divide-y divide-slate-100 py-2 sm:py-2">
             {upcoming.map((s) => (
               <div key={s.id} className="py-5">
                 <SessionRow session={s} viewerRole={role} />
@@ -47,7 +47,7 @@ export default async function SessionsPage() {
       {past.length > 0 && (
         <section>
           <p className="eyebrow mb-4">Passées ({past.length})</p>
-          <Card className="divide-y divide-zinc-100 py-2 opacity-90 sm:py-2">
+          <Card className="divide-y divide-slate-100 py-2 opacity-90 sm:py-2">
             {past.map((s) => (
               <div key={s.id} className="py-5">
                 <SessionRow session={s} viewerRole={role} />

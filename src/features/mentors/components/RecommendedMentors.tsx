@@ -67,7 +67,7 @@ export async function RecommendedMentors({ profile }: { profile: Profile }) {
               <li key={reco.mentorId}>
                 <Link
                   href={`/mentors/${mentor.id}`}
-                  className="flex h-full flex-col gap-3 rounded-xl border border-zinc-200 p-4 transition hover:border-brand-600 hover:shadow-sm"
+                  className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 p-4 transition hover:border-brand-600 hover:shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-2">

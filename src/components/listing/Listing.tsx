@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 
 /** Classes de la carte cliquable (déclencheur de <Modal>). */
 export const listingCardClasses =
-  "group flex h-full w-full min-w-0 flex-col rounded-3xl border border-zinc-100 bg-white p-5 text-left shadow-[0_1px_3px_rgba(23,43,69,0.04)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600";
+  "group flex h-full w-full min-w-0 flex-col rounded-3xl border border-slate-100 bg-white p-5 text-left shadow-[0_1px_3px_rgba(23,43,69,0.04)] transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600";
 
 /** Bouton principal vert de l'en-tête. */
 export const primaryActionClasses =
@@ -45,7 +45,7 @@ export function ListingHeader({
 export function StatsBar({ items }: { items: { icon: string; value: ReactNode; label: string }[] }) {
   return (
     <dl
-      className={`mb-6 grid grid-cols-2 gap-3 rounded-3xl border border-zinc-100 bg-white p-4 shadow-[0_1px_3px_rgba(23,43,69,0.04)] ${
+      className={`mb-6 grid grid-cols-2 gap-3 rounded-3xl border border-slate-100 bg-white p-4 shadow-[0_1px_3px_rgba(23,43,69,0.04)] ${
         items.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"
       }`}
     >
@@ -80,12 +80,12 @@ export function CountChips({
           href={chip.href}
           aria-current={chip.active ? "page" : undefined}
           className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-            chip.active ? "bg-ink-900 text-white" : "border border-zinc-200 bg-white text-ink-700 hover:border-ink-900"
+            chip.active ? "bg-ink-900 text-white" : "border border-slate-200 bg-white text-ink-700 hover:border-ink-900"
           }`}
         >
           {chip.icon && <span aria-hidden>{chip.icon}</span>}
           {chip.label}
-          <span className={`rounded-full px-1.5 text-xs font-semibold ${chip.active ? "bg-white/20" : "bg-zinc-100 text-ink-500"}`}>
+          <span className={`rounded-full px-1.5 text-xs font-semibold ${chip.active ? "bg-white/20" : "bg-slate-100 text-ink-500"}`}>
             {chip.count}
           </span>
         </Link>
@@ -126,7 +126,7 @@ export function ResultsBar({
         )}
       </p>
       {action && (
-        <form action={action} className="flex w-full items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 sm:w-80">
+        <form action={action} className="flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 sm:w-80">
           {Object.entries(hidden).map(([k, v]) => v && <input key={k} type="hidden" name={k} value={v} />)}
           <svg aria-hidden viewBox="0 0 24 24" className="size-4 shrink-0 text-ink-500" fill="none" stroke="currentColor" strokeWidth={2}>
             <circle cx="11" cy="11" r="7" />
@@ -192,7 +192,7 @@ export function ListingCardBody({
           <span className="truncate">{meta.text}</span>
         </span>
       )}
-      <span className="mt-auto flex w-full items-center justify-between gap-2 border-t border-zinc-100 pt-4 text-xs text-ink-500">
+      <span className="mt-auto flex w-full items-center justify-between gap-2 border-t border-slate-100 pt-4 text-xs text-ink-500">
         <span className="min-w-0 truncate">{footer}</span>
         <span className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-ink-900">
           {action}
@@ -224,7 +224,7 @@ export function CardGrid({ children, columns = 3 }: { children: ReactNode; colum
 
 /** Message quand la liste est vide. */
 export function EmptyState({ children }: { children: ReactNode }) {
-  return <p className="rounded-3xl border border-dashed border-zinc-200 bg-white p-8 text-center text-ink-500">{children}</p>;
+  return <p className="rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center text-ink-500">{children}</p>;
 }
 
 /** Bannière verte d'appel à l'action (bas de page). */

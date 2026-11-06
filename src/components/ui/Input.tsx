@@ -9,11 +9,11 @@ export type FieldAppearance = "filled" | "outline";
 
 /** « filled » : fond gris (formulaires de l'app) ; « outline » : fond blanc bordé (connexion). */
 export const controlClasses = (hasError: boolean, className = "", appearance: FieldAppearance = "filled") =>
-  `w-full rounded-xl border px-3.5 py-3 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-500/60 focus:border-brand-600 focus:bg-white focus:ring-2 focus:ring-brand-100 disabled:opacity-60 ${
+  `w-full rounded-[10px] border px-3.5 py-3 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-500/60 focus:border-brand-600 focus:bg-white focus:ring-2 focus:ring-brand-100 disabled:opacity-60 ${
     hasError
       ? "border-red-500 bg-red-50/40"
       : appearance === "outline"
-        ? "border-zinc-200 bg-white"
+        ? "border-slate-200 bg-white"
         : "border-transparent bg-background"
   } ${className}`;
 

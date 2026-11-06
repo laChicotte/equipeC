@@ -102,10 +102,10 @@ function Section({
   return (
     <section
       id={id}
-      className="grid scroll-mt-24 gap-6 rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] sm:p-8 lg:grid-cols-[16rem_1fr] lg:gap-12"
+      className="grid scroll-mt-24 gap-6 rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] sm:p-8 lg:grid-cols-[16rem_1fr] lg:gap-12"
     >
       <div>
-        <span className="inline-flex size-9 items-center justify-center rounded-lg border border-zinc-200 text-xs font-semibold text-ink-500">
+        <span className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-xs font-semibold text-ink-500">
           {number}
         </span>
         <h2 className="mt-4 text-xl font-bold">{title}</h2>
@@ -276,7 +276,7 @@ function SkillsInput({
   const label = isMentor ? "Compétences précises" : "Besoins précis";
 
   return (
-    <div className="flex flex-col gap-3 border-t border-zinc-100 pt-5">
+    <div className="flex flex-col gap-3 border-t border-slate-100 pt-5">
       <div>
         <p className="text-sm font-semibold text-ink-900">{label}</p>
         <p className="text-xs text-ink-500">
@@ -353,7 +353,7 @@ function SkillsInput({
               key={s}
               type="button"
               onClick={() => add(s)}
-              className="rounded-full border border-dashed border-zinc-300 px-3 py-1 text-xs text-ink-700 transition-colors hover:border-brand-600 hover:text-brand-700"
+              className="rounded-full border border-dashed border-slate-300 px-3 py-1 text-xs text-ink-700 transition-colors hover:border-brand-600 hover:text-brand-700"
             >
               + {s}
             </button>
@@ -488,7 +488,7 @@ export function ProfileForm({ profile, domains, selectedDomainIds, mode, email, 
             </div>
 
             {/* Interrupteur de disponibilité (case à cocher stylée) */}
-            <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-zinc-100 bg-background p-5">
+            <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-background p-5">
               <span>
                 <span className="flex flex-wrap items-center gap-2 font-semibold">
                   Accepter de nouvelles demandes de mentorat
@@ -501,7 +501,7 @@ export function ProfileForm({ profile, domains, selectedDomainIds, mode, email, 
               <input type="checkbox" name="is_available" defaultChecked={profile.is_available} className="peer sr-only" />
               <span
                 aria-hidden
-                className="relative h-7 w-12 shrink-0 rounded-full bg-zinc-300 transition-colors peer-checked:bg-brand-600 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-600 after:absolute after:top-1 after:left-1 after:size-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5"
+                className="relative h-7 w-12 shrink-0 rounded-full bg-slate-300 transition-colors peer-checked:bg-brand-600 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-600 after:absolute after:top-1 after:left-1 after:size-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5"
               />
             </label>
           </Section>
@@ -526,7 +526,7 @@ export function ProfileForm({ profile, domains, selectedDomainIds, mode, email, 
                       defaultChecked={profile.mentee_status === status}
                       className="peer sr-only"
                     />
-                    <span className="flex h-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-4 text-sm transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-brand-600">
+                    <span className="flex h-full items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-brand-600">
                       <span aria-hidden className="text-xl">{STATUS_ICONS[status]}</span>
                       <span className="font-medium">{MENTEE_STATUS_LABELS[status]}</span>
                     </span>
@@ -573,7 +573,7 @@ export function ProfileForm({ profile, domains, selectedDomainIds, mode, email, 
                     defaultChecked={selectedDomainIds.includes(domain.id)}
                     className="peer sr-only"
                   />
-                  <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-ink-700 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-brand-600">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-ink-700 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-brand-600">
                     {DOMAIN_SHORT_LABELS[domain.slug] ?? domain.name}
                     <span aria-hidden className="text-ink-500 group-has-checked:hidden">+</span>
                     <span aria-hidden className="hidden group-has-checked:inline">✓</span>
@@ -620,7 +620,7 @@ export function ProfileForm({ profile, domains, selectedDomainIds, mode, email, 
       {extra}
 
       {/* Barre d'enregistrement, toujours visible en bas de l'écran */}
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-zinc-100 bg-white/95 p-3 pl-5 shadow-[0_10px_40px_-10px_rgba(23,43,69,0.3)] backdrop-blur">
+      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-slate-100 bg-white/95 p-3 pl-5 shadow-[0_10px_40px_-10px_rgba(23,43,69,0.3)] backdrop-blur">
         <p role={state.error ? "alert" : "status"} className="flex min-w-0 flex-1 items-center gap-2.5 text-sm font-medium">
           {state.error && !dirty ? (
             <>
@@ -650,7 +650,7 @@ export function ProfileForm({ profile, domains, selectedDomainIds, mode, email, 
             <button
               type="button"
               onClick={cancel}
-              className="rounded-xl px-4 py-3 text-sm font-semibold text-ink-500 transition-colors hover:bg-zinc-100 hover:text-ink-900"
+              className="rounded-xl px-4 py-3 text-sm font-semibold text-ink-500 transition-colors hover:bg-slate-100 hover:text-ink-900"
             >
               Annuler
             </button>

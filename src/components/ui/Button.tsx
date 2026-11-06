@@ -7,11 +7,11 @@ type Variant = "primary" | "secondary" | "ghost" | "dark";
 // Retour visuel : léger enfoncement au clic, ombre au survol (désactivés si
 // l'utilisateur demande moins d'animations, voir globals.css).
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500";
+  "inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-brand-600 text-white shadow-sm shadow-brand-600/20 hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/25",
-  secondary: "border border-slate-200 bg-white text-ink-900 hover:border-slate-300 hover:bg-slate-50",
+  primary: "bg-brand-700 text-white shadow-sm shadow-brand-700/20 hover:bg-brand-800 hover:shadow-md hover:shadow-brand-700/25",
+  secondary: "border border-slate-200 bg-white text-ink-900 hover:border-brand-200 hover:bg-brand-50/60 hover:text-brand-800",
   ghost: "text-ink-700 hover:bg-slate-100",
   dark: "bg-ink-900 text-white hover:bg-ink-800",
 };

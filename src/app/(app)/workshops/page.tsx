@@ -60,8 +60,8 @@ function StatusBadge({ w }: { w: WorkshopView }) {
           : w.isRegistered
             ? ["✓ Inscrit(e)", "bg-brand-600 text-white"]
             : full
-              ? ["Complet", "bg-zinc-100 text-ink-500"]
-              : [`${plural(left, "place")} restante${left > 1 ? "s" : ""}`, "bg-zinc-100 text-ink-500"];
+              ? ["Complet", "bg-slate-100 text-ink-500"]
+              : [`${plural(left, "place")} restante${left > 1 ? "s" : ""}`, "bg-slate-100 text-ink-500"];
   return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${style}`}>{label}</span>;
 }
 
@@ -118,7 +118,7 @@ function WorkshopCard({ w }: { w: WorkshopView }) {
           {w.isHost && w.participants.length > 0 && <> · {w.participants.join(", ")}</>}
         </p>
         {active && (
-          <div className="mt-6 flex flex-wrap items-center justify-end gap-3 border-t border-zinc-100 pt-5">
+          <div className="mt-6 flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-5">
             {w.meetingUrl &&
               (w.phase === "live" ? (
                 <a
@@ -235,7 +235,7 @@ export default async function WorkshopsPage({ searchParams }: PageProps<"/worksh
       {past.length > 0 && (
         <>
           <h2 className="mt-10 mb-4 text-xl font-bold">Ateliers passés</h2>
-          <ul className="divide-y divide-zinc-100 rounded-3xl border border-zinc-100 bg-white">
+          <ul className="divide-y divide-slate-100 rounded-3xl border border-slate-100 bg-white">
             {past.map((w) => (
               <li key={w.id} className="flex flex-wrap items-center justify-between gap-2 px-6 py-4 text-sm">
                 <span className="min-w-0">

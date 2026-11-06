@@ -73,10 +73,10 @@ function ReviewsSection({
   return (
     <section
       id="section-avis"
-      className="grid gap-6 rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] sm:p-8 lg:grid-cols-[16rem_1fr] lg:gap-12"
+      className="grid gap-6 rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] sm:p-8 lg:grid-cols-[16rem_1fr] lg:gap-12"
     >
       <div>
-        <span className="inline-flex size-9 items-center justify-center rounded-lg border border-zinc-200 text-xs font-semibold text-ink-500">
+        <span className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-xs font-semibold text-ink-500">
           05
         </span>
         <h2 className="mt-4 text-xl font-bold">Avis & impact</h2>
@@ -91,7 +91,7 @@ function ReviewsSection({
           <div>
             <p aria-label={rating ? `${rating.avg} sur 5` : "Pas encore noté"} className="text-accent-400">
               {"★".repeat(Math.round(rating?.avg ?? 0))}
-              <span className="text-zinc-200">{"★".repeat(5 - Math.round(rating?.avg ?? 0))}</span>
+              <span className="text-slate-200">{"★".repeat(5 - Math.round(rating?.avg ?? 0))}</span>
             </p>
             <p className="text-xs text-ink-500">
               {rating ? `${rating.count} avis de mentoré${rating.count > 1 ? "s" : ""}` : "Aucun avis pour l'instant"}
@@ -192,7 +192,7 @@ export default async function ProfilePage() {
       />
 
       {/* Carte d'identité */}
-      <section className="relative mb-6 overflow-hidden rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] sm:p-8">
+      <section className="relative mb-6 overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] sm:p-8">
         <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-brand-50 blur-3xl" />
         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center">
           <div className="flex flex-1 flex-col gap-6 sm:flex-row sm:items-center">
@@ -211,10 +211,10 @@ export default async function ProfilePage() {
               <h2 className="truncate text-2xl font-bold sm:text-3xl">{profile.full_name}</h2>
               <span
                 className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-                  statusPill.on ? "bg-brand-100 text-brand-800" : "bg-zinc-100 text-ink-500"
+                  statusPill.on ? "bg-brand-100 text-brand-800" : "bg-slate-100 text-ink-500"
                 }`}
               >
-                <span aria-hidden className={`size-1.5 rounded-full ${statusPill.on ? "bg-brand-600" : "bg-zinc-400"}`} />
+                <span aria-hidden className={`size-1.5 rounded-full ${statusPill.on ? "bg-brand-600" : "bg-slate-400"}`} />
                 {statusPill.label}
               </span>
               {subtitle && <p className="mt-2 text-ink-500">{subtitle}</p>}
@@ -222,7 +222,7 @@ export default async function ProfilePage() {
                 {isMentor && (
                   <Link
                     href={`/mentors/${profile.id}`}
-                    className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-ink-900 transition-colors hover:bg-zinc-50"
+                    className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-ink-900 transition-colors hover:bg-slate-50"
                   >
                     <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
                       <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" strokeLinecap="round" />

@@ -14,7 +14,7 @@ const NEXT_STATUS: Record<GoalStatus, GoalStatus> = {
 };
 
 const STATUS_UI: Record<GoalStatus, { label: string; icon: string; className: string }> = {
-  todo: { label: "À faire", icon: "○", className: "border-zinc-300 text-ink-500" },
+  todo: { label: "À faire", icon: "○", className: "border-slate-300 text-ink-500" },
   in_progress: { label: "En cours", icon: "◐", className: "border-amber-400 bg-amber-50 text-amber-700" },
   done: { label: "Fait", icon: "✓", className: "border-brand-600 bg-brand-600 text-white" },
 };
@@ -52,7 +52,7 @@ function GoalRow({ goal, canEdit }: { goal: GoalView; canEdit: boolean }) {
       )}
 
       <div className="min-w-0 flex-1">
-        <p className={`text-sm break-words ${goal.status === "done" ? "text-zinc-400 line-through" : ""}`}>
+        <p className={`text-sm break-words ${goal.status === "done" ? "text-slate-400 line-through" : ""}`}>
           {goal.title}
         </p>
         <p className="text-xs text-ink-500">
@@ -72,7 +72,7 @@ function GoalRow({ goal, canEdit }: { goal: GoalView; canEdit: boolean }) {
           <input type="hidden" name="mentorship_id" value={goal.mentorship_id} />
           <button
             aria-label={`Supprimer l'objectif « ${goal.title} »`}
-            className="rounded px-1.5 text-zinc-400 opacity-60 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 focus-visible:opacity-100"
+            className="rounded px-1.5 text-slate-400 opacity-60 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 focus-visible:opacity-100"
           >
             ×
           </button>
@@ -115,7 +115,7 @@ export async function GoalsPanel({
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={percent}
-          className="mb-3 h-2.5 overflow-hidden rounded-full bg-zinc-100"
+          className="mb-3 h-2.5 overflow-hidden rounded-full bg-slate-100"
         >
           <div
             className="h-full rounded-full bg-brand-600 transition-[width] duration-500"
@@ -125,7 +125,7 @@ export async function GoalsPanel({
       )}
 
       {total > 0 ? (
-        <ul className="mb-3 divide-y divide-zinc-100">
+        <ul className="mb-3 divide-y divide-slate-100">
           {goals.map((goal) => (
             <GoalRow key={goal.id} goal={goal} canEdit={canEdit} />
           ))}

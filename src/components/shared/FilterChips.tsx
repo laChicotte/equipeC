@@ -25,7 +25,7 @@ export function FilterChips({ chips, label, scroll = false }: { chips: Chip[]; l
           className={`shrink-0 rounded-full border px-4 py-2 text-sm whitespace-nowrap transition-colors ${
             chip.active
               ? "border-ink-900 bg-ink-900 font-medium text-white"
-              : "border-zinc-200 bg-white text-ink-700 hover:border-brand-600 hover:text-brand-700"
+              : "border-slate-200 bg-white text-ink-700 hover:border-brand-600 hover:text-brand-700"
           }`}
         >
           {chip.label}

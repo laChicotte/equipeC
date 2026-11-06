@@ -62,7 +62,7 @@ export default function CharterPage() {
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {SECTIONS.map((s) => (
-            <section key={s.eyebrow} className="rounded-3xl border border-zinc-200 p-7">
+            <section key={s.eyebrow} className="rounded-3xl border border-slate-200 p-7">
               <p className="eyebrow">{s.eyebrow}</p>
               <h2 className="mt-3 text-xl font-bold">{s.title}</h2>
               <ul className="mt-5 flex flex-col gap-3">

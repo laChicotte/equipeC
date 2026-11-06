@@ -64,7 +64,7 @@ export async function SessionsPanel({
       )}
 
       {isActive && (
-        <details className="group rounded-xl border border-zinc-200 p-3" open={sessions.length === 0}>
+        <details className="group rounded-xl border border-slate-200 p-3" open={sessions.length === 0}>
           <summary className="cursor-pointer text-sm font-medium text-brand-700">
             + Planifier une séance en visio
           </summary>

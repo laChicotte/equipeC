@@ -32,7 +32,7 @@
   --color-ink-700: #334155;
   --color-ink-800: #1e293b;
   --color-ink-900: #0f172a;
-  --color-ink-950: #020617;
+  --color-ink-950: #0f172a; /* bleu nuit de la charte (blocs sombres) */
 
   --color-accent-50: #ecfdf5;
   --color-accent-300: #6ee7b7;
@@ -43,19 +43,21 @@
   --color-paper: #f8fafc;
   --color-paper-200: #e2e8f0;
 
-  --font-sans: var(--font-jakarta);
-  --font-display: var(--font-jakarta);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 
   /* Design System (refonte) : ajouts sans effet sur les pages non migrées */
-  --font-ui: var(--font-inter), var(--font-jakarta), ui-sans-serif, sans-serif;
+  --font-ui: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --color-mint: #f0fdf4;
   --color-surface: #ffffff;
   --shadow-soft: 0 1px 2px rgb(15 23 42 / 0.04), 0 2px 8px -2px rgb(15 23 42 / 0.05);
   --shadow-soft-hover: 0 2px 4px rgb(15 23 42 / 0.05), 0 12px 24px -12px rgb(6 95 70 / 0.22);
 
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px -4px rgb(15 23 42 / 0.06);
-  --shadow-card-hover: 0 2px 4px rgb(15 23 42 / 0.04), 0 16px 32px -12px rgb(15 23 42 / 0.16);
+  /* Ombres discrètes de la charte ; arrondi des grandes cartes ramené à 20 px */
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 2px 8px -2px rgb(15 23 42 / 0.05);
+  --shadow-card-hover: 0 2px 4px rgb(15 23 42 / 0.05), 0 12px 24px -12px rgb(6 95 70 / 0.22);
+  --radius-3xl: 1.25rem;
 
   --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-float: float 6s ease-in-out infinite;
@@ -86,7 +88,8 @@ html {
 }
 
 body {
-  background: var(--color-background);
+  /* Fond clair de la charte (les tuiles internes gardent bg-background, gris) */
+  background: var(--color-mint);
   color: var(--color-foreground);
 }
 
@@ -96,7 +99,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-brand-600);
+  color: var(--color-brand-700);
 }
 
 /* Surlignage vert clair sous un mot (titres) */

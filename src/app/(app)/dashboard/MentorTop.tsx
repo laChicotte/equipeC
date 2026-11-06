@@ -9,7 +9,6 @@ import Link from "next/link";
 import type { ComponentType } from "react";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { ArrowRightIcon, CalendarIcon, CheckIcon, MessageIcon, SparkleIcon, UsersIcon } from "@/components/ui/icons";
-import { inter } from "@/lib/fonts";
 
 type Icon = ComponentType<{ className?: string }>;
 type Tone = "green" | "amber" | "blue" | "violet";
@@ -85,10 +84,7 @@ export function MentorTop({
   };
 
   return (
-    <div className={`${inter.variable} flex flex-col gap-6 font-ui sm:gap-8`}>
-      {/* Fond clair de la charte, sur toute la page du tableau de bord mentor */}
-      <div aria-hidden className="fixed inset-0 -z-10 bg-mint" />
-
+    <div className="flex flex-col gap-6 sm:gap-8">
       {/* 1. Bienvenue */}
       <header className="flex flex-wrap items-start justify-between gap-6">
         <div className="min-w-0">

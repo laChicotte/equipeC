@@ -24,7 +24,7 @@ const ROLES: { role: UserRole; title: string; icon: string; pitch: string }[] = 
  */
 export function RolesCard({ profile }: { profile: Profile }) {
   return (
-    <section className="mb-6 rounded-3xl border border-zinc-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] sm:p-8">
+    <section className="mb-6 rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_1px_3px_rgba(23,43,69,0.04)] sm:p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-lg font-bold">Mes rôles</h2>
         <p className="text-sm text-ink-500">Un seul compte, deux façons de participer.</p>
@@ -44,7 +44,7 @@ export function RolesCard({ profile }: { profile: Profile }) {
                 </p>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    active ? "bg-brand-600 text-white" : ready ? "bg-brand-50 text-brand-800" : "bg-zinc-200 text-ink-500"
+                    active ? "bg-brand-600 text-white" : ready ? "bg-brand-50 text-brand-800" : "bg-slate-200 text-ink-500"
                   }`}
                 >
                   {active ? (ready ? "Mode actif" : "Mode actif · à compléter") : ready ? "Profil complet" : "Non activé"}
@@ -54,7 +54,7 @@ export function RolesCard({ profile }: { profile: Profile }) {
               {!active && (
                 <form action={switchRole} className="mt-auto">
                   <input type="hidden" name="role" value={role} />
-                  <button className="w-full rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink-900 ring-1 ring-zinc-200 transition-colors hover:ring-ink-900">
+                  <button className="w-full rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink-900 ring-1 ring-slate-200 transition-colors hover:ring-ink-900">
                     {ready ? `Passer en mode ${title.toLowerCase()}` : `Devenir aussi ${title.toLowerCase()} →`}
                   </button>
                 </form>
