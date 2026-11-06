@@ -59,8 +59,9 @@ export default async function MentorshipsPage() {
             .filter((g) => g.items.length > 0)
             .map((group) => (
               <section key={group.title}>
-                <h2 className="mb-3 text-sm font-semibold tracking-wide text-ink-500 uppercase">
-                  {group.title} ({group.items.length})
+                <h2 className="mb-4 flex items-center gap-2 text-sm font-bold tracking-wide text-ink-700 uppercase">
+                  {group.title}
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ink-500">{group.items.length}</span>
                 </h2>
                 <div className="grid gap-4 lg:grid-cols-2">
                   {group.items.map((m) => (

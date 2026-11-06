@@ -6,7 +6,7 @@
 // Composant client : il connaît l'URL courante et gère tiroir et menu.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { logout } from "@/features/auth/actions";
 import { switchRole } from "@/features/profiles/actions";
 import { Avatar } from "@/components/ui/Avatar";
@@ -170,10 +170,10 @@ function SidebarContent({
                   href={item.href}
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
-                  className={`flex items-center gap-4 rounded-2xl px-4 py-2.5 text-[15px] transition-colors ${
+                  className={`relative flex items-center gap-4 rounded-2xl px-4 py-2.5 text-[15px] transition-colors duration-200 ${
                     active
-                      ? "bg-brand-50 font-semibold text-brand-700"
-                      : "text-ink-500 hover:bg-zinc-50 hover:text-ink-900"
+                      ? "bg-brand-50 font-semibold text-brand-700 before:absolute before:inset-y-2.5 before:left-0 before:w-1 before:rounded-full before:bg-brand-500"
+                      : "text-ink-500 hover:bg-slate-50 hover:text-ink-900"
                   }`}
                 >
                   {icon(item.icon)}
@@ -193,10 +193,11 @@ function SidebarContent({
 
       {/* Encadré d'aide (vert forêt) — masqué sur les écrans peu hauts */}
       <div className="px-5 pt-4 [@media(max-height:760px)]:hidden">
-        <div className="rounded-3xl bg-brand-900 p-5 text-white">
-          <span className="text-accent-400">{icon(ICONS.sparkle, "size-6")}</span>
-          <p className="mt-3 font-display text-lg font-semibold">Besoin d&apos;aide ?</p>
-          <p className="mt-1 text-sm text-white/70">
+        <div className="relative overflow-hidden rounded-3xl bg-ink-950 p-5 text-white">
+          <div aria-hidden className="absolute -top-12 -right-12 size-36 rounded-full bg-brand-500/35 blur-2xl" />
+          <span className="relative text-accent-400">{icon(ICONS.sparkle, "size-6")}</span>
+          <p className="relative mt-3 text-lg font-bold">Besoin d&apos;aide ?</p>
+          <p className="relative mt-1 text-sm text-white/70">
             {user?.isMentor
               ? "Partagez vos conseils avec toute la communauté."
               : "Nos mentors sont là pour vous accompagner."}
@@ -204,7 +205,7 @@ function SidebarContent({
           <Link
             href={user?.isMentor ? "/resources" : "/mentors"}
             onClick={onNavigate}
-            className="mt-4 block rounded-xl border border-white/20 bg-white/5 px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-white/10"
+            className="relative mt-4 block rounded-xl border border-white/20 bg-white/5 px-4 py-2.5 text-center text-sm font-medium transition-colors hover:bg-white/10"
           >
             {user?.isMentor ? "Partager une ressource" : "Trouver un mentor"}
           </Link>
@@ -213,7 +214,7 @@ function SidebarContent({
 
       {/* Compte : toujours visible en bas du menu (profil, déconnexion) */}
       {user && (
-        <div className="m-5 mt-4 flex items-center gap-3 rounded-2xl border border-zinc-100 p-3">
+        <div className="m-5 mt-4 flex items-center gap-3 rounded-2xl border border-slate-200/70 p-3">
           <Link href="/profile" onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-3" title="Mon profil">
             <Avatar name={user.fullName} src={user.avatarUrl} size="sm" />
             <span className="min-w-0 leading-tight">
@@ -258,19 +259,70 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const drawerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Tiroir mobile accessible : focus dans le menu à l'ouverture, Échap pour
+  // fermer, Tab qui reste dans le menu, page derrière non défilable, et focus
+  // rendu au bouton ☰ à la fermeture.
+  useEffect(() => {
+    if (!open) return;
+    const drawer = drawerRef.current;
+    const menuButton = menuButtonRef.current;
+    const focusables = () =>
+      Array.from(
+        drawer?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? [],
+      );
+    focusables()[0]?.focus();
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      menuButton?.focus();
+    };
+  }, [open]);
 
   return (
     <div className="flex min-h-full flex-1">
       {/* Ordinateur : barre latérale fixe */}
-      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 border-r border-zinc-100 bg-white lg:block">
+      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 border-r border-slate-200/70 bg-white lg:block">
         <SidebarContent user={user} badges={badges} />
       </aside>
 
       {/* Mobile : tiroir latéral */}
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-          <button aria-label="Fermer le menu" className="absolute inset-0 bg-ink-900/40" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-80 max-w-[85%] bg-white shadow-xl">
+          {/* Fond cliquable : retiré de l'ordre de tabulation (Échap ferme aussi le menu) */}
+          <button
+            aria-label="Fermer le menu"
+            tabIndex={-1}
+            className="absolute inset-0 bg-ink-900/40"
+            onClick={() => setOpen(false)}
+          />
+          <aside ref={drawerRef} className="absolute inset-y-0 left-0 w-80 max-w-[85%] overflow-y-auto bg-white shadow-xl">
             <SidebarContent user={user} badges={badges} onNavigate={() => setOpen(false)} />
           </aside>
         </div>
@@ -278,12 +330,13 @@ export function AppShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile uniquement : le compte, la déconnexion et les notifications sont dans la barre latérale */}
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-zinc-100 bg-white/95 px-4 py-3 backdrop-blur sm:px-8 lg:hidden">
+        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200/70 bg-white/95 px-4 py-3 backdrop-blur sm:px-8 lg:hidden">
           <button
+            ref={menuButtonRef}
             onClick={() => setOpen(true)}
             aria-label="Ouvrir le menu"
             aria-expanded={open}
-            className="-ml-1 rounded-xl p-2 text-ink-900 hover:bg-zinc-100 lg:hidden"
+            className="-ml-1 rounded-xl p-2 text-ink-900 hover:bg-slate-100 lg:hidden"
           >
             {icon(ICONS.menu)}
           </button>

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/features/auth/queries";
+import { isActiveMentee } from "@/features/profiles/roles";
 
 export type ActionState = { error?: string; fieldErrors?: Record<string, string[] | undefined> };
 
@@ -31,6 +32,12 @@ export async function requestMentorship(
   const profile = await getCurrentProfile();
   if (!profile) return { error: "Session expirée. Reconnectez-vous." };
   if (profile.role !== "mentee") return { error: "Seuls les mentorés peuvent envoyer une demande." };
+  // Même condition que la base (is_active_mentee) : profil de mentoré complet
+  if (!isActiveMentee(profile)) {
+    return {
+      error: "Complétez d'abord votre profil de mentoré (objectif et domaines) depuis « Mon profil », puis renvoyez votre demande.",
+    };
+  }
 
   const parsed = requestSchema.safeParse({
     mentor_id: formData.get("mentor_id"),
@@ -52,6 +59,7 @@ export async function requestMentorship(
   if (error) {
     // 23505 = violation d'unicité : une demande active existe déjà
     if (error.code === "23505") return { error: "Vous avez déjà une demande en cours avec ce mentor." };
+    console.error("[mentorat] demande refusée par la base", error.code, error.message);
     return { error: "La demande n'a pas pu être envoyée. Ce mentor accepte-t-il encore des demandes ?" };
   }
 

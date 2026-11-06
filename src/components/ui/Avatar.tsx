@@ -7,6 +7,8 @@ const SIZES = {
   card: { box: "size-20 text-2xl", px: 80 },
   xl: { box: "size-28 text-4xl", px: 112 },
   "2xl": { box: "size-36 text-5xl sm:size-44", px: 176 },
+  // Fiche mentor : compact sur mobile, grand à partir de la tablette
+  profile: { box: "size-20 text-3xl sm:size-36 sm:text-5xl lg:size-44", px: 176 },
 } as const;
 
 /**

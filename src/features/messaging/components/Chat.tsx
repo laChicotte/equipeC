@@ -15,7 +15,17 @@ type Props = {
   initialMessages: Message[];
   /** false si le mentorat est terminé : historique en lecture seule */
   canWrite: boolean;
+  /** Interlocuteur affiché dans l'en-tête de la discussion */
+  partner?: { name: string; avatarUrl: string | null; subtitle?: string };
 };
+
+/** Icône « envoyer » (avion en papier). */
+const SendIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 3 10.5 13.5" />
+    <path d="m21 3-6.5 18-4-7.5L3 9.5Z" />
+  </svg>
+);
 
 const MAX_LENGTH = 2000;
 
@@ -26,7 +36,7 @@ function addMessage(list: Message[], message: Message) {
   return [...list, message].sort((a, b) => a.id - b.id);
 }
 
-export function Chat({ mentorshipId, currentUserId, names, initialMessages, canWrite }: Props) {
+export function Chat({ mentorshipId, currentUserId, names, initialMessages, canWrite, partner }: Props) {
   // Un seul client Supabase navigateur pour toute la vie du composant
   const supabase = useMemo(() => createClient(), []);
   const [messages, setMessages] = useState(initialMessages);
@@ -81,9 +91,11 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
     };
   }, [supabase, mentorshipId]);
 
-  // Faire défiler jusqu'au dernier message
+  // Faire défiler jusqu'au dernier message (sans animation au premier affichage)
+  const firstScroll = useRef(true);
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
+    bottomRef.current?.scrollIntoView({ block: "end", behavior: firstScroll.current ? "auto" : "smooth" });
+    firstScroll.current = false;
   }, [messages.length]);
 
   async function send(event?: FormEvent) {
@@ -118,27 +130,40 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
   }
 
   return (
-    <section className="flex flex-col overflow-hidden rounded-3xl border border-zinc-100 bg-white shadow-[0_1px_3px_rgba(23,43,69,0.04)]">
-      <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
-        <h2 className="font-semibold">Discussion</h2>
-        <span className="flex items-center gap-1.5 text-xs text-ink-500">
-          <span
-            aria-hidden
-            className={`size-2 rounded-full ${live ? "bg-brand-600" : "bg-zinc-300"}`}
-          />
+    <section className="flex flex-col overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-card">
+      {/* En-tête : interlocuteur + état de la connexion temps réel */}
+      <header className="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
+        {partner && <Avatar name={partner.name} src={partner.avatarUrl} size="md" />}
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate font-bold text-ink-900">{partner?.name ?? "Discussion"}</h2>
+          {partner?.subtitle && <p className="truncate text-xs text-ink-500">{partner.subtitle}</p>}
+        </div>
+        <span
+          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+            live ? "bg-brand-50 text-brand-700" : "bg-slate-100 text-ink-500"
+          }`}
+        >
+          <span aria-hidden className="relative flex size-2">
+            {live && <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent-400 opacity-60" />}
+            <span className={`relative inline-flex size-2 rounded-full ${live ? "bg-accent-400" : "bg-slate-300"}`} />
+          </span>
           {live ? "En direct" : "Connexion…"}
         </span>
       </header>
 
       <div
-        className="flex h-[55vh] min-h-72 flex-col gap-1 overflow-y-auto bg-zinc-50 px-4 py-4"
+        className="flex h-[58vh] min-h-80 flex-col overflow-y-auto bg-gradient-to-b from-slate-50 to-white px-4 py-5 sm:px-6"
         aria-live="polite"
         aria-label="Messages"
       >
         {messages.length === 0 && (
-          <p className="m-auto max-w-xs text-center text-sm text-ink-500">
-            Aucun message pour l&apos;instant. Présentez-vous et proposez un premier échange !
-          </p>
+          <div className="m-auto flex max-w-xs flex-col items-center text-center">
+            <span className="flex size-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
+              <SendIcon />
+            </span>
+            <p className="mt-4 font-semibold text-ink-900">Aucun message pour l&apos;instant</p>
+            <p className="mt-1 text-sm text-ink-500">Présentez-vous et proposez un premier échange !</p>
+          </div>
         )}
 
         {messages.map((message, index) => {
@@ -151,32 +176,36 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
           return (
             <div key={message.id}>
               {newDay && (
-                <p className="my-3 text-center text-xs font-medium text-ink-500 first-letter:uppercase">
-                  {formatDay(message.created_at)}
+                <p className="my-4 flex items-center gap-3 text-xs font-medium text-ink-500 first-letter:uppercase">
+                  <span aria-hidden className="h-px flex-1 bg-slate-200" />
+                  <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200/70">
+                    {formatDay(message.created_at)}
+                  </span>
+                  <span aria-hidden className="h-px flex-1 bg-slate-200" />
                 </p>
               )}
               <div
-                className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : ""} ${
-                  sameSenderAsPrevious ? "mt-0.5" : "mt-3"
+                className={`flex animate-fade-up items-end gap-2 [animation-duration:300ms] ${mine ? "flex-row-reverse" : ""} ${
+                  sameSenderAsPrevious ? "mt-1" : "mt-4"
                 }`}
               >
                 {!mine && (
                   <span className={sameSenderAsPrevious ? "invisible" : ""}>
-                    <Avatar name={name} size="sm" />
+                    <Avatar name={name} src={partner && name === partner.name ? partner.avatarUrl : null} size="sm" />
                   </span>
                 )}
                 <div
-                  className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-sm ${
+                  className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed sm:max-w-[70%] ${
                     mine
-                      ? "rounded-br-md bg-brand-600 text-white"
-                      : "rounded-bl-md bg-white text-ink-700 ring-1 ring-zinc-200"
+                      ? "rounded-2xl rounded-br-md bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-sm shadow-brand-600/20"
+                      : "rounded-2xl rounded-bl-md bg-white text-ink-800 shadow-sm ring-1 ring-slate-200/70"
                   }`}
                 >
                   {!mine && !sameSenderAsPrevious && (
-                    <p className="mb-0.5 text-xs font-semibold text-brand-700">{name}</p>
+                    <p className="mb-0.5 text-xs font-semibold text-brand-600">{name}</p>
                   )}
                   <p className="break-words whitespace-pre-wrap">{message.content}</p>
-                  <p className={`mt-1 text-right text-[11px] ${mine ? "text-white/70" : "text-zinc-400"}`}>
+                  <p className={`mt-1 text-right text-[11px] ${mine ? "text-white/70" : "text-slate-400"}`}>
                     <time dateTime={message.created_at}>{formatTime(message.created_at)}</time>
                   </p>
                 </div>
@@ -188,31 +217,42 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
       </div>
 
       {canWrite ? (
-        <form onSubmit={send} className="flex items-end gap-2 border-t border-zinc-200 p-3">
-          <label htmlFor="chat-input" className="sr-only">
-            Votre message
-          </label>
-          <textarea
-            id="chat-input"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={onKeyDown}
-            maxLength={MAX_LENGTH}
-            rows={1}
-            placeholder="Écrire un message…"
-            className="max-h-40 min-h-11 flex-1 resize-y rounded-xl border border-zinc-300 px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
-          />
-          <Button type="submit" disabled={sending || !draft.trim()}>
-            {sending ? "…" : "Envoyer"}
-          </Button>
+        <form onSubmit={send} className="border-t border-slate-100 bg-white p-3 sm:p-4">
+          <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1.5 transition-colors focus-within:border-brand-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100">
+            <label htmlFor="chat-input" className="sr-only">
+              Votre message
+            </label>
+            <textarea
+              id="chat-input"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={onKeyDown}
+              maxLength={MAX_LENGTH}
+              rows={1}
+              placeholder="Écrire un message…"
+              className="max-h-40 min-h-10 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-ink-500/70"
+            />
+            <Button
+              type="submit"
+              loading={sending}
+              disabled={!draft.trim()}
+              aria-label="Envoyer le message"
+              className="size-10 shrink-0 rounded-xl p-0!"
+            >
+              {!sending && <SendIcon />}
+            </Button>
+          </div>
+          <p className="mt-1.5 hidden px-1 text-[11px] text-ink-500 sm:block">
+            Entrée pour envoyer · Maj + Entrée pour aller à la ligne
+          </p>
         </form>
       ) : (
-        <p className="border-t border-zinc-200 p-3 text-center text-sm text-ink-500">
+        <p className="border-t border-slate-100 p-4 text-center text-sm text-ink-500">
           Ce mentorat est terminé : la conversation est en lecture seule.
         </p>
       )}
       {error && (
-        <p role="alert" className="px-3 pb-3 text-sm text-red-600">
+        <p role="alert" className="px-4 pb-3 text-sm text-red-600">
           {error}
         </p>
       )}

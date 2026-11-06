@@ -13,6 +13,8 @@ const LINKS = [
   { href: "/mentors", label: "Nos mentors" },
 ];
 
+// Liens du menu : trait vert qui se déploie sous le lien au survol (et au focus clavier)
+
 /** En-tête des pages publiques : menu horizontal (ordinateur) ou tiroir (mobile). */
 export function PublicHeader({ loggedIn }: { loggedIn: boolean }) {
   const [open, setOpen] = useState(false);
@@ -26,12 +28,12 @@ export function PublicHeader({ loggedIn }: { loggedIn: boolean }) {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-paper-200/80 bg-paper/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-8">
         <Logo />
         <nav aria-label="Navigation principale" className="hidden items-center gap-8 text-[15px] font-medium text-ink-700 lg:flex">
           {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="transition-colors hover:text-brand-700">
+            <Link key={l.href} href={l.href} className="relative transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-brand-600 after:transition-transform after:duration-300 hover:text-brand-700 hover:after:scale-x-100 focus-visible:after:scale-x-100 motion-reduce:after:transition-none">
               {l.label}
             </Link>
           ))}
@@ -43,7 +45,7 @@ export function PublicHeader({ loggedIn }: { loggedIn: boolean }) {
               <ButtonLink href="/dashboard">Mon espace</ButtonLink>
             ) : (
               <>
-                <Link href="/login" className="px-2 font-semibold text-ink-900 hover:text-brand-700">
+                <Link href="/login" className="mx-2 font-semibold text-ink-900 relative transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-brand-600 after:transition-transform after:duration-300 hover:text-brand-700 hover:after:scale-x-100 focus-visible:after:scale-x-100 motion-reduce:after:transition-none">
                   Se connecter
                 </Link>
                 <ButtonLink href="/signup">Commencer</ButtonLink>
@@ -56,7 +58,7 @@ export function PublicHeader({ loggedIn }: { loggedIn: boolean }) {
             aria-expanded={open}
             aria-controls="menu-mobile"
             aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
-            className="inline-flex size-11 items-center justify-center rounded-xl text-ink-900 hover:bg-paper-200 focus-visible:outline-2 focus-visible:outline-brand-600 lg:hidden"
+            className="inline-flex size-11 items-center justify-center rounded-xl text-ink-900 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-brand-600 lg:hidden"
           >
             {open ? <CloseIcon className="size-6" /> : <MenuIcon className="size-6" />}
           </button>
@@ -67,7 +69,7 @@ export function PublicHeader({ loggedIn }: { loggedIn: boolean }) {
         <nav
           id="menu-mobile"
           aria-label="Navigation principale"
-          className="border-t border-paper-200 bg-paper px-4 pt-2 pb-6 sm:px-8 lg:hidden"
+          className="border-t border-slate-200 bg-white px-4 pt-2 pb-6 sm:px-8 lg:hidden"
         >
           <ul className="flex flex-col">
             {LINKS.map((l) => (
@@ -75,7 +77,7 @@ export function PublicHeader({ loggedIn }: { loggedIn: boolean }) {
                 <Link
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className="block border-b border-paper-200 py-4 text-lg font-semibold text-ink-900"
+                  className="block border-b border-slate-100 py-4 text-lg font-semibold text-ink-900"
                 >
                   {l.label}
                 </Link>

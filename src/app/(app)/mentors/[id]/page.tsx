@@ -15,14 +15,10 @@ import { RequestForm } from "@/features/mentorship/components/RequestForm";
 import { CAMPUS_FRANCE_NOTICE, DOMAIN_SHORT_LABELS } from "@/features/profiles/labels";
 import { ButtonLink } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
+import { ArrowLeftIcon, CheckIcon, SparkleIcon, StarIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Profil du mentor · MentorConnect" };
 
-const sparkle = (
-  <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="currentColor">
-    <path d="M12 3c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7ZM19 15c.3 1.9 1.1 2.7 3 3-1.9.3-2.7 1.1-3 3-.3-1.9-1.1-2.7-3-3 1.9-.3 2.7-1.1 3-3Z" />
-  </svg>
-);
 const clock = (
   <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
     <circle cx="12" cy="12" r="9" />
@@ -33,8 +29,8 @@ const clock = (
 /** Carte d'action (droite) : bloc gris arrondi de la maquette. */
 function ActionPanel({ eyebrow, title, children }: { eyebrow: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-3xl bg-background p-6 sm:p-7">
-      <p className="text-[11px] font-bold tracking-[0.1em] text-brand-700 uppercase">{eyebrow}</p>
+    <div className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-card sm:p-7">
+      <p className="text-[11px] font-bold tracking-[0.1em] text-brand-600 uppercase">{eyebrow}</p>
       <p className="mt-2 mb-5 text-xl font-bold">{title}</p>
       {children}
     </div>
@@ -64,45 +60,78 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
       : "Nouveau mentor",
     mentor.years_experience !== null ? `${mentor.years_experience} ans d'expérience` : null,
     mentor.city,
-  ].filter(Boolean);
+  ].filter(Boolean) as string[];
+  // Bouton « Demander » visible en permanence sur mobile (barre fixe en bas)
+  const canRequest = isMentee && !activeRequest && mentor.is_available;
+  const showScore = compatibility && compatibility.score >= 20;
 
   return (
-    <article className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_60px_-20px_rgba(23,43,69,0.25)]">
-      {/* En-tête gris */}
-      <header className="relative flex flex-col gap-6 bg-background p-6 sm:flex-row sm:items-center sm:p-12">
-        <Link
-          href="/mentors"
-          aria-label="Fermer et revenir aux mentors"
-          className="absolute top-5 right-5 inline-flex size-12 items-center justify-center rounded-full bg-white text-ink-900 shadow-sm transition-colors hover:bg-zinc-100 sm:top-6 sm:right-6"
-        >
-          <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={2}>
-            <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />
-          </svg>
-        </Link>
+    <article className={`mx-auto max-w-6xl ${canRequest ? "pb-24 lg:pb-0" : ""}`}>
+      <Link
+        href="/mentors"
+        className="group mb-5 inline-flex items-center gap-2 text-sm font-semibold text-ink-500 transition-colors hover:text-ink-900"
+      >
+        <ArrowLeftIcon className="size-4 transition-transform group-hover:-translate-x-0.5" />
+        Tous les mentors
+      </Link>
 
-        <Avatar
-          name={mentor.full_name}
-          src={mentor.avatar_url}
-          size="2xl"
-          rounded="3xl"
-          className="bg-gradient-to-br from-brand-100 to-brand-200 font-extrabold"
-        />
-        <div className="min-w-0 pr-12">
-          {compatibility && compatibility.score >= 20 && (
-            <p className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-700" title={compatibility.reasons.join(" · ")}>
-              {sparkle} {compatibility.score}% compatible
+      {/* En-tête : bandeau bleu nuit, halo émeraude */}
+      <header className="relative overflow-hidden rounded-[2rem] bg-ink-950 p-6 text-white sm:p-10">
+        <div aria-hidden className="absolute -top-24 -right-16 size-80 rounded-full bg-brand-500/30 blur-[90px]" />
+        <div aria-hidden className="absolute -bottom-32 left-10 size-72 rounded-full bg-accent-400/15 blur-[90px]" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+          <Avatar
+            name={mentor.full_name}
+            src={mentor.avatar_url}
+            size="profile"
+            rounded="3xl"
+            className="bg-gradient-to-br from-brand-400 to-brand-600 font-extrabold text-white ring-4 ring-white/10"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/80">
+              <span aria-hidden className={`size-2 rounded-full ${mentor.is_available ? "bg-accent-400" : "bg-slate-400"}`} />
+              {mentor.is_available ? "Accepte de nouveaux mentorés" : "Complet pour le moment"}
             </p>
+            <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">{mentor.full_name}</h1>
+            {subtitle && <p className="mt-1.5 text-lg text-white/70">{subtitle}</p>}
+            <ul className="mt-4 flex flex-wrap gap-2 text-sm">
+              {stats.map((stat, i) => (
+                <li key={stat} className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-white/85">
+                  {i === 0 && <StarIcon className="size-3.5 text-amber-400" />}
+                  {stat}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {showScore && (
+            <div className="w-full shrink-0 rounded-2xl bg-white/10 p-4 backdrop-blur sm:w-56" title={compatibility.reasons.join(" · ")}>
+              <p className="flex items-center justify-between text-sm font-semibold">
+                <span className="inline-flex items-center gap-1.5 text-white/80">
+                  <SparkleIcon className="size-4 text-accent-400" /> Compatibilité
+                </span>
+                <span className="text-xl font-extrabold">{compatibility.score}%</span>
+              </p>
+              <div
+                role="progressbar"
+                aria-label="Compatibilité"
+                aria-valuenow={compatibility.score}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                className="mt-3 h-2 overflow-hidden rounded-full bg-white/15"
+              >
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-brand-400 to-accent-300"
+                  style={{ width: `${Math.min(compatibility.score, 100)}%` }}
+                />
+              </div>
+            </div>
           )}
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{mentor.full_name}</h1>
-          {subtitle && <p className="mt-2 text-lg text-ink-500 sm:text-xl">{subtitle}</p>}
-          <p className="mt-4 inline-flex flex-wrap items-center gap-x-2 text-ink-700">
-            <span aria-hidden className="text-lg text-accent-400">★</span>
-            {stats.join(" · ")}
-          </p>
         </div>
       </header>
 
-      <div className="grid gap-10 p-6 sm:p-12 lg:grid-cols-[1.3fr_1fr]">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
+        <div className="rounded-[2rem] border border-slate-200/70 bg-white p-6 shadow-card sm:p-10">
         {/* À propos + expertises */}
         <div>
           <h2 className="text-xl font-bold">À propos</h2>
@@ -118,7 +147,7 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
                 key={d.id}
                 href={`/mentors?domain=${d.slug}`}
                 title={d.name}
-                className="rounded-full border border-zinc-200 px-5 py-2.5 text-sm text-ink-700 transition-colors hover:border-ink-900"
+                className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-ink-700 transition-colors hover:border-brand-500 hover:text-brand-700"
               >
                 {DOMAIN_SHORT_LABELS[d.slug] ?? d.name}
               </Link>
@@ -132,7 +161,7 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
                   <li key={skill}>
                     <Link
                       href={`/mentors?q=${encodeURIComponent(skill)}`}
-                      className="inline-block rounded-full bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-800 ring-1 ring-brand-100 ring-inset hover:bg-brand-100"
+                      className="inline-block rounded-full bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-700 ring-1 ring-brand-100 ring-inset transition-colors hover:bg-brand-100"
                     >
                       {skill}
                     </Link>
@@ -143,7 +172,7 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
           )}
 
           {/* Engagements de tout mentor (cahier des charges : profil des mentors) */}
-          <div className="mt-8 rounded-2xl border border-zinc-100 p-5">
+          <div className="mt-8 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200/70">
             <h2 className="text-base font-bold">Les engagements de chaque mentor</h2>
             <ul className="mt-3 grid gap-2 text-sm text-ink-700 sm:grid-cols-2">
               {[
@@ -153,7 +182,7 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
                 "Vous aider à décider par vous-même, sans faire à votre place",
               ].map((item) => (
                 <li key={item} className="flex gap-2">
-                  <span aria-hidden className="text-brand-600">✓</span>
+                  <CheckIcon className="mt-0.5 size-4 shrink-0 text-brand-500" />
                   {item}
                 </li>
               ))}
@@ -169,12 +198,12 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
           ) : (
             <ul className="mt-4 flex flex-col gap-3">
               {reviews.map((r, i) => (
-                <li key={i} className="rounded-2xl border border-zinc-100 p-4">
+                <li key={i} className="rounded-2xl border border-slate-200/70 p-4">
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <span className="font-semibold">{r.reviewer_first_name}</span>
-                    <span aria-label={`${r.rating} sur 5`} className="text-accent-400">
+                    <span aria-label={`${r.rating} sur 5`} className="text-amber-400">
                       {"★".repeat(r.rating)}
-                      <span className="text-zinc-200">{"★".repeat(5 - r.rating)}</span>
+                      <span className="text-slate-200">{"★".repeat(5 - r.rating)}</span>
                     </span>
                   </div>
                   {r.comment && <p className="mt-1 text-sm text-ink-500">« {r.comment} »</p>}
@@ -191,19 +220,25 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
           )}
 
           {compatibility && compatibility.reasons.length > 0 && (
-            <div className="mt-8 rounded-2xl bg-brand-50 p-5">
-              <p className="mb-2 text-sm font-bold text-brand-800">Pourquoi ce mentor pour vous ?</p>
-              <ul className="space-y-1 text-sm text-ink-700">
+            <div className="mt-8 rounded-2xl bg-brand-50 p-5 ring-1 ring-brand-100">
+              <p className="mb-2 inline-flex items-center gap-1.5 text-sm font-bold text-brand-700">
+                <SparkleIcon className="size-4 text-brand-500" /> Pourquoi ce mentor pour vous ?
+              </p>
+              <ul className="space-y-1.5 text-sm text-ink-700">
                 {compatibility.reasons.map((r) => (
-                  <li key={r}>✓ {r}</li>
+                  <li key={r} className="flex gap-2">
+                    <CheckIcon className="mt-0.5 size-4 shrink-0 text-brand-500" /> {r}
+                  </li>
                 ))}
               </ul>
             </div>
           )}
         </div>
 
+        </div>
+
         {/* Carte d'action (droite) */}
-        <aside className="content-start">
+        <aside id="demande" className="scroll-mt-24 lg:sticky lg:top-8">
           {isMentee && activeRequest?.status === "accepted" ? (
             <ActionPanel eyebrow="Mentorat en cours" title="Planifiez votre prochaine séance">
               <ButtonLink href={`/mentorships/${activeRequest.id}`} variant="dark" className="w-full py-4 text-base">
@@ -221,6 +256,17 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
               </p>
               <ButtonLink href="/mentorships" variant="secondary" className="mt-5 w-full">
                 Voir mes demandes
+              </ButtonLink>
+            </ActionPanel>
+          ) : isMentee && mentor.is_available && !viewer?.is_mentee ? (
+            // Mode mentoré mais profil incomplet : la base refuserait la demande
+            <ActionPanel eyebrow="Dernière étape" title="Complétez votre profil">
+              <p className="text-sm leading-relaxed text-ink-500">
+                Pour envoyer une demande à {mentor.full_name.split(" ")[0]}, décrivez d&apos;abord votre objectif et
+                vos domaines d&apos;intérêt. Cela prend une minute, et vos recommandations seront plus justes.
+              </p>
+              <ButtonLink href="/onboarding" variant="dark" className="mt-5 w-full py-4 text-base">
+                Compléter mon profil
               </ButtonLink>
             </ActionPanel>
           ) : isMentee && mentor.is_available ? (
@@ -247,6 +293,17 @@ export default async function MentorDetailPage({ params }: PageProps<"/mentors/[
           )}
         </aside>
       </div>
+
+      {canRequest && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
+          <a
+            href="#demande"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3.5 font-semibold text-white shadow-sm transition-[background-color,transform] active:scale-[0.97]"
+          >
+            Demander un mentorat à {mentor.full_name.split(" ")[0]}
+          </a>
+        </div>
+      )}
     </article>
   );
 }

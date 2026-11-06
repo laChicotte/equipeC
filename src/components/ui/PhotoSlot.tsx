@@ -76,7 +76,7 @@ export function PhotoSlot({
       aria-hidden
       className={`absolute inset-0 overflow-hidden ${
         dark
-          ? "bg-gradient-to-br from-brand-800 via-brand-900 to-brand-950 text-brand-300"
+          ? "bg-gradient-to-br from-brand-800 via-ink-900 to-ink-950 text-brand-300"
           : "bg-gradient-to-br from-paper via-paper-200 to-accent-50 text-brand-700"
       }`}
     >

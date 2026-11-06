@@ -6,7 +6,7 @@ export function RatingStars({ rating }: { rating: MentorRating | null }) {
 
   return (
     <span className="inline-flex items-center gap-1 text-sm">
-      <span aria-hidden className="text-accent-500">★</span>
+      <span aria-hidden className="text-amber-400">★</span>
       <span className="font-medium">{rating.avg.toLocaleString("fr-FR")}</span>
       <span className="text-ink-500">
         ({rating.count} avis)

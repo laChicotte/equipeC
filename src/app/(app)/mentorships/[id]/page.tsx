@@ -2,21 +2,28 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentProfile } from "@/features/auth/queries";
-import { getMentorshipById } from "@/features/mentorship/queries";
+import { getMentorshipById, getMyMentorships } from "@/features/mentorship/queries";
 import { MentorshipCard } from "@/features/mentorship/components/MentorshipCard";
 import { EndMentorshipButton } from "@/features/mentorship/components/EndMentorshipButton";
 import { getMessages } from "@/features/messaging/queries";
 import { Chat } from "@/features/messaging/components/Chat";
+import { ConversationList } from "@/features/messaging/components/ConversationList";
 import { SessionsPanel } from "@/features/sessions/components/SessionsPanel";
 import { GoalsPanel } from "@/features/goals/components/GoalsPanel";
 import { getMentorshipTestimonials } from "@/features/impact/queries";
 import { TestimonialForm } from "@/features/impact/components/TestimonialForm";
+import { DOMAIN_SHORT_LABELS } from "@/features/profiles/labels";
+import { ArrowLeftIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Espace de mentorat · MentorConnect" };
 
 export default async function MentorshipPage({ params }: PageProps<"/mentorships/[id]">) {
   const { id } = await params;
-  const [profile, mentorship] = await Promise.all([getCurrentProfile(), getMentorshipById(id)]);
+  const [profile, mentorship, all] = await Promise.all([
+    getCurrentProfile(),
+    getMentorshipById(id),
+    getMyMentorships(),
+  ]);
   if (!profile) redirect("/dashboard");
   // Introuvable OU pas participant (RLS ne renvoie rien) : même réponse 404
   if (!mentorship) notFound();
@@ -35,35 +42,50 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
     [mentorship.mentor.id]: mentorship.mentor.full_name,
     [mentorship.mentee.id]: mentorship.mentee.full_name,
   };
+  const domainLabel = mentorship.domain
+    ? (DOMAIN_SHORT_LABELS[mentorship.domain.slug] ?? mentorship.domain.name)
+    : null;
+  const partnerSubtitle = [roleHere === "mentor" ? "Votre mentoré" : "Votre mentor", domainLabel]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <Link href="/mentorships" className="text-sm text-brand-700 hover:underline">
-          ← Mes mentorats
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+        <Link
+          href="/mentorships"
+          className="group inline-flex items-center gap-2 text-sm font-semibold text-ink-500 transition-colors hover:text-ink-900"
+        >
+          <ArrowLeftIcon className="size-4 transition-transform group-hover:-translate-x-0.5" />
+          Mes mentorats
         </Link>
         {mentorship.status === "accepted" && <EndMentorshipButton mentorshipId={mentorship.id} />}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="grid content-start gap-4 lg:col-span-2">
-          {hasChat ? (
+      {hasChat ? (
+        // Ordinateur : conversations | discussion | séances et objectifs (très grand écran)
+        <div className="grid gap-5 lg:grid-cols-[17rem_minmax(0,1fr)] 2xl:grid-cols-[17rem_minmax(0,1fr)_22rem]">
+          <aside className="hidden lg:block">
+            <div className="sticky top-6">
+              <ConversationList mentorships={all} currentUserId={profile.id} activeId={mentorship.id} />
+            </div>
+          </aside>
+
+          <div className="min-w-0">
             <Chat
               mentorshipId={mentorship.id}
               currentUserId={profile.id}
               names={names}
               initialMessages={messages}
               canWrite={mentorship.status === "accepted"}
+              partner={{ name: partner.full_name, avatarUrl: partner.avatar_url, subtitle: partnerSubtitle }}
             />
-          ) : (
-            <MentorshipCard mentorship={mentorship} viewerRole={roleHere} />
-          )}
-        </div>
+          </div>
 
-        {hasChat && (
-          <div className="grid content-start gap-4">
+          {/* Panneaux : sous la discussion, à droite sur très grand écran */}
+          <div className="grid content-start gap-5 md:grid-cols-2 lg:col-start-2 2xl:col-start-3 2xl:row-start-1 2xl:grid-cols-1">
             {isEnded && testimonials && (
-              <section className="rounded-3xl border border-brand-100 bg-brand-50/60 p-5">
+              <section className="rounded-3xl border border-brand-100 bg-brand-50/60 p-5 md:col-span-2 2xl:col-span-1">
                 <p className="eyebrow">Restitution</p>
                 <h2 className="mt-2 text-lg font-bold">Bilan de fin de mentorat</h2>
                 <p className="mt-1 mb-4 text-sm text-ink-500">
@@ -93,10 +115,16 @@ export default async function MentorshipPage({ params }: PageProps<"/mentorships
               canEdit={mentorship.status === "accepted"}
               domainSlug={mentorship.domain?.slug}
             />
-            <MentorshipCard mentorship={mentorship} viewerRole={roleHere} />
+            <div className="md:col-span-2 2xl:col-span-1">
+              <MentorshipCard mentorship={mentorship} viewerRole={roleHere} showOpenLink={false} />
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="mx-auto max-w-2xl">
+          <MentorshipCard mentorship={mentorship} viewerRole={roleHere} showOpenLink={false} />
+        </div>
+      )}
     </>
   );
 }

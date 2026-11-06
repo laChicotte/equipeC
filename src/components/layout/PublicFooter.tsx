@@ -9,22 +9,22 @@ const LINKS = [
   { href: "/signup?role=mentor", label: "Devenir mentor" },
 ];
 
-/** Pied de page des pages publiques (vert forêt). */
+/** Pied de page des pages publiques (bleu nuit). */
 export function PublicFooter() {
   return (
-    <footer className="bg-brand-950 px-4 pt-14 pb-8 text-white sm:px-8">
+    <footer className="bg-ink-950 px-4 pt-14 pb-8 text-white sm:px-8">
       <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.4fr_1fr]">
         <div>
           <Logo tone="light" />
-          <p className="mt-5 max-w-sm font-display text-xl leading-snug text-white/90 italic">
+          <p className="mt-5 max-w-sm font-display text-xl leading-snug text-white/90">
             Une expérience à partager, un avenir à construire.
           </p>
           <p className="mt-4 text-sm text-white/60">
-            Né au Salon international du livre jeunesse de Conakry · Novembre Numérique 2026
+            Programme « Talents connect » · Salon international du livre de jeunesse de Conakry · Mois du Numérique 2026
           </p>
         </div>
         <nav aria-label="Liens utiles">
-          <p className="text-xs font-bold tracking-[0.14em] text-accent-300 uppercase">Explorer</p>
+          <p className="text-xs font-bold tracking-[0.14em] text-accent-400 uppercase">Explorer</p>
           <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-white/80">
             {LINKS.map((l) => (
               <li key={l.href}>

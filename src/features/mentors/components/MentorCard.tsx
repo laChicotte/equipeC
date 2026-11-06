@@ -6,11 +6,11 @@ import { ArrowRightIcon, SparkleIcon, StarIcon } from "@/components/ui/icons";
 
 /** Bandes de couleur de l'en-tête (choisie à partir de l'identifiant) + pastille d'initiales assortie. */
 const COVERS = [
-  { band: "from-brand-100 to-brand-50", initials: "bg-brand-600 text-white" },
-  { band: "from-accent-50 to-paper-200", initials: "bg-accent-500 text-ink-900" },
-  { band: "from-paper-200 to-paper", initials: "bg-brand-900 text-white" },
-  { band: "from-[#e5ecf6] to-[#f1f5fa]", initials: "bg-ink-800 text-white" },
-  { band: "from-[#f6e6e3] to-[#fbf3f1]", initials: "bg-[#8a3b2c] text-white" },
+  { band: "from-brand-100 via-brand-50 to-white", initials: "bg-brand-600 text-white" },
+  { band: "from-slate-200 via-slate-100 to-white", initials: "bg-ink-900 text-white" },
+  { band: "from-sky-100 via-sky-50 to-white", initials: "bg-sky-700 text-white" },
+  { band: "from-violet-100 via-violet-50 to-white", initials: "bg-violet-700 text-white" },
+  { band: "from-amber-100 via-amber-50 to-white", initials: "bg-amber-700 text-white" },
 ];
 
 function coverFor(id: string) {
@@ -47,14 +47,14 @@ export function MentorCard({
   const otherDomains = mentor.domains.filter((d) => d !== mainDomain);
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-lg focus-within:ring-2 focus-within:ring-brand-600">
+    <article className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-card transition-[box-shadow,transform,border-color] duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-card-hover focus-within:ring-2 focus-within:ring-brand-500">
       {/* Bande colorée + ruban du domaine principal */}
       <div className={`relative h-20 bg-gradient-to-br ${cover.band}`}>
         <span className="absolute top-3 left-4 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-ink-900 shadow-sm">
-          <span aria-hidden className="size-1.5 rounded-full bg-brand-500" /> Disponible
+          <span aria-hidden className="relative flex size-2"><span className="absolute inline-flex size-full animate-ping rounded-full bg-accent-400 opacity-60 motion-reduce:hidden" /><span className="relative inline-flex size-2 rounded-full bg-accent-400" /></span> Disponible
         </span>
         {mainDomain && (
-          <span className="absolute top-0 right-4 max-w-[55%] truncate bg-brand-900 px-3 pt-2 pb-3 text-[11px] font-bold tracking-wide text-white uppercase [clip-path:polygon(0_0,100%_0,100%_100%,50%_82%,0_100%)]">
+          <span className="absolute top-3 right-4 max-w-[55%] truncate rounded-full bg-ink-900/90 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur">
             {DOMAIN_SHORT_LABELS[mainDomain.slug] ?? mainDomain.name}
           </span>
         )}
@@ -84,25 +84,41 @@ export function MentorCard({
         {subtitle && <p className="mt-0.5 text-sm text-ink-500">{subtitle}</p>}
 
         {showScore && (
-          <div className="mt-3 rounded-xl bg-brand-50 px-3 py-2" title={compatibility.reasons.join(" · ")}>
-            <p className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-800">
-              <SparkleIcon className="size-4 text-accent-500" />
-              {compatibility.score}% compatible
+          <div className="mt-3 rounded-xl bg-brand-50/70 px-3 py-2.5 ring-1 ring-brand-100" title={compatibility.reasons.join(" · ")}>
+            <p className="flex items-center justify-between gap-2 text-sm font-bold text-brand-700">
+              <span className="inline-flex items-center gap-1.5">
+                <SparkleIcon className="size-4 text-brand-500" /> Compatibilité
+              </span>
+              {compatibility.score}%
             </p>
+            {/* Barre de compatibilité */}
+            <div
+              role="progressbar"
+              aria-label="Compatibilité"
+              aria-valuenow={compatibility.score}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              className="mt-2 h-1.5 overflow-hidden rounded-full bg-brand-100"
+            >
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-brand-500 to-accent-400 transition-[width] duration-700"
+                style={{ width: `${Math.min(compatibility.score, 100)}%` }}
+              />
+            </div>
             {compatibility.reasons[0] && (
-              <p className="mt-0.5 text-xs text-brand-800/80">{compatibility.reasons[0]}</p>
+              <p className="mt-1.5 text-xs text-brand-700/80">{compatibility.reasons[0]}</p>
             )}
           </div>
         )}
 
         <div className="mt-4 flex flex-wrap gap-1.5">
           {otherDomains.map((d) => (
-            <span key={d.id} className="rounded-lg bg-zinc-100 px-2.5 py-1 text-xs text-ink-700">
+            <span key={d.id} className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs text-ink-700">
               {DOMAIN_SHORT_LABELS[d.slug] ?? d.name}
             </span>
           ))}
           {mentor.skills.slice(0, 3).map((skill) => (
-            <span key={skill} className="rounded-lg bg-paper px-2.5 py-1 text-xs text-ink-700 ring-1 ring-paper-200">
+            <span key={skill} className="rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700">
               {skill}
             </span>
           ))}
@@ -113,7 +129,7 @@ export function MentorCard({
 
         <div className="mt-auto flex items-center justify-between gap-3 pt-5 text-sm text-ink-500">
           <span className="inline-flex items-center gap-1.5">
-            <StarIcon className="size-4 text-accent-500" />
+            <StarIcon className="size-4 text-amber-400" />
             {mentor.rating ? (
               <>
                 <strong className="text-ink-900">{mentor.rating.avg.toLocaleString("fr-FR")}</strong> (

@@ -39,7 +39,7 @@ export function RequestForm({
                   defaultChecked={i === 0}
                   className="peer sr-only"
                 />
-                <span className="block truncate rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-center text-sm text-ink-700 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:font-medium peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-brand-600">
+                <span className="flex h-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-center text-sm leading-snug text-ink-700 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:font-medium peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-brand-600">
                   {d.short ?? d.name}
                 </span>
               </label>

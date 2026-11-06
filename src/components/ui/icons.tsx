@@ -283,6 +283,13 @@ export const VideoIcon = (p: P) => (
   </Stroke>
 );
 
+export const CalendarIcon = (p: P) => (
+  <Stroke {...p}>
+    <rect x="3.5" y="5" width="17" height="15.5" rx="2" />
+    <path d="M8 3v4M16 3v4M3.5 10h17M8 14h2M12 14h2M8 17h2" />
+  </Stroke>
+);
+
 export const MessageIcon = (p: P) => (
   <Stroke {...p}>
     <path d="M4 5h16v11H8l-4 4z" />
