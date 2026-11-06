@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { SearchIcon, SparkleIcon } from "@/components/ui/icons";
+import { PendingSubmitButton } from "@/components/ui/PendingSubmitButton";
 
 type Mode = "keyword" | "goal";
 
@@ -11,7 +12,18 @@ type Mode = "keyword" | "goal";
  * - « Décrire mon objectif » : paramètre objectif (recherche intelligente)
  * Formulaires GET : la recherche reste dans l'URL (partageable, bouton retour).
  */
-export function MentorSearch({ domain, q, objectif }: { domain?: string; q?: string; objectif?: string }) {
+export function MentorSearch({
+  domain,
+  q,
+  objectif,
+  aiEnabled = false,
+}: {
+  domain?: string;
+  q?: string;
+  objectif?: string;
+  /** Analyse par l'IA disponible (sinon : mots-clés) */
+  aiEnabled?: boolean;
+}) {
   const [mode, setMode] = useState<Mode>(objectif ? "goal" : "keyword");
 
   const tab = (value: Mode, label: ReactNode, icon: ReactNode) => (
@@ -32,8 +44,8 @@ export function MentorSearch({ domain, q, objectif }: { domain?: string; q?: str
   );
 
   return (
-    <div className="rounded-3xl border border-zinc-200 bg-white p-2 shadow-[0_8px_30px_-12px_rgba(11,58,49,0.15)]">
-      <div role="tablist" aria-label="Type de recherche" className="flex gap-1 rounded-2xl bg-paper p-1">
+    <div className="rounded-3xl border border-slate-200/70 bg-white p-2 shadow-card">
+      <div role="tablist" aria-label="Type de recherche" className="flex gap-1 rounded-2xl bg-slate-100 p-1">
         {tab("keyword", "Mot-clé", <SearchIcon className="size-4" />)}
         {tab(
           "goal",
@@ -59,7 +71,7 @@ export function MentorSearch({ domain, q, objectif }: { domain?: string; q?: str
             <label htmlFor="q" className="sr-only">
               Rechercher une expertise, un mentor
             </label>
-            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-zinc-200 px-4 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
+            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-200 px-4 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
               <SearchIcon className="size-5 shrink-0 text-ink-500" />
               <input
                 key="q"
@@ -83,17 +95,23 @@ export function MentorSearch({ domain, q, objectif }: { domain?: string; q?: str
               defaultValue={objectif}
               maxLength={300}
               placeholder="Ex : Je veux publier mon premier recueil de nouvelles…"
-              className="min-w-0 flex-1 rounded-xl border border-zinc-200 px-4 py-3.5 text-base outline-none placeholder:text-ink-500/70 focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
+              className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3.5 text-base outline-none placeholder:text-ink-500/70 focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
             />
           </>
         )}
-        <button className="rounded-xl bg-brand-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+        <PendingSubmitButton
+          key={mode}
+          pendingLabel={mode === "keyword" ? "Recherche…" : aiEnabled ? "L'IA analyse…" : "Analyse…"}
+          className="rounded-xl bg-brand-600 px-6 py-3.5 font-semibold text-white shadow-sm transition-[background-color,transform] duration-200 hover:bg-brand-700 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+        >
           {mode === "keyword" ? "Rechercher" : "Analyser"}
-        </button>
+        </PendingSubmitButton>
       </form>
       {mode === "goal" && (
         <p className="px-3 pb-2 text-xs text-ink-500">
-          Nous repérons les domaines de votre phrase et classons les mentors par compatibilité.
+          {aiEnabled
+            ? "Notre IA comprend votre objectif, choisit les mentors les plus adaptés et explique chaque choix."
+            : "Nous repérons les domaines de votre phrase et classons les mentors par compatibilité."}
         </p>
       )}
     </div>

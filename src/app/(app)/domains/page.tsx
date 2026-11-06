@@ -7,9 +7,12 @@ import {
   CAMPUS_FRANCE_OBJECTIVE,
   DOMAIN_SHORT_LABELS,
   DOMAIN_THEMES,
+  MENTEE_STATUS_LABELS,
 } from "@/features/profiles/labels";
 import { getAvailableMentors, toMentorInput, type MentorSummary } from "@/features/mentors/queries";
 import { orientDomains, recommendMentors } from "@/features/mentors/matching";
+import { analyzeGoal, isAiEnabled } from "@/features/mentors/ai";
+import { PendingSubmitButton } from "@/components/ui/PendingSubmitButton";
 import { GOAL_TEMPLATES } from "@/features/goals/templates";
 import { DomainIcon } from "@/features/profiles/domainIcons";
 import { Modal } from "@/components/ui/Modal";
@@ -65,10 +68,23 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
   const isMentee = profile?.role === "mentee";
 
   // --- Orientation (à partir de la phrase saisie + situation du mentoré) -----
-  const advice = besoin ? orientDomains(besoin, isMentee ? profile.mentee_status : null) : [];
+  // 1. IA (Claude) : comprend la phrase, conseille, classe les mentors et explique
+  // 2. Repli (pas de clé, erreur) : analyse par mots-clés (matching.ts)
+  const candidates = mentors.filter((m) => m.id !== profile?.id);
+  const ai = besoin
+    ? await analyzeGoal({
+        goal: besoin,
+        domains,
+        mentors: candidates,
+        situation: isMentee && profile.mentee_status ? MENTEE_STATUS_LABELS[profile.mentee_status] : null,
+      })
+    : null;
+  const advice = ai ? ai.domains : besoin ? orientDomains(besoin, isMentee ? profile.mentee_status : null) : [];
   const advisedSlugs = advice.map((a) => a.slug);
   const topDomain = domains.find((d) => d.slug === advisedSlugs[0]) ?? null;
-  const recommended = besoin
+  const recommended = ai
+    ? ai.ranking.slice(0, 3).map((r) => ({ ...r, mentor: candidates.find((m) => m.id === r.mentorId)! }))
+    : besoin
     ? recommendMentors(
         {
           domainIds: domains.filter((d) => advisedSlugs.includes(d.slug)).map((d) => d.id),
@@ -76,11 +92,15 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
           text: besoin,
           needs: [],
         },
-        mentors.filter((m) => m.id !== profile?.id).map(toMentorInput),
+        candidates.map(toMentorInput),
         { limit: 3 },
       ).map((r) => ({ ...r, mentor: mentors.find((m) => m.id === r.mentorId)! }))
     : [];
-  const firstSteps = topDomain ? (GOAL_TEMPLATES[topDomain.slug] ?? []).slice(0, 3) : [];
+  const firstSteps = ai?.steps.length
+    ? ai.steps
+    : topDomain
+      ? (GOAL_TEMPLATES[topDomain.slug] ?? []).slice(0, 3)
+      : [];
 
   const catalogue = domains.map((domain) => {
     const domainMentors = mentors.filter((m) => m.domains.some((d) => d.id === domain.id));
@@ -137,9 +157,12 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
             placeholder="Ex : Je termine ma licence et je veux créer une entreprise dans l'agriculture…"
             className="min-w-0 flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-3.5 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
           />
-          <button className="rounded-xl bg-brand-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-brand-700">
+          <PendingSubmitButton
+            pendingLabel={isAiEnabled() ? "L'IA analyse…" : "Analyse…"}
+            className="rounded-xl bg-brand-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-brand-700"
+          >
             M&apos;orienter
-          </button>
+          </PendingSubmitButton>
         </form>
         {!besoin && isMentee && profile.goals_summary && (
           <Link
@@ -155,6 +178,16 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
           <p className="mt-5 rounded-2xl bg-white p-4 text-sm text-ink-500">
             Nous n&apos;avons pas reconnu de domaine précis. Essayez avec d&apos;autres mots (ex. « emploi », « études en
             France », « financement ») ou parcourez les domaines ci-dessous.
+          </p>
+        )}
+
+        {ai && (
+          <p className="mt-6 flex gap-3 rounded-2xl bg-white p-4 leading-relaxed text-ink-900">
+            <span className="mt-0.5 shrink-0 text-brand-600">{sparkle}</span>
+            <span>
+              <span className="block text-xs font-bold tracking-wide text-brand-700 uppercase">Ce que l&apos;IA a compris</span>
+              {ai.understanding}
+            </span>
           </p>
         )}
 
@@ -231,7 +264,9 @@ export default async function DomainsPage({ searchParams }: PageProps<"/domains"
           </div>
         )}
         <p className="mt-5 text-xs text-ink-500">
-          Analyse par mots-clés réalisée sur nos serveurs : votre phrase n&apos;est ni enregistrée ni envoyée à un service externe.
+          {ai
+            ? "Analyse réalisée par une IA (Claude, d'Anthropic) : votre phrase lui est transmise pour l'analyse, sans être enregistrée par MentorConnect. Proposition à valider avec votre mentor."
+            : "Analyse par mots-clés réalisée sur nos serveurs : votre phrase n'est ni enregistrée ni envoyée à un service externe."}
         </p>
       </section>
 

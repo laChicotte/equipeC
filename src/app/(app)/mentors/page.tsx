@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentProfile } from "@/features/auth/queries";
 import { getDomains } from "@/features/profiles/queries";
-import { CAMPUS_FRANCE_NOTICE, DOMAIN_SHORT_LABELS } from "@/features/profiles/labels";
+import { CAMPUS_FRANCE_NOTICE, DOMAIN_SHORT_LABELS, MENTEE_STATUS_LABELS } from "@/features/profiles/labels";
 import {
   filterMentors,
   getAvailableMentors,
@@ -10,6 +10,8 @@ import {
   toMentorInput,
 } from "@/features/mentors/queries";
 import { inferDomainSlugs, scoreMentor, type MenteeInput } from "@/features/mentors/matching";
+import { analyzeGoal, isAiEnabled } from "@/features/mentors/ai";
+import { AiAnalysisPanel } from "@/features/mentors/components/AiAnalysisPanel";
 import { MentorCard } from "@/features/mentors/components/MentorCard";
 import { MentorSearch } from "@/features/mentors/components/MentorSearch";
 import { FilterChips, withParams } from "@/components/shared/FilterChips";
@@ -34,13 +36,25 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
     getAvailableMentors(),
   ]);
   const isMentee = profile?.role === "mentee";
+  const candidates = mentors.filter((m) => m.id !== profile?.id);
 
   // --- Compatibilité ------------------------------------------------------------
-  // 1. Recherche intelligente : la phrase saisie (domaines déduits + mots-clés)
-  // 2. Sinon, pour un mentoré : son profil (domaines, objectifs, situation)
-  const detectedSlugs = objectif ? inferDomainSlugs(objectif) : [];
+  // 1. Recherche intelligente par l'IA (Claude) : comprend la phrase, classe et explique
+  // 2. Repli (pas de clé, erreur) : domaines déduits + mots-clés (matching.ts)
+  // 3. Sans phrase, pour un mentoré : son profil (domaines, objectifs, situation)
+  const ai = objectif
+    ? await analyzeGoal({
+        goal: objectif,
+        domains,
+        mentors: candidates,
+        situation: isMentee && profile.mentee_status ? MENTEE_STATUS_LABELS[profile.mentee_status] : null,
+      })
+    : null;
+  const detectedSlugs = ai ? ai.domains.map((d) => d.slug) : objectif ? inferDomainSlugs(objectif) : [];
   let mentee: MenteeInput | null = null;
-  if (objectif) {
+  if (ai) {
+    // Classement fait par l'IA : pas de calcul par mots-clés
+  } else if (objectif) {
     // La phrase exprime le besoin du moment : on n'ajoute pas l'affinité liée
     // à la situation du profil (sinon un étudiant qui cherche « fintech » se
     // verrait proposer d'abord des mentors d'orientation).
@@ -54,18 +68,25 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
   }
 
   const scores = new Map(
-    mentee ? mentors.map((m) => [m.id, scoreMentor(mentee, toMentorInput(m))]) : [],
+    ai
+      ? ai.ranking.map((r) => [r.mentorId, r])
+      : mentee
+        ? mentors.map((m) => [m.id, scoreMentor(mentee, toMentorInput(m))])
+        : [],
   );
-  const results = filterMentors(mentors.filter((m) => m.id !== profile?.id), { domain, q }).sort(
+  const results = filterMentors(candidates, { domain, q }).sort(
     (a, b) => (scores.get(b.id)?.score ?? 0) - (scores.get(a.id)?.score ?? 0),
   );
-  const ranked = mentee !== null;
+  // Avec l'IA : ses mentors choisis d'abord, les autres dans une section à part
+  const picked = ai ? results.filter((m) => scores.has(m.id)) : results;
+  const others = ai ? results.filter((m) => !scores.has(m.id)) : [];
+  const ranked = ai !== null || mentee !== null;
   const hasFilters = Boolean(domain || q || objectif);
 
   return (
     <>
       {/* En-tête : bandeau vert forêt, photo à partir de la tablette */}
-      <header className="relative mb-6 overflow-hidden rounded-3xl bg-brand-900 text-white">
+      <header className="relative mb-6 overflow-hidden rounded-3xl bg-ink-900 text-white">
         <div className="absolute inset-0 hidden sm:block">
           <PhotoSlot
             name="mentors-bandeau"
@@ -76,10 +97,10 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
             className="object-cover object-[center_35%]"
           />
         </div>
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-brand-950 via-brand-950/85 to-brand-950/30" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/30" />
         <div className="relative px-6 py-8 sm:px-10 sm:py-12">
           <p className="text-xs font-bold tracking-[0.14em] text-accent-300 uppercase">Découvrir</p>
-          <h1 className="mt-3 max-w-2xl font-display text-3xl leading-tight font-semibold tracking-tight sm:text-[2.75rem]">
+          <h1 className="mt-3 max-w-2xl font-display text-3xl leading-tight font-bold tracking-tight sm:text-[2.75rem]">
             Trouvez la bonne personne pour passer à l&apos;étape suivante.
           </h1>
           <p className="mt-3 max-w-xl text-white/75">
@@ -89,10 +110,16 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
       </header>
 
       <div className="mb-6">
-        <MentorSearch domain={domain} q={q} objectif={objectif} />
+        <MentorSearch domain={domain} q={q} objectif={objectif} aiEnabled={isAiEnabled()} />
       </div>
 
-      {objectif && (
+      {ai && (
+        <div className="mb-6">
+          <AiAnalysisPanel analysis={ai} />
+        </div>
+      )}
+
+      {objectif && !ai && (
         <p className="mb-6 text-sm text-ink-500">
           {detectedSlugs.length > 0 ? (
             <>
@@ -131,7 +158,7 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
             <FeatherIcon className="size-5" />
           </span>
           <div>
-            <p className="font-display text-lg font-semibold">Culture &amp; littérature</p>
+            <p className="font-display text-lg font-bold">Culture &amp; littérature</p>
             <p className="mt-1 text-sm leading-relaxed text-ink-700">
               Écriture, édition, médiation culturelle, métiers du livre : ces mentors aident à faire
               vivre la lecture et à transformer une passion en projet.
@@ -148,11 +175,11 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
 
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-2xl font-bold" aria-live="polite">
-          {results.length} mentor{results.length > 1 ? "s" : ""}
-          {ranked ? ` recommandé${results.length > 1 ? "s" : ""}` : ""}
+          {picked.length} mentor{picked.length > 1 ? "s" : ""}
+          {ranked ? ` recommandé${picked.length > 1 ? "s" : ""}` : ""}
         </h2>
         <div className="flex items-center gap-4 text-sm text-ink-500">
-          {ranked && <span>Triés par compatibilité</span>}
+          {ranked && <span>{ai ? "Choisis et classés par l'IA" : "Triés par compatibilité"}</span>}
           {hasFilters && (
             <Link href="/mentors" className="font-medium text-brand-700 hover:underline">
               Effacer
@@ -161,19 +188,33 @@ export default async function MentorsPage({ searchParams }: PageProps<"/mentors"
         </div>
       </div>
 
-      {results.length > 0 ? (
+      {picked.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {results.map((mentor) => (
+          {picked.map((mentor) => (
             <MentorCard key={mentor.id} mentor={mentor} compatibility={scores.get(mentor.id) ?? null} focusDomain={domain} />
           ))}
         </div>
       ) : (
         <Card className="text-center text-ink-500">
-          Aucun mentor ne correspond à votre recherche.{" "}
+          {ai
+            ? "L'IA n'a pas trouvé de mentor vraiment adapté à cet objectif pour le moment."
+            : "Aucun mentor ne correspond à votre recherche."}{" "}
           <Link href="/mentors" className="font-medium text-brand-700 hover:underline">
             Voir tous les mentors
           </Link>
         </Card>
+      )}
+
+      {/* Avec l'IA : les mentors non retenus restent accessibles */}
+      {others.length > 0 && (
+        <section className="mt-12">
+          <h2 className="mb-5 text-xl font-bold text-ink-700">Autres mentors disponibles</h2>
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {others.map((mentor) => (
+              <MentorCard key={mentor.id} mentor={mentor} compatibility={null} focusDomain={domain} />
+            ))}
+          </div>
+        </section>
       )}
     </>
   );
