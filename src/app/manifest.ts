@@ -17,8 +17,9 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#faf6ef",
-    theme_color: "#0b3a31",
+    // Écran de lancement Android : icône (logo) centrée sur ce fond sarcelle foncé
+    background_color: "#0a3533",
+    theme_color: "#0a3533",
     categories: ["education", "social"],
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },

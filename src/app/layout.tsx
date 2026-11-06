@@ -1,20 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Literata, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { LogoMark } from "@/components/layout/Logo";
 
-// Police principale : géométrique et lisible (interface, textes)
+// Police unique : géométrique, moderne et lisible (titres et textes)
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
 });
 
-// Police des titres éditoriaux : conçue pour la lecture (thème « Lire demain »)
-const literata = Literata({
-  variable: "--font-literata",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  style: ["normal", "italic"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -36,16 +30,25 @@ export const metadata: Metadata = {
 
 // Couleur de la barre du navigateur / du téléphone (vert forêt de la marque)
 export const viewport: Viewport = {
-  themeColor: "#0b3a31",
+  themeColor: "#0a3533",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
-      className={`${jakarta.variable} ${literata.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${jakarta.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans text-ink-900">{children}</body>
+      <body className="flex min-h-full flex-col font-sans text-ink-900">
+        {/* Écran de lancement de l'application installée (voir .app-splash dans globals.css) */}
+        <div aria-hidden className="app-splash">
+          <LogoMark tone="light" className="h-20 w-24" />
+          <p className="text-2xl font-extrabold tracking-tight">
+            Mentor<span className="text-accent-400">Connect</span>
+          </p>
+        </div>
+        {children}
+      </body>
     </html>
   );
 }
