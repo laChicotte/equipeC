@@ -129,7 +129,22 @@ const NAV = [
   },
 ];
 
+/** Lien affiché seulement aux administrateurs (ADMIN_EMAILS, vérifié côté serveur). */
+const ADMIN_LINK = {
+  href: "/admin",
+  label: "Administration",
+  also: [] as string[],
+  icon: (
+    <>
+      <path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z" />
+      <path d="m9 12 2 2 4-4" />
+    </>
+  ),
+};
+
 type ShellUser = {
+  /** Administrateur : lien « Administration » dans le menu */
+  isAdmin?: boolean;
   fullName: string;
   roleLabel: string;
   isMentor: boolean;
@@ -159,7 +174,7 @@ function SidebarContent({
 
       <nav aria-label="Navigation principale" className="flex-1 overflow-y-auto px-5">
         <ul className="flex flex-col gap-1">
-          {NAV.map((item) => {
+          {[...NAV, ...(user?.isAdmin ? [ADMIN_LINK] : [])].map((item) => {
             const active = [item.href, ...(("also" in item && item.also) || [])].some(
               (href) => pathname === href || pathname.startsWith(`${href}/`),
             );

@@ -4,6 +4,7 @@ import { getCurrentProfile, requireUserId } from "@/features/auth/queries";
 import { ROLE_LABELS } from "@/features/profiles/labels";
 import { isRoleReady, otherRole } from "@/features/profiles/roles";
 import { getMyMentorships } from "@/features/mentorship/queries";
+import { isCurrentUserAdmin } from "@/features/admin/access";
 
 /**
  * Zone connectée. Le proxy redirige déjà les visiteurs non connectés,
@@ -11,12 +12,13 @@ import { getMyMentorships } from "@/features/mentorship/queries";
  */
 export default async function AppLayout({ children }: { children: ReactNode }) {
   await requireUserId();
-  const profile = await getCurrentProfile();
+  const [profile, isAdmin] = await Promise.all([getCurrentProfile(), isCurrentUserAdmin()]);
 
   // On ne transmet au composant client que ce dont il a besoin
   const user = profile
     ? {
         fullName: profile.full_name,
+        isAdmin,
         roleLabel: ROLE_LABELS[profile.role],
         isMentor: profile.role === "mentor",
         avatarUrl: profile.avatar_url,
