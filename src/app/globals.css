@@ -172,20 +172,42 @@ body {
 .app-splash {
   display: none;
 }
-@media (display-mode: standalone) {
-  .app-splash {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1.25rem;
-    background: linear-gradient(110deg, #0f172a, #064e3b);
-    color: #fff;
-    pointer-events: none;
-    animation: splash-out 0.45s ease 0.9s forwards;
+/*
+ * Affiché au lancement (classe « splash » posée par le script du <head>, voir
+ * layout.tsx) : application installée à chaque ouverture, navigateur une fois
+ * par session. Le logo tourne jusqu'au chargement complet de la page
+ * (classe « app-ready »), puis l'écran s'efface. Sécurité : il s'efface seul
+ * au bout de 8 s quoi qu'il arrive.
+ */
+html.splash .app-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: linear-gradient(110deg, #0f172a, #064e3b);
+  color: #fff;
+  animation: splash-out 0.45s ease 8s forwards;
+}
+html.splash.app-ready .app-splash {
+  animation: splash-out 0.45s ease forwards;
+  pointer-events: none;
+}
+.app-splash-logo {
+  animation: splash-spin 1.1s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes splash-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes splash-pulse {
+  50% {
+    opacity: 0.45;
+    transform: scale(0.92);
   }
 }
 @keyframes splash-out {
@@ -194,9 +216,10 @@ body {
     visibility: hidden;
   }
 }
+/* Moins d'animations demandé : pulsation douce au lieu de la rotation */
 @media (prefers-reduced-motion: reduce) {
-  .app-splash {
-    animation-duration: 0.01s;
+  .app-splash-logo {
+    animation: splash-pulse 1.6s ease-in-out infinite;
   }
 }
 
