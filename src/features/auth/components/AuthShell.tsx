@@ -1,4 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
+import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
 import { PhotoSlot } from "@/components/ui/PhotoSlot";
 import {
@@ -7,133 +8,247 @@ import {
   FeatherIcon,
   GraduationIcon,
   HandshakeIcon,
+  RocketIcon,
   UsersIcon,
 } from "@/components/ui/icons";
 
 type Variant = "login" | "signup";
+type Icon = ComponentType<{ className?: string }>;
 
 type Panel = {
   photo: string;
   legacySrc?: string;
-  motif: "mentoring" | "workshop";
+  badge: string;
   title: ReactNode;
   text: string;
-  highlights: { icon: ComponentType<{ className?: string }>; text: string }[];
+  features: { icon: Icon; title: string; text: string }[];
 };
+
+/** « MentorConnect » en émeraude, souligné d'un trait de pinceau (maquette). */
+function BrandSwoosh() {
+  return (
+    <span className="relative inline-block text-accent-400">
+      MentorConnect
+      <svg
+        viewBox="0 0 300 14"
+        preserveAspectRatio="none"
+        aria-hidden
+        className="absolute -bottom-3 left-[18%] h-3 w-[62%] text-accent-400"
+      >
+        <path d="M2 10C80 2 200 1 298 7" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      </svg>
+    </span>
+  );
+}
 
 const PANELS: Record<Variant, Panel> = {
   login: {
     photo: "connexion",
     legacySrc: "/hero.jpg",
-    motif: "mentoring",
+    badge: "Mentorat · Orientation · Carrière",
     title: (
       <>
-        Un échange peut changer toute une <span className="text-accent-300 italic">trajectoire.</span>
+        Connectez-vous à votre espace <BrandSwoosh />
       </>
     ),
-    text: "La plateforme qui connecte les talents de Guinée et d'Afrique à des mentors expérimentés.",
-    highlights: [
-      { icon: GraduationIcon, text: "Accompagnement personnalisé" },
-      { icon: UsersIcon, text: "Réseau de professionnels" },
-      { icon: ChartIcon, text: "Évolution concrète" },
+    text: "Échangez, apprenez et progressez avec des mentors expérimentés de Guinée et d'Afrique.",
+    features: [
+      { icon: GraduationIcon, title: "Accompagnement personnalisé", text: "Bénéficiez de conseils adaptés à vos objectifs." },
+      { icon: UsersIcon, title: "Réseau de professionnels", text: "Échangez avec des experts de divers domaines." },
+      { icon: ChartIcon, title: "Suivi de votre progression", text: "Fixez vos objectifs et mesurez vos avancées." },
     ],
   },
   signup: {
+    // Même photo que la connexion tant qu'aucune photo « inscription » n'est déposée
     photo: "inscription",
-    motif: "workshop",
+    legacySrc: "/images/connexion.webp",
+    badge: "Apprendre · Transmettre · Agir",
     title: (
       <>
-        Rejoignez une communauté qui <span className="text-accent-300 italic">transmet.</span>
+        Rejoignez la communauté <BrandSwoosh />
       </>
     ),
     text: "Mentorés, mentors, auteurs, professionnels : ici, chacun apprend et chacun partage.",
-    highlights: [
-      { icon: HandshakeIcon, text: "Apprendre de ceux qui savent" },
-      { icon: FeatherIcon, text: "Partager son expérience" },
-      { icon: BookOpenIcon, text: "Lire, écrire, agir" },
+    features: [
+      { icon: HandshakeIcon, title: "Apprendre de ceux qui savent", text: "Des mentors qui ont déjà parcouru le chemin." },
+      { icon: FeatherIcon, title: "Partager son expérience", text: "Quelques heures par mois peuvent changer une trajectoire." },
+      { icon: BookOpenIcon, title: "Lire, écrire, agir", text: "Bibliothèque, ateliers et opportunités au même endroit." },
     ],
   },
 };
 
 /**
- * Mise en page des pages d'authentification : panneau photo vert forêt à
- * gauche (ordinateur), carte formulaire à droite.
+ * Mise en page des pages d'authentification (maquette « Connexion ») :
+ * panneau sarcelle foncé avec photo à gauche (ordinateur), carte formulaire à droite.
+ * Ordinateur : tient dans l'écran sans défilement ; les éléments secondaires
+ * disparaissent sur les écrans peu hauts.
  */
 export function AuthShell({ variant = "login", children }: { variant?: Variant; children: ReactNode }) {
   const panel = PANELS[variant];
 
   return (
-    // Ordinateur : la page tient exactement dans l'écran (pas de défilement de page)
-    <main className="relative grid flex-1 overflow-hidden bg-background lg:h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <main className="relative grid min-h-dvh flex-1 overflow-hidden bg-[#f3f7f5] lg:h-dvh lg:min-h-0 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
       {/* Panneau visuel (ordinateur) */}
-      <aside className="relative hidden overflow-hidden rounded-r-[64px] bg-brand-900 lg:flex lg:h-full lg:flex-col">
-        <PhotoSlot
-          name={panel.photo}
-          legacySrc={panel.legacySrc}
-          alt=""
-          sizes="50vw"
-          motif={panel.motif}
-          tone="dark"
-          priority
-          className="object-cover object-[center_30%]"
-        />
-        {/* Voile vert : lisibilité du texte, cohérence avec la marque */}
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-brand-900/85 via-brand-900/35 to-brand-900" />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-brand-900/60 to-transparent" />
-
-        {/* Courbes décoratives (ocre et vert) */}
-        <svg viewBox="0 0 200 200" aria-hidden className="pointer-events-none absolute top-[34%] -left-10 h-56 w-56 text-accent-400/60">
-          <path d="M0 150C40 70 110 30 200 40c-80 15-140 60-180 140Z" fill="currentColor" />
-        </svg>
-        <svg
-          viewBox="0 0 400 80"
-          preserveAspectRatio="none"
-          aria-hidden
-          className="pointer-events-none absolute right-0 bottom-0 h-16 w-2/3 text-brand-600/60"
-        >
-          <path d="M0 80C140 70 300 40 400 0v80Z" fill="currentColor" />
-        </svg>
-
-        <div className="relative px-12 pt-10">
-          <Logo tone="light" />
+      <aside className="relative hidden overflow-hidden rounded-tr-[140px] bg-gradient-to-br from-[#0d403d] via-[#0a3533] to-[#072826] text-white lg:flex lg:h-full lg:flex-col">
+        {/* Photo à droite, fondue dans le sarcelle */}
+        <div className="absolute inset-y-0 right-0 w-[58%]">
+          <PhotoSlot
+            name={panel.photo}
+            legacySrc={panel.legacySrc}
+            alt=""
+            sizes="30vw"
+            motif="mentoring"
+            tone="dark"
+            priority
+            className="object-cover object-[center_45%]"
+          />
+          {/* Fondus légers : la photo reste lumineuse, seuls les bords se fondent dans le sarcelle */}
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#0a3533] from-0% via-[#0a3533]/25 via-30% to-transparent to-60%" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-[#0d403d]/70 from-0% via-transparent via-25% to-transparent" />
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[#072826] to-transparent" />
         </div>
 
-        <div className="relative mt-auto px-12 pb-10 text-white">
-          <p className="max-w-lg font-display text-[2.3rem] leading-[1.1] font-semibold tracking-tight xl:text-[2.75rem]">
-            {panel.title}
-          </p>
-          <p className="mt-4 max-w-md text-lg leading-relaxed text-white/85">{panel.text}</p>
+        <div className="relative flex h-full flex-col px-12 py-10 xl:px-16 short:py-8 tiny:py-6">
+          <div>
+            <Logo tone="light" />
+            <p className="mt-1 pl-[46px] text-sm text-white/75">La plateforme de mentorat en Afrique</p>
+          </div>
 
-          <ul className="mt-7 flex flex-wrap gap-3">
-            {panel.highlights.map(({ icon: Icon, text }) => (
-              <li
-                key={text}
-                className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/5 px-4 py-2.5 text-sm leading-snug font-medium backdrop-blur-sm"
-              >
-                <Icon className="h-6 w-6 shrink-0 text-accent-300" />
-                <span className="max-w-[8.5rem]">{text}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="my-auto max-w-[27rem] py-6">
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-sm [@media(max-height:700px)]:hidden">
+              <RocketIcon className="size-4 text-accent-400" />
+              {panel.badge}
+            </p>
+            <h2 className="mt-6 font-display text-[2.6rem] leading-[1.08] font-extrabold tracking-tight xl:text-[3rem] short:mt-5 short:text-[2.4rem] tiny:mt-4 tiny:text-[2.1rem]">
+              {panel.title}
+            </h2>
+            <p className="mt-7 max-w-sm leading-relaxed text-white/80 short:mt-5">{panel.text}</p>
+
+            <ul className="mt-7 flex flex-col gap-4 short:mt-5 short:gap-3 tiny:gap-2.5">
+              {panel.features.map(({ icon: FeatureIcon, title, text }) => (
+                <li key={title} className="flex items-center gap-4">
+                  <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand-500/25 text-accent-400 ring-1 ring-white/10 short:size-10">
+                    <FeatureIcon className="size-6" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-semibold">{title}</span>
+                    <span className="block text-sm text-white/70 tiny:hidden">{text}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Encart communauté : informations vraies uniquement (pas de faux chiffres) */}
+          <div className="flex max-w-xl items-center gap-5 rounded-2xl border border-white/15 bg-white/5 px-6 py-5 backdrop-blur-sm [@media(max-height:820px)]:hidden">
+            <span aria-hidden className="flex -space-x-3">
+              {[GraduationIcon, UsersIcon, FeatherIcon].map((PillIcon, i) => (
+                <span
+                  key={i}
+                  className="inline-flex size-11 items-center justify-center rounded-full bg-[#0d403d] text-accent-400 ring-2 ring-white/80"
+                >
+                  <PillIcon className="size-5" />
+                </span>
+              ))}
+            </span>
+            <p className="flex-1 text-sm leading-snug text-white/85">
+              Rejoignez une communauté de jeunes et de mentors engagés.
+            </p>
+            <span aria-hidden className="h-10 w-px bg-white/20" />
+            <p className="leading-tight">
+              <span className="block text-2xl font-extrabold text-accent-400">100 %</span>
+              <span className="text-sm text-white/75">gratuit</span>
+            </p>
+          </div>
         </div>
       </aside>
 
       {/* Formulaire */}
-      <div className="relative flex flex-col px-4 py-6 sm:px-8 lg:h-full lg:overflow-x-hidden lg:overflow-y-auto lg:py-6 [@media(max-height:720px)]:lg:py-3">
-        {/* Formes décoratives d'arrière-plan */}
-        <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-accent-50" />
-        <div aria-hidden className="pointer-events-none absolute -top-10 right-10 h-56 w-56 rounded-full border-[28px] border-white/70" />
+      <div className="relative flex flex-col px-3 py-3 sm:px-8 sm:py-6 lg:h-full lg:overflow-x-hidden lg:overflow-y-auto short:sm:py-4 tiny:sm:py-3">
+        {/* Formes décoratives d'arrière-plan (vert d'eau), dans un calque qui coupe
+            ce qui dépasse : sinon elles créeraient une barre de défilement */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-accent-50" />
+          <div className="absolute -top-10 right-10 h-56 w-56 rounded-full border-[28px] border-white/70" />
+          <div className="absolute -right-20 -bottom-28 h-72 w-96 rounded-[50%] bg-accent-50" />
+        </div>
 
-        <div className="relative lg:hidden">
+        {/* Logo au-dessus de la carte : tablette seulement (sur téléphone, la carte l'affiche déjà) */}
+        <div className="relative hidden sm:block lg:hidden">
           <Logo />
         </div>
         {/* my-auto : centré verticalement, sans couper le haut si l'écran est très petit */}
-        <div className="relative mx-auto my-auto w-full max-w-[34rem] py-6 lg:py-0">
-          <div className="rounded-[28px] border border-zinc-100 bg-white px-5 py-8 shadow-[0_24px_60px_-24px_rgba(11,58,49,0.25)] sm:px-11 sm:py-8 [@media(max-height:720px)]:sm:py-5">
+        <div className="relative mx-auto my-auto w-full max-w-[34rem] sm:py-6 lg:py-0">
+          <div className="rounded-3xl border border-slate-100 bg-white px-4 py-5 shadow-[0_24px_60px_-24px_rgba(11,58,49,0.25)] sm:rounded-[28px] sm:px-10 sm:py-8 short:sm:py-6 tiny:py-4 tiny:sm:py-5">
             {children}
           </div>
         </div>
       </div>
     </main>
+  );
+}
+
+/** Onglets « Se connecter / S'inscrire » en haut de la carte (maquette). */
+export function AuthTabs({ active }: { active: Variant }) {
+  const tabs = [
+    {
+      id: "login" as const,
+      href: "/login",
+      label: "Se connecter",
+      icon: (
+        <>
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21a8 8 0 0 1 16 0" />
+        </>
+      ),
+    },
+    {
+      id: "signup" as const,
+      href: "/signup",
+      label: "S'inscrire",
+      icon: (
+        <>
+          <circle cx="10" cy="8" r="4" />
+          <path d="M2 21a8 8 0 0 1 14.5-4.7M19 14v6M16 17h6" />
+        </>
+      ),
+    },
+  ];
+
+  return (
+    <nav
+      aria-label="Connexion ou inscription"
+      className="mb-4 grid grid-cols-2 gap-1 rounded-2xl bg-slate-50 p-1 ring-1 ring-slate-100 sm:mb-6 short:sm:mb-4 tiny:mb-3 tiny:sm:mb-3"
+    >
+      {tabs.map((tab) => {
+        const current = tab.id === active;
+        return (
+          <Link
+            key={tab.id}
+            href={tab.href}
+            aria-current={current ? "page" : undefined}
+            className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold sm:py-2.5 short:sm:py-2 transition-colors focus-visible:outline-2 focus-visible:outline-brand-600 sm:text-[15px] ${
+              current
+                ? "border-b-2 border-brand-600 bg-accent-50 text-brand-700"
+                : "text-ink-900 hover:bg-white"
+            }`}
+          >
+            <svg
+              aria-hidden
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-5"
+            >
+              {tab.icon}
+            </svg>
+            {tab.label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }

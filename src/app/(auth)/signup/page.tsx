@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SignupForm } from "@/features/auth/components/SignupForm";
-import { AuthShell } from "@/features/auth/components/AuthShell";
+import { AuthShell, AuthTabs } from "@/features/auth/components/AuthShell";
 import { AuthHeader, BrandName } from "@/features/auth/components/AuthHeader";
-import { UserIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Inscription · MentorConnect" };
 
@@ -12,8 +11,8 @@ export default async function SignupPage({ searchParams }: PageProps<"/signup">)
 
   return (
     <AuthShell variant="signup">
+      <AuthTabs active="signup" />
       <AuthHeader
-        icon={<UserIcon className="h-7 w-7" />}
         compact
         title={
           <>
@@ -23,7 +22,7 @@ export default async function SignupPage({ searchParams }: PageProps<"/signup">)
         subtitle="Gratuit, en moins d'une minute."
       />
       <SignupForm defaultRole={role === "mentor" ? "mentor" : "mentee"} />
-      <p className="mt-5 text-center text-ink-500">
+      <p className="mt-4 text-center text-ink-500 short:mt-3">
         Déjà inscrit ?{" "}
         <Link href="/login" className="font-bold text-brand-700 hover:underline">
           Se connecter

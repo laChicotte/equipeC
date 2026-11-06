@@ -31,3 +31,4 @@ Complétez ce tableau à chaque photo ajoutée (utile si le jury pose la questio
 | Fichier | Auteur | Source (URL) | Licence |
 |---|---|---|---|
 | `../hero.jpg` (ancienne photo, encore utilisée en secours) | ? | ? | ? |
+| `connexion.webp` (connexion, et inscription en attendant une photo dédiée) | Équipe MentorConnect | Extrait de la maquette « Connexion » fournie par l'équipe | Usage interne au projet |

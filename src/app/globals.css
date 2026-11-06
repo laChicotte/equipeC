@@ -1,57 +1,81 @@
 @import "tailwindcss";
 
+/* Paliers de hauteur d'écran (pages de connexion sans défilement) */
+@custom-variant short (@media (max-height: 900px));
+@custom-variant tiny (@media (max-height: 760px));
+@custom-variant micro (@media (max-height: 680px));
+
 /*
- * Identité MentorConnect : « Transmettre, page après page ».
- * - brand : vert (actions, liens). brand-600 = couleur des boutons, contraste
- *           4,7:1 avec le blanc (WCAG AA). brand-900 = vert forêt (fonds sombres).
- * - accent: ocre, rappel de la terre de Guinée (soulignés, étoiles, rubans).
- *           accent-600 est le seul ocre lisible en texte sur fond blanc.
- * - paper : fond « page de livre » des sections éditoriales.
- * - ink   : encre (texte).
- * Titres éditoriaux : font-display (Literata, police libre conçue pour la lecture).
+ * Identité MentorConnect : startup SaaS, bleu nuit et émeraude.
+ * - brand : émeraude. brand-600 (#047857) = boutons et liens : contraste 5,5:1
+ *           avec le blanc (WCAG AA). brand-500 (#059669) et brand-400/500 servent
+ *           aux accents (icônes, badges, progression), jamais au texte sur blanc.
+ * - accent: vert clair (#10B981) pour les touches lumineuses sur fond sombre.
+ * - ink   : bleu nuit (#0F172A) pour le texte et les blocs sombres.
+ * - paper : fond clair des sections alternées (#F8FAFC).
  */
 @theme inline {
-  --color-background: #f5f4f0;
-  --color-foreground: #172b45;
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
 
-  --color-brand-50: #eaf6f2;
-  --color-brand-100: #cdebe2;
-  --color-brand-200: #9dd6c6;
-  --color-brand-300: #7be0a6;
-  --color-brand-500: #19a08a;
-  --color-brand-600: #13836f;
-  --color-brand-700: #0f6a5a;
-  --color-brand-800: #0c5447;
-  --color-brand-900: #0b3a31;
-  --color-brand-950: #072821;
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #059669;
+  --color-brand-600: #047857;
+  --color-brand-700: #065f46;
+  --color-brand-800: #064e3b;
 
-  --color-ink-500: #5b6b82;
-  --color-ink-700: #2f4a6f;
-  --color-ink-800: #22395a;
-  --color-ink-900: #172b45;
+  --color-ink-500: #64748b;
+  --color-ink-700: #334155;
+  --color-ink-800: #1e293b;
+  --color-ink-900: #0f172a;
+  --color-ink-950: #020617;
 
-  --color-accent-50: #fbf1e2;
-  --color-accent-300: #f3c98a;
-  --color-accent-400: #e5a03f;
-  --color-accent-500: #d98e2b;
-  --color-accent-600: #9a5b0f;
+  --color-accent-50: #ecfdf5;
+  --color-accent-300: #6ee7b7;
+  --color-accent-400: #10b981;
+  --color-accent-500: #059669;
+  --color-accent-600: #047857;
 
-  --color-paper: #faf6ef;
-  --color-paper-200: #f1e8d8;
+  --color-paper: #f8fafc;
+  --color-paper-200: #e2e8f0;
 
   --font-sans: var(--font-jakarta);
-  --font-display: var(--font-literata);
+  --font-display: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
+
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px -4px rgb(15 23 42 / 0.06);
+  --shadow-card-hover: 0 2px 4px rgb(15 23 42 / 0.04), 0 16px 32px -12px rgb(15 23 42 / 0.16);
+
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
 }
 
 html {
   scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
 }
 
 body {
@@ -65,13 +89,21 @@ body {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-brand-700);
+  color: var(--color-brand-600);
 }
 
-/* Trait de crayon ocre sous un mot (titres éditoriaux) */
+/* Surlignage vert clair sous un mot (titres) */
 @utility pencil {
-  background-image: linear-gradient(transparent 0 82%, var(--color-accent-300) 82% 96%, transparent 96%);
+  background-image: linear-gradient(transparent 0 80%, var(--color-brand-200) 80% 96%, transparent 96%);
   padding-inline: 0.05em;
+}
+
+/* Texte en dégradé émeraude (titres sur fond sombre) */
+@utility text-gradient {
+  background: linear-gradient(90deg, #34d399, #10b981 45%, #6ee7b7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Défilement horizontal sans barre visible (puces sur mobile) */
@@ -79,5 +111,81 @@ body {
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/*
+ * Apparition progressive au défilement, en CSS pur (aucun JavaScript) :
+ * - navigateurs compatibles (animation liée au défilement) : la section glisse
+ *   et apparaît en entrant à l'écran ;
+ * - autres navigateurs, ou préférence « réduire les animations » : contenu
+ *   affiché normalement, sans effet. Rien n'est jamais caché.
+ */
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility reveal {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+}
+
+/* Respect global de la préférence « réduire les animations » */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * Écran de lancement : uniquement dans l'application installée (ouverte depuis
+ * l'écran d'accueil). Logo centré sur fond sarcelle, puis fondu après ~1 s.
+ */
+.app-splash {
+  display: none;
+}
+@media (display-mode: standalone) {
+  .app-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    background: radial-gradient(circle at 30% 25%, #0f4f4a, #072826 75%);
+    color: #fff;
+    pointer-events: none;
+    animation: splash-out 0.45s ease 0.9s forwards;
+  }
+}
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-splash {
+    animation-duration: 0.01s;
   }
 }

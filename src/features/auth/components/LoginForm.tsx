@@ -14,13 +14,14 @@ export function LoginForm({ next }: { next?: string }) {
   const [state, formAction, pending] = useActionState(login, initialState);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4" noValidate>
+    <form action={formAction} className="flex flex-col gap-3 sm:gap-4 short:sm:gap-3" noValidate>
       {next && <input type="hidden" name="next" value={next} />}
       <Field
         label="Email"
         name="email"
         type="email"
         autoComplete="email"
+        className="max-sm:py-2.5 short:py-2.5"
         placeholder="Entrez votre adresse email"
         icon={<MailIcon className="h-[18px] w-[18px]" />}
         appearance="outline"
@@ -33,6 +34,7 @@ export function LoginForm({ next }: { next?: string }) {
           label="Mot de passe"
           name="password"
           autoComplete="current-password"
+        className="max-sm:py-2.5 short:py-2.5"
           placeholder="Entrez votre mot de passe"
           icon={<LockIcon className="h-[18px] w-[18px]" />}
           appearance="outline"
@@ -55,7 +57,7 @@ export function LoginForm({ next }: { next?: string }) {
       <Button
         type="submit"
         disabled={pending}
-        className="bg-gradient-to-r from-brand-600 to-brand-700 py-3.5 text-base hover:from-brand-700 hover:to-brand-700"
+        className="bg-gradient-to-r from-brand-600 to-brand-700 py-3 text-base hover:from-brand-700 hover:to-brand-700 sm:py-3.5 short:sm:py-3"
       >
         <ArrowRightIcon className="h-5 w-5" />
         {pending ? "Connexion…" : "Se connecter"}

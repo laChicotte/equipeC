@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "@/features/auth/components/LoginForm";
 import { OAuthButtons } from "@/features/auth/components/OAuthButtons";
-import { AuthShell } from "@/features/auth/components/AuthShell";
+import { AuthShell, AuthTabs } from "@/features/auth/components/AuthShell";
 import { AuthHeader, BrandName } from "@/features/auth/components/AuthHeader";
-import { UserIcon } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Connexion · MentorConnect" };
 
@@ -14,8 +13,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
 
   return (
     <AuthShell>
+      <AuthTabs active="login" />
       <AuthHeader
-        icon={<UserIcon className="h-7 w-7" />}
         title={
           <>
             Connexion à <BrandName />
@@ -30,7 +29,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       )}
       <LoginForm next={nextPath} />
       <OAuthButtons next={nextPath} />
-      <p className="mt-6 text-center text-ink-500">
+      <p className="mt-4 text-center text-ink-500 sm:mt-6 short:sm:mt-4">
         Pas encore de compte ?{" "}
         <Link href="/signup" className="font-bold text-brand-700 hover:underline">
           S&apos;inscrire
