@@ -3,28 +3,52 @@
 import { useActionState } from "react";
 import {
   cancelWorkshop,
-  registerToWorkshop,
   unregisterFromWorkshop,
   type WorkshopActionState,
 } from "../actions";
 
+// L'inscription passe par un formulaire : voir <WorkshopRegistrationForm>
 const ACTIONS = {
-  register: { action: registerToWorkshop, label: "S'inscrire", pending: "Inscription…", style: "bg-ink-900 text-white hover:bg-ink-800" },
-  unregister: { action: unregisterFromWorkshop, label: "Se désinscrire", pending: "…", style: "text-ink-500 hover:bg-slate-100 hover:text-ink-900" },
-  cancel: { action: cancelWorkshop, label: "Annuler l'atelier", pending: "…", style: "text-ink-500 hover:bg-red-50 hover:text-red-600" },
+  unregister: {
+    action: unregisterFromWorkshop,
+    label: "Se désinscrire",
+    pending: "…",
+    style:
+      "border border-slate-200 text-ink-700 hover:bg-slate-100 hover:text-ink-900",
+  },
+  cancel: {
+    action: cancelWorkshop,
+    label: "Annuler l'atelier",
+    pending: "…",
+    style: "border border-red-200 text-red-600 hover:bg-red-50",
+  },
 } as const;
 
 const initialState: WorkshopActionState = {};
 
 /** Bouton d'action sur un atelier (inscription, désinscription, annulation). */
-export function WorkshopButton({ workshopId, kind }: { workshopId: string; kind: keyof typeof ACTIONS }) {
+export function WorkshopButton({
+  workshopId,
+  kind,
+}: {
+  workshopId: string;
+  kind: keyof typeof ACTIONS;
+}) {
   const config = ACTIONS[kind];
-  const [state, formAction, pending] = useActionState(config.action, initialState);
+  const [state, formAction, pending] = useActionState(
+    config.action,
+    initialState,
+  );
   return (
     <form
       action={formAction}
       onSubmit={(e) => {
-        if (kind === "cancel" && !window.confirm("Annuler cet atelier ? Les inscrits le verront « Annulé ».")) {
+        if (
+          kind === "cancel" &&
+          !window.confirm(
+            "Annuler cet atelier ? Les inscrits le verront « Annulé ».",
+          )
+        ) {
           e.preventDefault();
         }
       }}

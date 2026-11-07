@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/features/auth/queries";
 import { conakryInputToISO } from "@/lib/datetime";
-import { WORKSHOP_DURATIONS } from "./constants";
+import { WORKSHOP_DURATIONS, WORKSHOP_LEVELS } from "./constants";
 
 export type WorkshopFormState = {
   error?: string;
@@ -78,15 +78,36 @@ const idSchema = z.uuid();
 /** Messages des règles SQL (trigger d'inscription) affichés tels quels. */
 const KNOWN_ERRORS = ["Atelier complet", "Atelier annulé", "Atelier déjà commencé ou passé", "Vous animez cet atelier"];
 
-export async function registerToWorkshop(_prev: WorkshopActionState, formData: FormData): Promise<WorkshopActionState> {
+export type RegistrationFormState = WorkshopActionState & { fieldErrors?: Record<string, string[] | undefined> };
+
+const registrationSchema = z.object({
+  level: z.enum(WORKSHOP_LEVELS, "Indiquez votre niveau"),
+  expectations: z
+    .string()
+    .trim()
+    .min(10, "Dites en quelques mots ce que vous attendez (10 caractères minimum)")
+    .max(500, "500 caractères maximum"),
+});
+
+/** Inscription après le formulaire « niveau + attentes » (transmis à l'animateur). */
+export async function registerToWorkshop(_prev: RegistrationFormState, formData: FormData): Promise<RegistrationFormState> {
   const id = idSchema.safeParse(formData.get("workshop_id"));
   const profile = await getCurrentProfile();
   if (!id.success || !profile) return { error: "Session expirée. Reconnectez-vous." };
 
+  const parsed = registrationSchema.safeParse({
+    level: formData.get("level") ?? "",
+    expectations: formData.get("expectations") ?? "",
+  });
+  if (!parsed.success) return { fieldErrors: z.flattenError(parsed.error).fieldErrors };
+
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("workshop_registrations")
-    .insert({ workshop_id: id.data, participant_id: profile.id });
+  const row = { workshop_id: id.data, participant_id: profile.id };
+  let { error } = await supabase.from("workshop_registrations").insert({ ...row, ...parsed.data });
+  // Migration 0008 pas encore exécutée (colonnes absentes) : inscription simple
+  if (error?.code === "PGRST204" || error?.code === "42703") {
+    ({ error } = await supabase.from("workshop_registrations").insert(row));
+  }
   if (error) {
     if (error.code === "23505") return {}; // déjà inscrit
     const known = KNOWN_ERRORS.find((m) => error.message.includes(m));

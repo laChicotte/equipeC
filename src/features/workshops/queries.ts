@@ -2,6 +2,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserId } from "@/features/auth/queries";
 import type { Workshop } from "@/types/database";
+import type { WorkshopLevel } from "./constants";
 
 /** On peut rejoindre la visio 15 minutes avant le début (comme les séances). */
 const JOIN_EARLY_MS = 15 * 60_000;
@@ -17,8 +18,15 @@ export type WorkshopView = Workshop & {
   phase: WorkshopPhase;
   /** Lien de visio : seulement pour l'animateur et les inscrits, atelier non terminé */
   meetingUrl: string | null;
-  /** Prénoms des inscrits : seulement pour l'animateur */
-  participants: string[];
+  /** Inscrits (prénom, niveau, attentes) : seulement pour l'animateur */
+  participants: WorkshopParticipant[];
+};
+
+export type WorkshopParticipant = {
+  first_name: string;
+  /** null : inscription antérieure à la migration 0008 */
+  level: WorkshopLevel | null;
+  expectations: string | null;
 };
 
 export type WorkshopsResult =
@@ -82,7 +90,11 @@ export async function getWorkshops(): Promise<WorkshopsResult> {
         isHost,
         phase,
         meetingUrl: (link.data as string | null) ?? null,
-        participants: ((people.data ?? []) as { first_name: string }[]).map((p) => p.first_name),
+        participants: ((people.data ?? []) as Partial<WorkshopParticipant>[]).map((p) => ({
+          first_name: p.first_name ?? "",
+          level: p.level ?? null,
+          expectations: p.expectations ?? null,
+        })),
       };
     }),
   );

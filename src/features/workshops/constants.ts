@@ -7,3 +7,13 @@ export const WORKSHOP_DURATION_LABELS: Record<(typeof WORKSHOP_DURATIONS)[number
   90: "1 h 30",
   120: "2 h",
 };
+
+/** Niveau déclaré à l'inscription (migration 0008). */
+export const WORKSHOP_LEVELS = ["debutant", "intermediaire", "avance"] as const;
+export type WorkshopLevel = (typeof WORKSHOP_LEVELS)[number];
+
+export const WORKSHOP_LEVEL_LABELS: Record<WorkshopLevel, string> = {
+  debutant: "Débutant",
+  intermediaire: "Intermédiaire",
+  avance: "Avancé",
+};
