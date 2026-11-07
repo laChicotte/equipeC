@@ -74,6 +74,8 @@ export type FieldExtras = {
   appearance?: FieldAppearance;
   /** Garde `required` pour le navigateur sans afficher l'astérisque. */
   hideRequiredMark?: boolean;
+  /** Icône affichée à l'intérieur du champ, à gauche. */
+  leading?: ReactNode;
 };
 
 /** Champ texte (et date, nombre, e-mail…). */
@@ -85,10 +87,21 @@ export function Field({
   icon,
   appearance,
   hideRequiredMark,
+  leading,
   className = "",
   ...props
 }: ComponentProps<"input"> & CommonProps & FieldExtras) {
   const hasError = Boolean(errors?.length);
+  const input = (
+    <input
+      id={name}
+      name={name}
+      aria-invalid={hasError}
+      aria-describedby={describedBy(name, hasError, hint)}
+      className={controlClasses(hasError, `${leading ? "pl-11" : ""} ${className}`, appearance)}
+      {...props}
+    />
+  );
   return (
     <FieldShell
       label={label}
@@ -98,30 +111,38 @@ export function Field({
       icon={icon}
       required={props.required && !hideRequiredMark}
     >
-      <input
-        id={name}
-        name={name}
-        aria-invalid={hasError}
-        aria-describedby={describedBy(name, hasError, hint)}
-        className={controlClasses(hasError, className, appearance)}
-        {...props}
-      />
+      {leading ? (
+        <div className="relative">
+          <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-ink-500">{leading}</span>
+          {input}
+        </div>
+      ) : (
+        input
+      )}
     </FieldShell>
   );
 }
 
 /** Zone de texte multiligne. */
-export function TextAreaField({ label, name, errors, hint, ...props }: ComponentProps<"textarea"> & CommonProps) {
+export function TextAreaField({
+  label,
+  name,
+  errors,
+  hint,
+  icon,
+  appearance,
+  ...props
+}: ComponentProps<"textarea"> & CommonProps & Pick<FieldExtras, "icon" | "appearance">) {
   const hasError = Boolean(errors?.length);
   return (
-    <FieldShell label={label} name={name} errors={errors} hint={hint} required={props.required}>
+    <FieldShell label={label} name={name} errors={errors} hint={hint} icon={icon} required={props.required}>
       <textarea
         id={name}
         name={name}
         rows={4}
         aria-invalid={hasError}
         aria-describedby={describedBy(name, hasError, hint)}
-        className={`${controlClasses(hasError)} leading-relaxed`}
+        className={`${controlClasses(hasError, "", appearance)} leading-relaxed`}
         {...props}
       />
     </FieldShell>
@@ -136,21 +157,24 @@ export function SelectField({
   hint,
   options,
   placeholder,
+  icon,
+  appearance,
   ...props
 }: ComponentProps<"select"> &
-  CommonProps & {
+  CommonProps &
+  Pick<FieldExtras, "icon" | "appearance"> & {
     options: { value: string; label: string }[];
     placeholder?: string;
   }) {
   const hasError = Boolean(errors?.length);
   return (
-    <FieldShell label={label} name={name} errors={errors} hint={hint} required={props.required}>
+    <FieldShell label={label} name={name} errors={errors} hint={hint} icon={icon} required={props.required}>
       <select
         id={name}
         name={name}
         aria-invalid={hasError}
         aria-describedby={describedBy(name, hasError, hint)}
-        className={`${controlClasses(hasError)} cursor-pointer`}
+        className={`${controlClasses(hasError, "", appearance)} cursor-pointer`}
         {...props}
       >
         {placeholder && <option value="">{placeholder}</option>}
