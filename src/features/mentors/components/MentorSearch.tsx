@@ -35,7 +35,9 @@ export function MentorSearch({
       aria-controls={`panel-${value}`}
       onClick={() => setMode(value)}
       className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors sm:flex-none sm:px-4 ${
-        mode === value ? "bg-white text-brand-800 shadow-sm" : "text-ink-500 hover:text-ink-900"
+        mode === value
+          ? "bg-white text-ink-900 shadow-sm ring-1 ring-slate-200"
+          : "text-ink-500 hover:text-ink-900"
       }`}
     >
       {icon}
@@ -44,8 +46,12 @@ export function MentorSearch({
   );
 
   return (
-    <div className="rounded-3xl border border-slate-200/70 bg-white p-2 shadow-card">
-      <div role="tablist" aria-label="Type de recherche" className="flex gap-1 rounded-2xl bg-slate-100 p-1">
+    <div className="rounded-3xl border border-slate-100 bg-white p-3 shadow-[0_1px_3px_rgba(23,43,69,0.05)]">
+      <div
+        role="tablist"
+        aria-label="Type de recherche"
+        className="flex gap-1.5 rounded-2xl bg-slate-50 p-1"
+      >
         {tab("keyword", "Mot-clé", <SearchIcon className="size-4" />)}
         {tab(
           "goal",
@@ -67,7 +73,9 @@ export function MentorSearch({
         {domain && <input type="hidden" name="domain" value={domain} />}
         {mode === "keyword" ? (
           <>
-            {objectif && <input type="hidden" name="objectif" value={objectif} />}
+            {objectif && (
+              <input type="hidden" name="objectif" value={objectif} />
+            )}
             <label htmlFor="q" className="sr-only">
               Rechercher une expertise, un mentor
             </label>
@@ -101,8 +109,14 @@ export function MentorSearch({
         )}
         <PendingSubmitButton
           key={mode}
-          pendingLabel={mode === "keyword" ? "Recherche…" : aiEnabled ? "L'IA analyse…" : "Analyse…"}
-          className="rounded-xl bg-brand-700 px-6 py-3.5 font-semibold text-white shadow-sm transition-[background-color,transform] duration-200 hover:bg-brand-800 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+          pendingLabel={
+            mode === "keyword"
+              ? "Recherche…"
+              : aiEnabled
+                ? "L'IA analyse…"
+                : "Analyse…"
+          }
+          className="rounded-xl bg-brand-800 px-7 py-3.5 font-semibold text-white shadow-sm transition-[background-color,transform] duration-200 hover:bg-brand-800 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
         >
           {mode === "keyword" ? "Rechercher" : "Analyser"}
         </PendingSubmitButton>

@@ -4,6 +4,8 @@ const SIZES = {
   sm: { box: "size-8 text-xs", px: 32 },
   md: { box: "size-10 text-sm", px: 40 },
   lg: { box: "size-16 text-xl", px: 64 },
+  // Carte mentor de « Découvrir »
+  listing: { box: "size-14 text-lg", px: 56 },
   card: { box: "size-20 text-2xl", px: 80 },
   xl: { box: "size-28 text-4xl", px: 112 },
   "2xl": { box: "size-36 text-5xl sm:size-44", px: 176 },

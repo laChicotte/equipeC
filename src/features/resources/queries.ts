@@ -4,7 +4,7 @@ import type { Resource, ResourceKind } from "@/types/database";
 
 export type ResourceView = Resource & {
   domain: { name: string; slug: string } | null;
-  author: { id: string; full_name: string; job_title: string | null } | null;
+  author: { id: string; full_name: string; job_title: string | null; avatar_url: string | null } | null;
 };
 
 /** Ressources, les plus récentes d'abord, filtrables par domaine et par type. */
@@ -22,7 +22,7 @@ export async function getResources({
     .select(
       `id, author_id, domain_id, kind, title, description, url, created_at,
        domain:domains${domain ? "!inner" : ""} ( name, slug ),
-       author:profiles ( id, full_name, job_title )`,
+       author:profiles ( id, full_name, job_title, avatar_url )`,
     )
     .order("created_at", { ascending: false })
     .limit(100);

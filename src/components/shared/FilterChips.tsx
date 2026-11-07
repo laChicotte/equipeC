@@ -24,7 +24,7 @@ export function FilterChips({ chips, label, scroll = false }: { chips: Chip[]; l
           aria-current={chip.active ? "true" : undefined}
           className={`shrink-0 rounded-full border px-4 py-2 text-sm whitespace-nowrap transition-colors ${
             chip.active
-              ? "border-ink-900 bg-ink-900 font-medium text-white"
+              ? "border-brand-700 bg-brand-700 font-medium text-white"
               : "border-slate-200 bg-white text-ink-700 hover:border-brand-600 hover:text-brand-700"
           }`}
         >
