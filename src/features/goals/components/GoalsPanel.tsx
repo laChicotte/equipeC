@@ -6,6 +6,7 @@ import { GoalForm } from "./GoalForm";
 import { Card } from "@/components/ui/Card";
 import { formatDueDate, todayInConakry } from "@/lib/datetime";
 import type { GoalStatus } from "@/types/database";
+import { TargetIcon } from "@/components/ui/icons";
 
 const NEXT_STATUS: Record<GoalStatus, GoalStatus> = {
   todo: "in_progress",
@@ -100,7 +101,12 @@ export async function GoalsPanel({
   return (
     <Card>
       <div className="mb-2 flex items-baseline justify-between">
-        <h2 className="font-semibold">Objectifs</h2>
+        <h2 className="flex items-center gap-2.5 text-lg font-bold">
+          <span className="inline-flex size-9 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+            <TargetIcon className="size-5" />
+          </span>
+          Objectifs
+        </h2>
         {total > 0 && (
           <span className="text-sm text-ink-500">
             {done}/{total} atteint{done > 1 ? "s" : ""}

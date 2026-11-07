@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabaseEnv } from "./env";
+import { resilientFetch } from "./resilient-fetch";
 
 /**
  * Client Supabase pour le code serveur : Server Components,
@@ -14,6 +15,8 @@ export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(url, publishableKey, {
+    // Lectures retentées en cas de coupure réseau passagère (voir resilient-fetch.ts)
+    global: { fetch: resilientFetch },
     cookies: {
       getAll() {
         return cookieStore.getAll();

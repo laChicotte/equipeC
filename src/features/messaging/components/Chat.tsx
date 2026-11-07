@@ -17,6 +17,8 @@ type Props = {
   canWrite: boolean;
   /** Interlocuteur affiché dans l'en-tête de la discussion */
   partner?: { name: string; avatarUrl: string | null; subtitle?: string };
+  /** Utilisateur connecté (avatar de ses propres messages) */
+  me?: { avatarUrl: string | null };
 };
 
 /** Icône « envoyer » (avion en papier). */
@@ -36,7 +38,7 @@ function addMessage(list: Message[], message: Message) {
   return [...list, message].sort((a, b) => a.id - b.id);
 }
 
-export function Chat({ mentorshipId, currentUserId, names, initialMessages, canWrite, partner }: Props) {
+export function Chat({ mentorshipId, currentUserId, names, initialMessages, canWrite, partner, me }: Props) {
   // Un seul client Supabase navigateur pour toute la vie du composant
   const supabase = useMemo(() => createClient(), []);
   const [messages, setMessages] = useState(initialMessages);
@@ -130,7 +132,7 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
   }
 
   return (
-    <section className="flex flex-col overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-card">
+    <section className="flex flex-col overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-card lg:h-full">
       {/* En-tête : interlocuteur + état de la connexion temps réel */}
       <header className="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
         {partner && <Avatar name={partner.name} src={partner.avatarUrl} size="md" />}
@@ -152,7 +154,7 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
       </header>
 
       <div
-        className="flex h-[58vh] min-h-80 flex-col overflow-y-auto bg-gradient-to-b from-slate-50 to-white px-4 py-5 sm:px-6"
+        className="flex h-[58vh] min-h-80 flex-col overflow-y-auto bg-white px-4 py-5 sm:px-6 lg:h-auto lg:min-h-0 lg:flex-1"
         aria-live="polite"
         aria-label="Messages"
       >
@@ -189,23 +191,23 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
                   sameSenderAsPrevious ? "mt-1" : "mt-4"
                 }`}
               >
-                {!mine && (
-                  <span className={sameSenderAsPrevious ? "invisible" : ""}>
-                    <Avatar name={name} src={partner && name === partner.name ? partner.avatarUrl : null} size="sm" />
-                  </span>
-                )}
+                <span className={sameSenderAsPrevious ? "invisible" : ""}>
+                  <Avatar
+                    name={name}
+                    src={mine ? (me?.avatarUrl ?? null) : partner && name === partner.name ? partner.avatarUrl : null}
+                    size="sm"
+                  />
+                </span>
                 <div
                   className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed sm:max-w-[70%] ${
                     mine
-                      ? "rounded-2xl rounded-br-md bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-sm shadow-brand-600/20"
-                      : "rounded-2xl rounded-bl-md bg-white text-ink-800 shadow-sm ring-1 ring-slate-200/70"
+                      ? "rounded-2xl rounded-br-md bg-brand-50 text-ink-900 shadow-sm ring-1 ring-brand-100"
+                      : "rounded-2xl rounded-bl-md bg-slate-50 text-ink-800 shadow-sm ring-1 ring-slate-200/70"
                   }`}
                 >
-                  {!mine && !sameSenderAsPrevious && (
-                    <p className="mb-0.5 text-xs font-semibold text-brand-600">{name}</p>
-                  )}
+                  {!sameSenderAsPrevious && <p className="mb-0.5 text-xs font-semibold text-brand-700">{name}</p>}
                   <p className="break-words whitespace-pre-wrap">{message.content}</p>
-                  <p className={`mt-1 text-right text-[11px] ${mine ? "text-white/70" : "text-slate-400"}`}>
+                  <p className="mt-1 text-right text-[11px] text-ink-500">
                     <time dateTime={message.created_at}>{formatTime(message.created_at)}</time>
                   </p>
                 </div>
@@ -218,7 +220,7 @@ export function Chat({ mentorshipId, currentUserId, names, initialMessages, canW
 
       {canWrite ? (
         <form onSubmit={send} className="border-t border-slate-100 bg-white p-3 sm:p-4">
-          <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1.5 transition-colors focus-within:border-brand-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100">
+          <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 transition-colors focus-within:border-brand-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100">
             <label htmlFor="chat-input" className="sr-only">
               Votre message
             </label>

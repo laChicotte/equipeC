@@ -167,12 +167,17 @@ function SidebarContent({
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="px-7 pt-7 pb-6">
-        <Logo href="/dashboard" />
+    <div className="relative flex h-full flex-col overflow-hidden text-white">
+      {/* Vague décorative (maquette) */}
+      <svg aria-hidden viewBox="0 0 300 400" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 w-full text-white/[0.06]">
+        <path d="M0 140C90 60 200 40 300 0v400H0Z" fill="currentColor" />
+        <path d="M0 260C110 190 210 170 300 130v270H0Z" fill="currentColor" />
+      </svg>
+      <div className="relative px-7 pt-7 pb-6">
+        <Logo href="/dashboard" tone="light" />
       </div>
 
-      <nav aria-label="Navigation principale" className="flex-1 overflow-y-auto px-5">
+      <nav aria-label="Navigation principale" className="relative flex-1 overflow-y-auto px-4">
         <ul className="flex flex-col gap-1">
           {[...NAV, ...(user?.isAdmin ? [ADMIN_LINK] : [])].map((item) => {
             const active = [item.href, ...(("also" in item && item.also) || [])].some(
@@ -185,10 +190,10 @@ function SidebarContent({
                   href={item.href}
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
-                  className={`relative flex items-center gap-4 rounded-2xl px-4 py-2.5 text-[15px] transition-colors duration-200 ${
+                  className={`relative flex items-center gap-4 rounded-2xl px-4 py-2.5 text-[15px] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white ${
                     active
-                      ? "bg-brand-50 font-semibold text-brand-700 before:absolute before:inset-y-2.5 before:left-0 before:w-1 before:rounded-full before:bg-brand-500"
-                      : "text-ink-500 hover:bg-slate-50 hover:text-ink-900"
+                      ? "bg-brand-100 font-semibold text-ink-900 shadow-sm"
+                      : "text-white/85 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   {icon(item.icon)}
@@ -206,8 +211,8 @@ function SidebarContent({
         </ul>
       </nav>
 
-      {/* Encadré d'aide (vert forêt) — masqué sur les écrans peu hauts */}
-      <div className="px-5 pt-4 [@media(max-height:760px)]:hidden">
+      {/* Ancien encadré d'aide : remplacé par le chatbox d'aide, comme sur la maquette */}
+      <div className="hidden">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-dark p-5 text-white">
           <div aria-hidden className="absolute -top-12 -right-12 size-36 rounded-full bg-brand-500/35 blur-2xl" />
           <span className="relative text-accent-400">{icon(ICONS.sparkle, "size-6")}</span>
@@ -229,12 +234,12 @@ function SidebarContent({
 
       {/* Compte : toujours visible en bas du menu (profil, déconnexion) */}
       {user && (
-        <div className="m-5 mt-4 flex items-center gap-3 rounded-2xl border border-slate-200/70 p-3">
+        <div className="relative m-4 mt-4 flex items-center gap-3 rounded-2xl border border-white/25 bg-white/5 p-3 backdrop-blur-sm">
           <Link href="/profile" onClick={onNavigate} className="flex min-w-0 flex-1 items-center gap-3" title="Mon profil">
             <Avatar name={user.fullName} src={user.avatarUrl} size="sm" />
             <span className="min-w-0 leading-tight">
-              <span className="block truncate text-sm font-semibold text-ink-900">{user.fullName}</span>
-              <span className="block text-xs text-ink-500">{user.roleLabel} · Mon profil</span>
+              <span className="block truncate text-sm font-semibold text-white">{user.fullName}</span>
+              <span className="block text-xs text-white/70">{user.roleLabel} · Mon profil</span>
             </span>
           </Link>
           {user.switchTo && (
@@ -243,7 +248,7 @@ function SidebarContent({
               <button
                 aria-label={user.switchTo === "mentor" ? "Passer en mode mentor" : "Passer en mode mentoré"}
                 title={user.switchTo === "mentor" ? "Passer en mode mentor" : "Passer en mode mentoré"}
-                className="inline-flex size-9 items-center justify-center rounded-xl text-ink-500 transition-colors hover:bg-brand-50 hover:text-brand-700"
+                className="inline-flex size-9 items-center justify-center rounded-xl text-white/80 transition-colors hover:bg-white/10 hover:text-white"
               >
                 {icon(<path d="M7 7h11l-3-3M17 17H6l3 3" />, "size-5")}
               </button>
@@ -253,7 +258,7 @@ function SidebarContent({
             <button
               aria-label="Se déconnecter"
               title="Se déconnecter"
-              className="inline-flex size-9 items-center justify-center rounded-xl text-ink-500 transition-colors hover:bg-red-50 hover:text-red-600"
+              className="inline-flex size-9 items-center justify-center rounded-xl text-white/80 transition-colors hover:bg-white/10 hover:text-white"
             >
               {icon(<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" />, "size-5")}
             </button>
@@ -323,7 +328,7 @@ export function AppShell({
   return (
     <div className="flex min-h-full flex-1">
       {/* Ordinateur : barre latérale fixe */}
-      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 border-r border-slate-200/70 bg-white lg:block">
+      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 bg-gradient-to-b from-brand-800 via-[#05513f] to-[#043b30] lg:block">
         <SidebarContent user={user} badges={badges} />
       </aside>
 
@@ -337,7 +342,7 @@ export function AppShell({
             className="absolute inset-0 bg-ink-900/40"
             onClick={() => setOpen(false)}
           />
-          <aside ref={drawerRef} className="absolute inset-y-0 left-0 w-80 max-w-[85%] overflow-y-auto bg-white shadow-xl">
+          <aside ref={drawerRef} className="absolute inset-y-0 left-0 w-80 max-w-[85%] overflow-y-auto bg-gradient-to-b from-brand-800 via-[#05513f] to-[#043b30] shadow-xl">
             <SidebarContent user={user} badges={badges} onNavigate={() => setOpen(false)} />
           </aside>
         </div>

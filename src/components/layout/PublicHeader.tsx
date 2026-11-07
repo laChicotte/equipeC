@@ -1,23 +1,33 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { ButtonLink } from "@/components/ui/Button";
 import { CloseIcon, MenuIcon } from "@/components/ui/icons";
 
+/**
+ * Liens de la maquette. Mentors, Ressources et Événements (ateliers) sont des
+ * pages réservées aux membres : un visiteur passe d'abord par la connexion.
+ */
 const LINKS = [
-  { href: "/#piliers", label: "Notre mission" },
-  { href: "/#parcours", label: "Comment ça marche" },
+  { href: "/", label: "Accueil" },
+  { href: "/mentors", label: "Mentors" },
   { href: "/#domaines", label: "Domaines" },
-  { href: "/mentors", label: "Nos mentors" },
+  { href: "/resources", label: "Ressources" },
+  { href: "/workshops", label: "Événements" },
+  { href: "/#apropos", label: "À propos" },
 ];
 
-// Liens du menu : trait vert qui se déploie sous le lien au survol (et au focus clavier)
+/** Page active : seule « Accueil » (chemin exact) et les pages réelles comptent, pas les ancres. */
+const isActive = (href: string, pathname: string) =>
+  !href.includes("#") && (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`));
 
 /** En-tête des pages publiques : menu horizontal (ordinateur) ou tiroir (mobile). */
 export function PublicHeader({ loggedIn }: { loggedIn: boolean }) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   // Échap ferme le menu mobile
   useEffect(() => {
@@ -31,23 +41,33 @@ export function PublicHeader({ loggedIn }: { loggedIn: boolean }) {
     <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-8">
         <Logo />
-        <nav aria-label="Navigation principale" className="hidden items-center gap-8 text-[15px] font-medium text-ink-700 lg:flex">
-          {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="relative transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-brand-600 after:transition-transform after:duration-300 hover:text-brand-700 hover:after:scale-x-100 focus-visible:after:scale-x-100 motion-reduce:after:transition-none">
-              {l.label}
-            </Link>
-          ))}
+        <nav aria-label="Navigation principale" className="hidden items-center gap-1 text-[15px] font-medium text-ink-700 lg:flex xl:gap-2">
+          {LINKS.map((l) => {
+            const active = isActive(l.href, pathname);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                aria-current={active ? "page" : undefined}
+                className={`rounded-[10px] px-3.5 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-brand-600 ${
+                  active ? "bg-brand-50 font-semibold text-brand-800" : "hover:bg-slate-50 hover:text-brand-700"
+                }`}
+              >
+                {l.label}
+              </Link>
+            );
+          })}
         </nav>
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Masqués sur mobile (repris dans le tiroir) ; enveloppe car ButtonLink impose inline-flex */}
-          <div className="hidden items-center gap-4 sm:flex">
+          <div className="hidden items-center gap-3 sm:flex">
             {loggedIn ? (
               <ButtonLink href="/dashboard">Mon espace</ButtonLink>
             ) : (
               <>
-                <Link href="/login" className="mx-2 font-semibold text-ink-900 relative transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-brand-600 after:transition-transform after:duration-300 hover:text-brand-700 hover:after:scale-x-100 focus-visible:after:scale-x-100 motion-reduce:after:transition-none">
+                <ButtonLink href="/login" variant="secondary" className="border-brand-700/40 text-brand-800">
                   Se connecter
-                </Link>
+                </ButtonLink>
                 <ButtonLink href="/signup">Commencer</ButtonLink>
               </>
             )}

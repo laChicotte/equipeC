@@ -3,6 +3,7 @@ import { SessionForm } from "./SessionForm";
 import { SessionItem } from "./SessionItem";
 import { Card } from "@/components/ui/Card";
 import { nowAsConakryInput } from "@/lib/datetime";
+import { CalendarIcon } from "@/components/ui/icons";
 
 /** Bloc « Séances » de l'espace de mentorat : à venir, à évaluer, historique. */
 export async function SessionsPanel({
@@ -46,7 +47,12 @@ export async function SessionsPanel({
 
   return (
     <Card>
-      <h2 className="mb-3 font-semibold">Séances</h2>
+      <h2 className="mb-3 flex items-center gap-2.5 text-lg font-bold">
+        <span className="inline-flex size-9 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+          <CalendarIcon className="size-5" />
+        </span>
+        Séances
+      </h2>
 
       {upcoming.length > 0 ? (
         <ul className="mb-4 flex flex-col gap-2">{upcoming.map((s) => item(s, isActive))}</ul>
