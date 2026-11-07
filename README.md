@@ -104,5 +104,6 @@ tests/              Tests unitaires
 
 ## Livrables du hackathon
 
+- [Cahier des charges (TDR)](docs/CAHIER-DES-CHARGES.md) : termes de référence du programme « Talents connect » (domaines §5, fonctionnalités §7.2, livrables §11)
 - [Démonstration du parcours utilisateur](docs/DEMO.md) : déroulé minuté et comptes de démonstration
 - [Note de pérennisation](docs/PERENNISATION.md) : pistes de développement, besoins d'accompagnement, conditions de déploiement
