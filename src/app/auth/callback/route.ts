@@ -2,8 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * Retour de Supabase après une connexion Google / GitHub ou un lien
- * « mot de passe oublié » : on échange le code contre une session (cookies).
+ * Retour de Supabase après un lien reçu par email (« mot de passe oublié »,
+ * confirmation d'adresse) : on échange le code contre une session (cookies).
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
@@ -18,6 +18,6 @@ export async function GET(request: NextRequest) {
     if (!error) return NextResponse.redirect(new URL(next, origin));
   }
 
-  const failed = next === "/reset-password" ? "/forgot-password?error=link" : "/login?error=oauth";
+  const failed = next === "/reset-password" ? "/forgot-password?error=link" : "/login?error=link";
   return NextResponse.redirect(new URL(failed, origin));
 }

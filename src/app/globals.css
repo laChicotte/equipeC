@@ -166,8 +166,8 @@ body {
 }
 
 /*
- * Écran de lancement : uniquement dans l'application installée (ouverte depuis
- * l'écran d'accueil). Logo centré sur fond sarcelle, puis fondu après ~1 s.
+ * Écran de lancement : logo centré sur fond vert forêt, barre de progression,
+ * puis fondu (voir le détail ci-dessous).
  */
 .app-splash {
   display: none;
@@ -175,9 +175,9 @@ body {
 /*
  * Affiché au lancement (classe « splash » posée par le script du <head>, voir
  * layout.tsx) : application installée à chaque ouverture, navigateur une fois
- * par session. Le logo tourne jusqu'au chargement complet de la page
- * (classe « app-ready »), puis l'écran s'efface. Sécurité : il s'efface seul
- * au bout de 8 s quoi qu'il arrive.
+ * par session. Le logo tourne au moins 4,5 s et jusqu'au chargement complet
+ * de la page (classe « app-ready »), puis l'écran s'efface. Sécurité : il
+ * s'efface seul au bout de 8 s quoi qu'il arrive.
  */
 html.splash .app-splash {
   position: fixed;
@@ -198,6 +198,16 @@ html.splash.app-ready .app-splash {
 }
 .app-splash-logo {
   animation: splash-spin 1.1s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+/* Barre de progression : se remplit en 4,5 s (durée minimale d'affichage) */
+.app-splash-bar > span {
+  width: 0;
+  animation: splash-fill 4.5s ease-out forwards;
+}
+@keyframes splash-fill {
+  to {
+    width: 100%;
+  }
 }
 @keyframes splash-spin {
   to {

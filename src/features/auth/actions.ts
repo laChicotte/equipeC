@@ -108,31 +108,6 @@ async function siteOrigin(): Promise<string> {
   return `${proto}://${host}`;
 }
 
-const OAUTH_PROVIDERS = ["google", "github", "facebook"] as const;
-
-/**
- * Connexion avec Google ou GitHub : Supabase renvoie l'URL du fournisseur,
- * qui redirigera ensuite vers /auth/callback.
- * Le fournisseur doit être activé dans Supabase (Authentication → Providers).
- */
-export async function signInWithProvider(formData: FormData): Promise<void> {
-  const provider = formData.get("provider");
-  if (!OAUTH_PROVIDERS.includes(provider as (typeof OAUTH_PROVIDERS)[number])) {
-    redirect("/login");
-  }
-
-  const origin = await siteOrigin();
-  const next = safeNextPath(formData.get("next"));
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: provider as (typeof OAUTH_PROVIDERS)[number],
-    options: { redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}` },
-  });
-
-  if (error || !data.url) redirect("/login?error=oauth");
-  redirect(data.url);
-}
-
 const resetRequestSchema = z.object({
   email: z.email("Adresse email invalide").trim().toLowerCase(),
 });
